@@ -30,11 +30,12 @@ const Minimal_Shape = class Minimal_Shape extends tiny.Vertex_Buffer {
     super('position', 'normal', 'texture_coord')
     // Describe the where the points of a triangle are in space, and also describe their colors:
     // TODO: Edit the position and color here
-    const { vertices, normals, texture_coords } =
+    const { vertices, normals, texture_coords, indices } =
       getExample()
     this.arrays.position = vertices
     this.arrays.normal = normals
     this.arrays.texture_coord = texture_coords
+    this.indices = indices
   }
 }
 
@@ -226,8 +227,9 @@ export class Transforms_Sandbox extends Transforms_Sandbox_Base {
     // one another (new box radius = 2, ball radius = 1, coordinate
     // frame axis is currently doubled in size).
     model_transform = model_transform
-      .times(Mat4.translation(0, -1.5, 0))
-      .times(Mat4.scale(3, 3, 3))
+      .times(Mat4.translation(0, -2.5, 0))
+      .times(Mat4.rotation(Math.PI * 0.75, 0, 1, 0))
+    // .times(Mat4.scale(3, 3, 3))
     // Draw the bottom (child) box:
     this.shapes.box.draw(
       context,
