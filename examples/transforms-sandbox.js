@@ -1,5 +1,4 @@
 import { defs, tiny } from './common.js'
-import getExample from '../marching_cubes/example.js'
 // Pull these names into this module's scope for convenience:
 const {
   vec3,
