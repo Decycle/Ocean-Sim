@@ -1,5 +1,6 @@
 import { defs, tiny } from './examples/common.js'
 import Ocean_Shader from './ocean_shader.js'
+import PostProcessingShader from './post_processing.js'
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -11,6 +12,7 @@ const {
   Material,
   Scene,
   Light,
+  Texture,
 } = tiny
 
 const { Phong_Shader, Basic_Shader, Cube } = defs
@@ -55,7 +57,17 @@ export class Project_Scene extends Scene {
   // **Minimal_Webgl_Demo** is an extremely simple example of a Scene class.
   constructor(webgl_manager, control_panel) {
     super(webgl_manager, control_panel)
-    // Don't create any DOM elements to control this scene:
+
+    this.scratchpad = document.createElement('canvas')
+    // A hidden canvas for re-sizing the real canvas to be square:
+    this.scratchpad_context =
+      this.scratchpad.getContext('2d')
+    this.scratchpad.width = 1024
+    this.scratchpad.height = 1024 // Initial image source: Blank gif file:
+    this.texture = new Texture(
+      'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+    )
+
     this.widget_options = {
       make_controls: false,
       show_explanation: false,
@@ -63,10 +75,19 @@ export class Project_Scene extends Scene {
     // Send a Triangle's vertices to the GPU buffers:
     this.shapes = {
       ocean: new Ocean(),
-      cube: new Cube(),
+      screen_quad: new defs.Square(),
     }
-    this.cube_material = new Material(new Basic_Shader())
-    this.material = new Material(new Ocean_Shader())
+    this.materials = {
+      ocean: new Material(new Ocean_Shader()),
+      cube: new Material(new Phong_Shader()),
+      postprocess: new Material(
+        new PostProcessingShader(),
+        {
+          texture: this.texture,
+        }
+      ),
+    }
+    this.skipped_first_frame = false
   }
 
   display(context, program_state) {
@@ -77,17 +98,6 @@ export class Project_Scene extends Scene {
       1,
       100
     )
-
-    // const cube_transform = Mat4.identity()
-    //   .times(Mat4.translation(0, 0, -5))
-    //   .times(Mat4.scale(0.3, 0.3, 0.3))
-
-    // this.shapes.cube.draw(
-    //   context,
-    //   program_state,
-    //   cube_transform,
-    //   this.cube_material
-    // )
 
     const model_transform = Mat4.identity()
       .times(Mat4.rotation(-1, 1, 0, 0))
@@ -104,7 +114,38 @@ export class Project_Scene extends Scene {
       context,
       program_state,
       model_transform,
-      this.material
+      this.materials.ocean
+    )
+
+    this.scratchpad_context.drawImage(
+      context.canvas,
+      0,
+      0,
+      1024,
+      1024
+    )
+
+    this.texture.image.src =
+      this.scratchpad.toDataURL('image/png')
+
+    if (this.skipped_first_frame)
+      // Update the texture with the current scene:
+      this.texture.copy_onto_graphics_card(
+        context.context,
+        false
+      )
+    this.skipped_first_frame = true
+
+    context.context.clear(
+      context.context.COLOR_BUFFER_BIT |
+        context.context.DEPTH_BUFFER_BIT
+    )
+
+    this.shapes.screen_quad.draw(
+      context,
+      program_state,
+      Mat4.identity(),
+      this.materials.postprocess
     )
   }
 }
