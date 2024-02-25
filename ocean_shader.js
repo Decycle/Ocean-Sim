@@ -14,15 +14,27 @@ class Ocean_Shader extends Shader {
   ) {
     // update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
     const [P, C, M] = [
-        graphics_state.projection_transform,
-        graphics_state.camera_inverse,
-        model_transform,
-      ],
-      PCM = P.times(C).times(M)
+      graphics_state.projection_transform,
+      graphics_state.camera_inverse,
+      model_transform,
+    ]
+
     context.uniformMatrix4fv(
-      gpu_addresses.projection_camera_model_transform,
+      gpu_addresses.projection_transform,
       false,
-      Matrix.flatten_2D_to_1D(PCM.transposed())
+      Matrix.flatten_2D_to_1D(P.transposed())
+    )
+
+    context.uniformMatrix4fv(
+      gpu_addresses.camera_inverse,
+      false,
+      Matrix.flatten_2D_to_1D(C.transposed())
+    )
+
+    context.uniformMatrix4fv(
+      gpu_addresses.model_transform,
+      false,
+      Matrix.flatten_2D_to_1D(model_transform.transposed())
     )
 
     context.uniform1f(
@@ -35,7 +47,8 @@ class Ocean_Shader extends Shader {
     return `precision mediump float;
             varying vec3 VERTEX_POS;
             varying vec3 VERTEX_NORMAL;
-            `
+            varying float Z;
+      `
   }
 
   vertex_glsl_code() {
@@ -47,7 +60,10 @@ class Ocean_Shader extends Shader {
         attribute vec4 color;
         attribute vec3 position;
         // Position is expressed in object coordinates.
-        uniform mat4 projection_camera_model_transform;
+
+        uniform mat4 projection_transform;
+        uniform mat4 camera_inverse;
+        uniform mat4 model_transform;
 
         #define PI 3.1415926535897932384626433832795
         #define DRAG_MULT 0.1
@@ -96,6 +112,8 @@ class Ocean_Shader extends Shader {
             float wave = octaveWaves(uv);
             vec3 new_position = vec3(uv, wave * 0.2);
 
+            mat4 projection_camera_model_transform = projection_transform * camera_inverse * model_transform;
+
             gl_Position = projection_camera_model_transform * vec4( new_position, 1.0 );
             VERTEX_POS = new_position;
 
@@ -108,6 +126,7 @@ class Ocean_Shader extends Shader {
             vec3 normal = normalize(vec3(-dx, -dy, eps));
 
             VERTEX_NORMAL = normal;
+            Z = gl_Position.z;
         }
         `
     )
@@ -150,7 +169,15 @@ class Ocean_Shader extends Shader {
         // diffuse
         // seaColor *= mix(0.9, 1.0, diffuse);
 
-        gl_FragColor = vec4(aces_tonemap(seaColor), 0.7);
+        // gl_FragColor = vec4(aces_tonemap(seaColor), 0.7);
+        gl_FragColor = vec4(seaColor, 1.0);
+
+        float minFog = -0.8;
+        float maxFog = 0.5;
+        float fog = smoothstep(minFog, maxFog, Z);
+        vec3 fogColor = vec3(0.8, 0.9, 1.0);
+        gl_FragColor = mix(gl_FragColor, vec4(fogColor, 1.0), fog);
+        // gl_FragColor = vec4(fog, fog, fog, 1.0);
       }
       `
     )
