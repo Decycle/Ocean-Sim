@@ -1,6 +1,7 @@
 import { defs, tiny } from './examples/common.js'
 import Ocean_Shader from './shaders/ocean.js'
 import PostProcessingShader from './shaders/post_processing.js'
+import BackgroundShader from './shaders/background.js'
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -22,9 +23,8 @@ const Ocean = class Ocean extends tiny.Vertex_Buffer {
   // vertices each holding a 3D position and a color.
   constructor() {
     super('position')
-    // Describe the where the points of a triangle are in space, and also describe their colors:
-    // TODO: Edit the position and color here
-    const boundary = 5
+
+    const boundary = 20
     const subdivision = 100
     const step = (2 * boundary) / subdivision
     const position = []
@@ -76,15 +76,16 @@ export class Project_Scene extends Scene {
     this.shapes = {
       ocean: new Ocean(),
       screen_quad: new defs.Square(),
+      box: new Cube(),
     }
 
-    this.amplitude = 0.07
-    this.waveMut = 1.2
-    this.seed = 1941.52
+    this.amplitude = 0.06
+    this.waveMut = 0.26
+    this.seed = 2887.776396078172
 
-    this.amplitudeMultiplier = 0.9
-    this.waveMultiplier = 1.11
-    this.seedOffset = 1232.399963
+    this.amplitudeMultiplier = 0.95
+    this.waveMultiplier = 1.1
+    this.seedOffset = 7250.531321143898
 
     this.materials = {
       ocean: new Material(new Ocean_Shader(), {
@@ -94,161 +95,261 @@ export class Project_Scene extends Scene {
         amplitudeMultiplier: this.amplitudeMultiplier,
         waveMultiplier: this.waveMultiplier,
         seedOffset: this.seedOffset,
+        sea_color: hex_color('#3b5998'),
       }),
-      cube: new Material(new Phong_Shader()),
+      box: new Material(new Basic_Shader()),
       postprocess: new Material(
         new PostProcessingShader(),
         {
           texture: this.texture,
         }
       ),
+      background: new Material(new BackgroundShader(), {
+        color: hex_color('#3b5998'),
+      }),
     }
     this.skipped_first_frame = false
+
+    this.boat_position = vec3(0, 0, 0)
+    this.boat_velocity = vec3(0, 0, 0)
+
+    this.show_advanced_controls = false
   }
 
   make_control_panel() {
     this.control_panel.innerHTML += 'blah blah blah'
 
-    this.new_line()
+    const speed = 10
 
-    this.key_triggered_button('+', ['a'], () => {
-      this.amplitude += 0.01
+    this.key_triggered_button('Left', ['a'], () => {
+      this.boat_velocity[0] -= (1 / 60) * speed
     })
 
-    this.key_triggered_button('+', ['Control', 'a'], () => {
-      this.amplitude += 0.1
+    this.key_triggered_button('Right', ['d'], () => {
+      this.boat_velocity[0] += (1 / 60) * speed
     })
 
-    this.live_string((box) => {
-      box.textContent = `Amplitude: ${this.amplitude.toFixed(
-        2
-      )}`
+    this.key_triggered_button('Forward', ['w'], () => {
+      this.boat_velocity[1] += (1 / 60) * speed
     })
 
-    this.key_triggered_button('-', ['s'], () => {
-      this.amplitude = Math.max(0, this.amplitude - 0.01)
-    })
-
-    this.key_triggered_button('-', ['Control', 's'], () => {
-      this.amplitude = Math.max(0, this.amplitude - 0.1)
+    this.key_triggered_button('Backward', ['s'], () => {
+      this.boat_velocity[1] -= (1 / 60) * speed
     })
 
     this.new_line()
 
-    this.key_triggered_button('+', ['z'], () => {
-      this.amplitudeMultiplier += 0.01
-    })
+    if (this.show_advanced_controls) {
+      this.key_triggered_button('+', ['a'], () => {
+        this.amplitude += 0.01
+      })
 
-    this.key_triggered_button('+', ['Control', 'z'], () => {
-      this.amplitudeMultiplier += 0.1
-    })
-
-    this.live_string((box) => {
-      box.textContent = `Amplitude Multiplier: ${this.amplitudeMultiplier.toFixed(
-        2
-      )}`
-    })
-
-    this.key_triggered_button('-', ['x'], () => {
-      this.amplitudeMultiplier = Math.max(
-        0,
-        this.amplitudeMultiplier - 0.01
+      this.key_triggered_button(
+        '+',
+        ['Control', 'a'],
+        () => {
+          this.amplitude += 0.1
+        }
       )
-    })
 
-    this.key_triggered_button('-', ['Control', 'x'], () => {
-      this.amplitudeMultiplier = Math.max(
-        0,
-        this.amplitudeMultiplier - 0.1
+      this.live_string((box) => {
+        box.textContent = `Amplitude: ${this.amplitude.toFixed(
+          2
+        )}`
+      })
+
+      this.key_triggered_button('-', ['s'], () => {
+        this.amplitude = Math.max(0, this.amplitude - 0.01)
+      })
+
+      this.key_triggered_button(
+        '-',
+        ['Control', 's'],
+        () => {
+          this.amplitude = Math.max(0, this.amplitude - 0.1)
+        }
       )
-    })
 
-    this.new_line()
+      this.new_line()
 
-    this.key_triggered_button('+', ['d'], () => {
-      this.waveMut += 0.01
-    })
+      this.key_triggered_button('+', ['z'], () => {
+        this.amplitudeMultiplier += 0.01
+      })
 
-    this.key_triggered_button('+', ['Control', 'd'], () => {
-      this.waveMut += 0.1
-    })
-
-    this.live_string((box) => {
-      box.textContent = `Starting Wave Multiplier: ${this.waveMut.toFixed(
-        2
-      )}`
-    })
-
-    this.key_triggered_button('-', ['f'], () => {
-      this.waveMut = Math.max(0, this.waveMut - 0.01)
-    })
-
-    this.key_triggered_button('-', ['Control', 'f'], () => {
-      this.waveMut = Math.max(0, this.waveMut - 0.1)
-    })
-
-    this.new_line()
-
-    this.key_triggered_button('+', ['q'], () => {
-      this.waveMultiplier += 0.01
-    })
-
-    this.key_triggered_button('+', ['Control', 'q'], () => {
-      this.waveMultiplier += 0.1
-    })
-
-    this.live_string((box) => {
-      box.textContent = `Progressive Wave Multiplier: ${this.waveMultiplier.toFixed(
-        2
-      )}`
-    })
-
-    this.key_triggered_button('-', ['w'], () => {
-      this.waveMultiplier = Math.max(
-        0,
-        this.waveMultiplier - 0.01
+      this.key_triggered_button(
+        '+',
+        ['Control', 'z'],
+        () => {
+          this.amplitudeMultiplier += 0.1
+        }
       )
-    })
 
-    this.key_triggered_button('-', ['Control', 'w'], () => {
-      this.waveMultiplier = Math.max(
-        0,
-        this.waveMultiplier - 0.1
+      this.live_string((box) => {
+        box.textContent = `Amplitude Multiplier: ${this.amplitudeMultiplier.toFixed(
+          2
+        )}`
+      })
+
+      this.key_triggered_button('-', ['x'], () => {
+        this.amplitudeMultiplier = Math.max(
+          0,
+          this.amplitudeMultiplier - 0.01
+        )
+      })
+
+      this.key_triggered_button(
+        '-',
+        ['Control', 'x'],
+        () => {
+          this.amplitudeMultiplier = Math.max(
+            0,
+            this.amplitudeMultiplier - 0.1
+          )
+        }
       )
-    })
 
-    this.new_line()
+      this.new_line()
 
-    this.key_triggered_button('randomize', ['r'], () => {
-      this.seed = Math.random() * 10000
-      this.seedOffset = Math.random() * 10000
-    })
+      this.key_triggered_button('+', ['d'], () => {
+        this.waveMut += 0.01
+      })
 
-    this.live_string((box) => {
-      box.textContent = `Seed: ${this.seed} | Seed Offset: ${this.seedOffset}`
-    })
+      this.key_triggered_button(
+        '+',
+        ['Control', 'd'],
+        () => {
+          this.waveMut += 0.1
+        }
+      )
+
+      this.live_string((box) => {
+        box.textContent = `Starting Wave Multiplier: ${this.waveMut.toFixed(
+          2
+        )}`
+      })
+
+      this.key_triggered_button('-', ['f'], () => {
+        this.waveMut = Math.max(0, this.waveMut - 0.01)
+      })
+
+      this.key_triggered_button(
+        '-',
+        ['Control', 'f'],
+        () => {
+          this.waveMut = Math.max(0, this.waveMut - 0.1)
+        }
+      )
+
+      this.new_line()
+
+      this.key_triggered_button('+', ['q'], () => {
+        this.waveMultiplier += 0.01
+      })
+
+      this.key_triggered_button(
+        '+',
+        ['Control', 'q'],
+        () => {
+          this.waveMultiplier += 0.1
+        }
+      )
+
+      this.live_string((box) => {
+        box.textContent = `Progressive Wave Multiplier: ${this.waveMultiplier.toFixed(
+          2
+        )}`
+      })
+
+      this.key_triggered_button('-', ['w'], () => {
+        this.waveMultiplier = Math.max(
+          0,
+          this.waveMultiplier - 0.01
+        )
+      })
+
+      this.key_triggered_button(
+        '-',
+        ['Control', 'w'],
+        () => {
+          this.waveMultiplier = Math.max(
+            0,
+            this.waveMultiplier - 0.1
+          )
+        }
+      )
+
+      this.new_line()
+
+      this.key_triggered_button('randomize', ['r'], () => {
+        this.seed = Math.random() * 10000
+        this.seedOffset = Math.random() * 10000
+      })
+
+      this.live_string((box) => {
+        box.textContent = `Seed: ${this.seed} | Seed Offset: ${this.seedOffset}`
+      })
+    }
+  }
+
+  get_gerstner_wave(x, y, t) {
+    let amplitude = this.amplitude
+    let waveMut = this.waveMut
+    let seed = this.seed
+
+    let nx = x
+    let ny = y
+    let nz = 0
+
+    const g = 9.81
+    const ITERATIONS = 40
+
+    for (let i = 0; i < ITERATIONS; i++) {
+      const kx = Math.sin(seed)
+      const ky = Math.cos(seed)
+      const omega = Math.sqrt(g * waveMut)
+      const theta =
+        kx * waveMut * nx +
+        ky * waveMut * ny -
+        omega * t -
+        seed
+
+      nx -= kx * amplitude * Math.sin(theta)
+      ny -= ky * amplitude * Math.sin(theta)
+      nz += amplitude * Math.cos(theta)
+
+      amplitude *= this.amplitudeMultiplier
+      waveMut *= this.waveMultiplier
+      seed += this.seedOffset
+    }
+
+    return [nx, ny, nz]
   }
 
   display(context, program_state) {
-    program_state.set_camera(Mat4.translation(0, 0, -10))
+    program_state.set_camera(
+      Mat4.translation(0, 0, -7).times(
+        Mat4.rotation(-0.4, 1, 0, 0)
+      )
+    )
     program_state.projection_transform = Mat4.perspective(
       Math.PI / 4,
       context.width / context.height,
       1,
       1000
     )
+    this.shapes.screen_quad.draw(
+      context,
+      program_state,
+      Mat4.identity(),
+      this.materials.background
+    )
+
+    context.context.clear(context.context.DEPTH_BUFFER_BIT)
 
     // first pass
-    const model_transform = Mat4.identity()
-      .times(Mat4.rotation(-1, 1, 0, 0))
-      .times(
-        Mat4.rotation(
-          program_state.animation_time / 20000,
-          0,
-          0,
-          1
-        )
-      )
+    const model_transform = Mat4.identity().times(
+      Mat4.rotation(-1, 1, 0, 0)
+    )
 
     this.shapes.ocean.draw(
       context,
@@ -262,6 +363,50 @@ export class Project_Scene extends Scene {
         waveMultiplier: this.waveMultiplier,
         seedOffset: this.seedOffset,
       })
+    )
+
+    const x = this.boat_position[0]
+    const y = this.boat_position[1]
+    const z = this.boat_position[2]
+
+    const [nx, ny, nz] = this.get_gerstner_wave(
+      x,
+      y,
+      program_state.animation_time / 1000
+    )
+
+    let zForce = 0
+
+    if (z > nz) {
+      zForce = Math.min(0.5, z - nz) * -9.81 * 2
+    } else {
+      zForce = Math.min(0.5, nz - z) * 9.81 * 2
+    }
+
+    const dt = program_state.animation_delta_time / 1000
+    const force = 20
+
+    this.boat_velocity = this.boat_velocity
+      .plus(vec3(nx - x, ny - y, 0).times(force * dt))
+      .plus(vec3(0, 0, zForce).times(dt))
+
+    this.boat_position = this.boat_position.plus(
+      this.boat_velocity.minus(this.boat_position).times(dt)
+    )
+
+    this.shapes.box.draw(
+      context,
+      program_state,
+      model_transform
+        .times(
+          Mat4.translation(
+            this.boat_position[0],
+            this.boat_position[1],
+            this.boat_position[2]
+          )
+        )
+        .times(Mat4.scale(0.3, 0.3, 0.3)),
+      this.materials.box
     )
 
     // second pass

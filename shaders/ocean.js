@@ -64,6 +64,11 @@ class Ocean_Shader extends Shader {
       gpu_addresses.seed_offset,
       material.seedOffset
     )
+
+    context.uniform4fv(
+      gpu_addresses.sea_color,
+      material.sea_color
+    )
   }
   shared_glsl_code() {
     // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
@@ -158,20 +163,20 @@ class Ocean_Shader extends Shader {
       this.shared_glsl_code() +
       `
       uniform float animation_time;
+      uniform vec4 sea_color;
 
       void main(){
         // diffuse
-        vec3 light_direction = normalize(vec3(1, 1, 1));
+        vec3 light_direction = normalize(vec3(1., 1., 1.));
         vec3 normal = normalize(VERTEX_NORMAL);
         float diffuse = max(0.0, dot(normal, light_direction));
 
-        vec3 sea_color = vec3(0.27, 0.75, 1.);
-        vec3 color = sea_color * diffuse;
+        vec3 color = sea_color.xyz * diffuse;
 
         // reflection
-        vec3 eye = vec3(0, 0, 1);
+        vec3 eye = vec3(0., 0., 1.);
         vec3 reflected = reflect(-light_direction, normal);
-        float spec = pow(max(dot(reflected, eye), 0.), 10.);
+        float spec = pow(max(dot(reflected, eye), 0.), 20.);
         color += vec3(1, 1, 1) * spec;
 
         gl_FragColor = vec4( color, 1.0 );
