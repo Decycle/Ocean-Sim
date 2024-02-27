@@ -3,6 +3,7 @@ import Ocean_Shader from './shaders/ocean.js'
 import PostProcessingShader from './shaders/post_processing.js'
 import BackgroundShader from './shaders/background.js'
 import Quaternion from './util/quaternion.js'
+import { Boat } from './boat.js'
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -77,7 +78,7 @@ export class Project_Scene extends Scene {
     this.shapes = {
       ocean: new Ocean(),
       screen_quad: new defs.Square(),
-      box: new Cube(),
+      boat: new Cube(),
     }
 
     this.amplitude = 0.13
@@ -98,7 +99,12 @@ export class Project_Scene extends Scene {
         seedOffset: this.seedOffset,
         sea_color: hex_color('#3b59CC'),
       }),
-      box: new Material(new Basic_Shader()),
+      boat: new Material(new Phong_Shader(), {
+        ambient: 0.3,
+        diffusivity: 0.8,
+        specularity: 0.5,
+        color: color(0.9, 0.9, 0.9, 1),
+      }),
       postprocess: new Material(
         new PostProcessingShader(),
         {
@@ -362,6 +368,7 @@ export class Project_Scene extends Scene {
   }
 
   display(context, program_state) {
+    super.display(context, program_state)
     const t = program_state.animation_time / 1000
     const dt = program_state.animation_delta_time / 1000
 
@@ -519,7 +526,10 @@ export class Project_Scene extends Scene {
 
     const rotation = this.quaternion.toMatrix()
 
-    this.shapes.box.draw(
+    program_state.lights = [
+      new Light(vec3(1, 1, 1), hex_color('#ffffff'), 1000),
+    ]
+    this.shapes.boat.draw(
       context,
       program_state,
       Mat4.translation(
@@ -527,11 +537,17 @@ export class Project_Scene extends Scene {
         this.boat_position[1],
         this.boat_position[2]
       )
+        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
         .times(rotation)
         .times(
           Mat4.scale(boatWidth, boatHeight, boatLength)
         ),
-      this.materials.box
+      this.materials.boat.override({
+        ambient: 1.0,
+        diffusivity: 0.8,
+        specularity: 0.5,
+        color: hex_color('#3b59CC'),
+      })
     )
 
     // second pass

@@ -34,46 +34,17 @@ class Ocean_Shader extends Shader {
     context.uniformMatrix4fv(
       gpu_addresses.model_transform,
       false,
-      Matrix.flatten_2D_to_1D(model_transform.transposed())
+      Matrix.flatten_2D_to_1D(M.transposed())
     )
 
     context.uniform1f(
       gpu_addresses.animation_time,
       material.time
     )
-
-    context.uniform1f(
-      gpu_addresses.amplitude,
-      material.amplitude
-    )
-    context.uniform1f(
-      gpu_addresses.wave_mut,
-      material.waveMut
-    )
-    context.uniform1f(gpu_addresses.seed, material.seed)
-
-    context.uniform1f(
-      gpu_addresses.amplitude_multiplier,
-      material.amplitudeMultiplier
-    )
-    context.uniform1f(
-      gpu_addresses.wave_multiplier,
-      material.waveMultiplier
-    )
-    context.uniform1f(
-      gpu_addresses.seed_offset,
-      material.seedOffset
-    )
-
-    context.uniform4fv(
-      gpu_addresses.sea_color,
-      material.sea_color
-    )
   }
   shared_glsl_code() {
     // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
     return `precision mediump float;
-            varying vec3 OLD_VERTEX_POS;
             varying vec3 VERTEX_POS;
             varying vec3 VERTEX_NORMAL;
             varying float Z;
@@ -94,62 +65,10 @@ class Ocean_Shader extends Shader {
         uniform mat4 camera_inverse;
         uniform mat4 model_transform;
 
-        uniform float amplitude;
-        uniform float wave_mut;
-        uniform float seed;
-        uniform float amplitude_multiplier;
-        uniform float wave_multiplier;
-        uniform float seed_offset;
-
-        #define PI 3.1415926535897932384626433832795
-
-        // gerstner wave
-        // math source: https://en.wikipedia.org/wiki/Trochoidal_wave
-        vec3 gerstner_wave(vec2 p, float t, inout vec3 normal) {
-          const float g = 9.81;
-          const int ITERATIONS = 40;
-
-          float x = p.x;
-          float y = p.y;
-          float z = 0.;
-
-          vec3 vx = vec3(1., 0., 0.);
-          vec3 vy = vec3(0., 1., 0.);
-
-          float amplitude = amplitude;
-          float wave_mut = wave_mut;
-          float seed = seed;
-
-          for (int i = 0; i < ITERATIONS; i++) {
-            vec2 k = vec2(sin(seed), cos(seed));
-            float omega = sqrt(g * wave_mut);
-            float theta = k.x * wave_mut * p.x + k.y * wave_mut * p.y - omega * t - seed;
-
-            x -= k.x * amplitude * sin(theta);
-            y -= k.y * amplitude * sin(theta);
-            z += amplitude * cos(theta);
-
-            vec3 dv = amplitude * vec3(k.x * cos(theta), k.y * cos(theta), sin(theta));
-
-            vx -= k.x * dv;
-            vy -= k.y * dv;
-
-            amplitude *= amplitude_multiplier;
-            wave_mut *= wave_multiplier;
-            seed += seed_offset;
-          }
-
-          normal = normalize(cross(vx, vy));
-          return vec3(x, y, z);
-        }
-
         void main(){
 
-          vec3 normal;
-          vec3 new_position = gerstner_wave(position.xy, animation_time, normal);
-
           mat4 projection_camera_model_transform = projection_transform * camera_inverse * model_transform;
-          gl_Position = projection_camera_model_transform * vec4( new_position, 1.0 );
+          gl_Position = projection_camera_model_transform * vec4( position, 1.0 );
 
           VERTEX_POS = new_position;
           VERTEX_NORMAL = normal;
