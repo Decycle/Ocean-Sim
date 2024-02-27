@@ -80,7 +80,7 @@ export class Project_Scene extends Scene {
       box: new Cube(),
     }
 
-    this.amplitude = 0.08
+    this.amplitude = 0.13
     this.waveMut = 0.22
     this.seed = 4551.671312417933
 
@@ -369,7 +369,7 @@ export class Project_Scene extends Scene {
     const boatLength = 0.3
     const boatHeight = 0.1
     const heightLerpFactor = 0.05
-    const quaternionInterpolation = 0.1
+    const quaternionInterpolation = 0.07
     const boatFallingAcceleration = 1
 
     this.boat_position = this.boat_position.plus(
