@@ -68,8 +68,22 @@ class PostProcessingShader extends Shader {
 
       void main(){
         vec2 uv = f_tex_coord;
-        vec3 color = texture2D( texture, uv ).xyz;
+
+        float d = length(uv - vec2(0.5));
+        float vignette = 1.0 - smoothstep(0.1, 1.1, d);
+
+        float redOffset = 0.005;
+        float greenOffset = 0.003;
+        float blueOffset = -0.003;
+
+        float r = texture2D(texture, uv + vec2(redOffset)).r;
+        float g = texture2D(texture, uv + vec2(greenOffset)).g;
+        float b = texture2D(texture, uv + vec2(blueOffset)).b;
+
+        vec3 color = vec3(r, g, b);
         color = aces_tonemap(color);
+        color *= vignette;
+
         gl_FragColor = vec4( color, 1.0 );
       }
       `

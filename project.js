@@ -63,8 +63,8 @@ export class Project_Scene extends Scene {
     // A hidden canvas for re-sizing the real canvas to be square:
     this.scratchpad_context =
       this.scratchpad.getContext('2d')
-    this.scratchpad.width = 1024
-    this.scratchpad.height = 1024 // Initial image source: Blank gif file:
+    this.scratchpad.width = 512
+    this.scratchpad.height = 512 // Initial image source: Blank gif file:
     this.texture = new Texture(
       'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
     )
@@ -80,13 +80,13 @@ export class Project_Scene extends Scene {
       box: new Cube(),
     }
 
-    this.amplitude = 0.06
-    this.waveMut = 0.26
-    this.seed = 2887.776396078172
+    this.amplitude = 0.08
+    this.waveMut = 0.22
+    this.seed = 4551.671312417933
 
-    this.amplitudeMultiplier = 0.95
+    this.amplitudeMultiplier = 0.94
     this.waveMultiplier = 1.1
-    this.seedOffset = 7250.531321143898
+    this.seedOffset = 8780.3143875966
 
     this.materials = {
       ocean: new Material(new Ocean_Shader(), {
@@ -96,7 +96,7 @@ export class Project_Scene extends Scene {
         amplitudeMultiplier: this.amplitudeMultiplier,
         waveMultiplier: this.waveMultiplier,
         seedOffset: this.seedOffset,
-        sea_color: hex_color('#3b5998'),
+        sea_color: hex_color('#3b59CC'),
       }),
       box: new Material(new Basic_Shader()),
       postprocess: new Material(
@@ -106,7 +106,7 @@ export class Project_Scene extends Scene {
         }
       ),
       background: new Material(new BackgroundShader(), {
-        color: hex_color('#3b5998'),
+        color: hex_color('#3b59CC'),
       }),
     }
     this.skipped_first_frame = false
@@ -393,6 +393,9 @@ export class Project_Scene extends Scene {
       this.boat_velocity[2] -= boatFallingAcceleration * dt
     }
 
+    this.boat_velocity[0] *= 0.95
+    this.boat_velocity[1] *= 0.95
+
     program_state.set_camera(
       Mat4.inverse(
         Mat4.translation(
@@ -532,35 +535,35 @@ export class Project_Scene extends Scene {
     )
 
     // second pass
-    // this.scratchpad_context.drawImage(
-    //   context.canvas,
-    //   0,
-    //   0,
-    //   1024,
-    //   1024
-    // )
+    this.scratchpad_context.drawImage(
+      context.canvas,
+      0,
+      0,
+      512,
+      512
+    )
 
-    // this.texture.image.src =
-    //   this.scratchpad.toDataURL('image/png')
+    this.texture.image.src =
+      this.scratchpad.toDataURL('image/png')
 
-    // if (this.skipped_first_frame)
-    //   // Update the texture with the current scene:
-    //   this.texture.copy_onto_graphics_card(
-    //     context.context,
-    //     false
-    //   )
-    // this.skipped_first_frame = true
+    if (this.skipped_first_frame)
+      // Update the texture with the current scene:
+      this.texture.copy_onto_graphics_card(
+        context.context,
+        false
+      )
+    this.skipped_first_frame = true
 
-    // context.context.clear(
-    //   context.context.COLOR_BUFFER_BIT |
-    //     context.context.DEPTH_BUFFER_BIT
-    // )
+    context.context.clear(
+      context.context.COLOR_BUFFER_BIT |
+        context.context.DEPTH_BUFFER_BIT
+    )
 
-    // this.shapes.screen_quad.draw(
-    //   context,
-    //   program_state,
-    //   Mat4.identity(),
-    //   this.materials.postprocess
-    // )
+    this.shapes.screen_quad.draw(
+      context,
+      program_state,
+      Mat4.identity(),
+      this.materials.postprocess
+    )
   }
 }

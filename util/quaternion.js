@@ -70,14 +70,13 @@ class Quaternion {
 
   slerp(q, t) {
     let cosTheta = this.dot(q)
+    if (cosTheta > 1) {
+      cosTheta = 1
+    }
     let angle = Math.acos(cosTheta)
 
     if (angle < 0.01) {
       return this.lerp(q, t)
-    }
-
-    if (cosTheta > 1) {
-      cosTheta = 1
     }
     let sinTheta = Math.sqrt(1.0 - cosTheta * cosTheta)
     let sinThetaInv = 1.0 / sinTheta
