@@ -67,48 +67,56 @@ class Ocean_Shader extends Shader {
 
         #define PI 3.1415926535897932384626433832795
 
-        // gerstner wave implementation
-        // https://en.wikipedia.org/wiki/Trochoidal_wave
+        // gerstner wave
+        // math source: https://en.wikipedia.org/wiki/Trochoidal_wave
+        vec3 gerstner_wave(vec2 p, float t, inout vec3 normal) {
+          const float g = 9.81;
+          const int ITERATIONS = 10;
 
-        vec3 gerstner_wave(vec2 p, float t, float dir, float wave_multiplier, float a, float phase, float g) {
+          float x = p.x;
+          float y = p.y;
+          float z = 0.;
 
-          float kx = sin(dir);
-          float ky = cos(dir);
-          float omega = sqrt(g); // angular frequency
+          vec3 vx = vec3(1., 0., 0.);
+          vec3 vy = vec3(0., 1., 0.);
 
-          float theta = kx * wave_multiplier * p.x + ky * wave_multiplier * p.y - omega * t - phase;
+          float amplitude = 0.06;
+          float wave_mut = 1.0;
+          float seed = 1941.52;
 
-          float x = p.x - kx * a * sin(theta);
-          float y = p.y - ky * a * sin(theta);
-          float z = cos(theta) * a;
+          const float AMPLITUDE_MULTIPLIER = 0.75;
+          const float WAVE_MULTIPLIER = 1.27;
+          const float SEED_OFFSET = 1312.13;
 
+          float total_amplitude = 0.;
+
+          for (int i = 0; i < ITERATIONS; i++) {
+            vec2 k = vec2(sin(seed), cos(seed));
+            float omega = sqrt(g * wave_mut);
+            float theta = k.x * wave_mut * p.x + k.y * wave_mut * p.y - omega * t - seed;
+
+            x -= k.x * amplitude * sin(theta);
+            y -= k.y * amplitude * sin(theta);
+            z += amplitude * cos(theta);
+
+            vec3 dv = amplitude * vec3(k.x * cos(theta), k.y * cos(theta), sin(theta));
+
+            vx -= k.x * dv;
+            vy -= k.y * dv;
+
+            amplitude *= AMPLITUDE_MULTIPLIER;
+            wave_mut *= WAVE_MULTIPLIER;
+            seed += SEED_OFFSET;
+          }
+
+          normal = normalize(cross(vx, vy));
           return vec3(x, y, z);
         }
 
-        vec3 gerstner_wave_normal(vec2 p, float t, float dir, float wave_multiplier, float a, float phase, float g) {
-
-          float kx = sin(dir);
-          float ky = cos(dir);
-
-          float omega = sqrt(g); // angular frequency
-          float theta = kx * wave_multiplier * p.x + ky * wave_multiplier * p.y - omega * t - phase;
-
-          float vx = a * cos(theta) * kx;
-          float vy = a * cos(theta) * ky;
-
-          vec3 gradient_x = vec3(1. - kx * vx, - ky * vx, -a * sin(theta) * kx);
-          vec3 gradient_y = vec3(-kx * vy, 1. - ky * vy, -a * sin(theta) * ky);
-
-          return normalize(cross(gradient_x, gradient_y));
-        }
-
         void main(){
-          float g = 9.81;
-          float alpha = 0.3;
-          float phase = 0.;
 
-          vec3 new_position = gerstner_wave(position.xy, animation_time, 1.0, 3.,  alpha, phase, g);
-          vec3 normal = gerstner_wave_normal(position.xy, animation_time, 1.0, 3., alpha, phase, g);
+          vec3 normal;
+          vec3 new_position = gerstner_wave(position.xy, animation_time, normal);
 
           mat4 projection_camera_model_transform = projection_transform * camera_inverse * model_transform;
           gl_Position = projection_camera_model_transform * vec4( new_position, 1.0 );
@@ -128,16 +136,15 @@ class Ocean_Shader extends Shader {
       uniform float animation_time;
 
       void main(){
-        // gl_FragColor = vec4(VERTEX_NORMAL, 1.0);
+        // diffuse
         vec3 light_direction = normalize(vec3(1, 1, 1));
         vec3 normal = normalize(VERTEX_NORMAL);
-        float diffuse = max(dot(normal, light_direction), 0.0);
-        float specular = 0.0;
-        vec3 view_direction = normalize(-VERTEX_POS);
-        vec3 reflection = reflect(-light_direction, normal);
-        specular = pow(max(dot(reflection, view_direction), 0.0), 16.0);
-        vec3 color = vec3(0.7, 0.7, 1.0);
-        gl_FragColor = vec4(0.5 * color * diffuse + 0.5 * specular, 1.0);
+        float diffuse = max(0.0, dot(normal, light_direction));
+
+        vec3 sea_color = vec3(0.5, 0.55, 0.7);
+        vec3 color = sea_color * diffuse;
+
+        gl_FragColor = vec4( color, 1.0 );
       }
       `
     )
