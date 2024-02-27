@@ -327,14 +327,24 @@ export class Project_Scene extends Scene {
 
   display(context, program_state) {
     program_state.set_camera(
-      Mat4.translation(0, 0, -7).times(
-        Mat4.rotation(-0.4, 1, 0, 0)
+      // Mat4.translation(0, 0, -7).times(
+      //   Mat4.rotation(-0.4, 1, 0, 0)
+      // )
+      Mat4.inverse(
+        Mat4.translation(
+          this.boat_position[0],
+          this.boat_position[1],
+          this.boat_position[2]
+        )
+          .times(Mat4.rotation(1.4, 1, 0, 0))
+          .times(Mat4.translation(0, 0.4, 1))
       )
     )
+
     program_state.projection_transform = Mat4.perspective(
       Math.PI / 4,
       context.width / context.height,
-      1,
+      0.1,
       1000
     )
     this.shapes.screen_quad.draw(
@@ -347,9 +357,7 @@ export class Project_Scene extends Scene {
     context.context.clear(context.context.DEPTH_BUFFER_BIT)
 
     // first pass
-    const model_transform = Mat4.identity().times(
-      Mat4.rotation(-1, 1, 0, 0)
-    )
+    const model_transform = Mat4.identity()
 
     this.shapes.ocean.draw(
       context,
@@ -384,7 +392,7 @@ export class Project_Scene extends Scene {
     }
 
     const dt = program_state.animation_delta_time / 1000
-    const force = 20
+    const force = 5
 
     this.boat_velocity = this.boat_velocity
       .plus(vec3(nx - x, ny - y, 0).times(force * dt))
@@ -397,15 +405,12 @@ export class Project_Scene extends Scene {
     this.shapes.box.draw(
       context,
       program_state,
-      model_transform
-        .times(
-          Mat4.translation(
-            this.boat_position[0],
-            this.boat_position[1],
-            this.boat_position[2]
-          )
-        )
-        .times(Mat4.scale(0.3, 0.3, 0.3)),
+
+      Mat4.translation(
+        this.boat_position[0],
+        this.boat_position[1],
+        this.boat_position[2]
+      ).times(Mat4.scale(0.3, 0.3, 0.3)),
       this.materials.box
     )
 
