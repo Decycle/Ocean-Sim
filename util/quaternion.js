@@ -54,12 +54,11 @@ class Quaternion {
   }
 
   normalized() {
-    let length = Math.sqrt(
-      this.w * this.w +
-        this.x * this.x +
-        this.y * this.y +
-        this.z * this.z
-    )
+    let length = this.dot(this)
+
+    if (length == 0) {
+      console.error('Quaternion has length 0')
+    }
 
     return new Quaternion(
       this.w / length,
@@ -77,10 +76,24 @@ class Quaternion {
       return this.lerp(q, t)
     }
 
+    if (cosTheta > 1) {
+      cosTheta = 1
+    }
     let sinTheta = Math.sqrt(1.0 - cosTheta * cosTheta)
     let sinThetaInv = 1.0 / sinTheta
     let ratioA = Math.sin((1 - t) * angle) * sinThetaInv
     let ratioB = Math.sin(t * angle) * sinThetaInv
+
+    if (isNaN(ratioA) || isNaN(ratioB)) {
+      console.log(
+        cosTheta,
+        angle,
+        sinTheta,
+        sinThetaInv,
+        ratioA,
+        ratioB
+      )
+    }
 
     return new Quaternion(
       this.w * ratioA + q.w * ratioB,
@@ -123,11 +136,26 @@ class Quaternion {
     return new Quaternion(1, 0, 0, 0)
   }
 
+  isNan() {
+    return (
+      isNaN(this.w) ||
+      isNaN(this.x) ||
+      isNaN(this.y) ||
+      isNaN(this.z)
+    )
+  }
+
   predictNext(past) {
+    if (this.isNan() || past.isNan()) {
+      console.log('input is NAN')
+    }
     let pastConjugate = past.conjugate()
     let relative = pastConjugate.times(this)
     let next = this.times(relative)
 
+    if (next.isNan()) {
+      console.log('next is NAN')
+    }
     return next.normalized()
   }
 }

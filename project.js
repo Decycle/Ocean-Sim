@@ -474,6 +474,9 @@ export class Project_Scene extends Scene {
 
       const up = vec3(0, 1, 0)
       const right = wave_normal.cross(up).normalized()
+      if (isNaN(wave_normal[0])) {
+        console.error('normal is NaN')
+      }
       const theta = Math.acos(up.dot(wave_normal))
 
       let q0 = Math.cos(theta / 2)
@@ -482,15 +485,31 @@ export class Project_Scene extends Scene {
       let q3 = right[2] * Math.sin(theta / 2)
 
       new_quaternion = new Quaternion(q0, q1, q2, q3)
+      if (new_quaternion.isNan()) {
+        console.error('new_quaternion is NaN')
+      }
       this.last_quaternion = this.quaternion
       this.quaternion = this.quaternion.slerp(
         new_quaternion,
         quaternionInterpolation
       )
+      if (
+        !this.last_quaternion.isNan() &&
+        this.quaternion.isNan()
+      ) {
+        console.error('slerp caused NaN')
+      }
     } else {
       new_quaternion = this.quaternion.predictNext(
         this.last_quaternion
       )
+      if (
+        !this.last_quaternion.isNan() &&
+        !this.quaternion.isNan() &&
+        new_quaternion.isNan()
+      ) {
+        console.error('predictNext caused NaN')
+      }
       this.last_quaternion = this.quaternion
       this.quaternion = new_quaternion
     }
@@ -500,7 +519,6 @@ export class Project_Scene extends Scene {
     this.shapes.box.draw(
       context,
       program_state,
-
       Mat4.translation(
         this.boat_position[0],
         this.boat_position[1],
@@ -514,35 +532,35 @@ export class Project_Scene extends Scene {
     )
 
     // second pass
-    this.scratchpad_context.drawImage(
-      context.canvas,
-      0,
-      0,
-      1024,
-      1024
-    )
+    // this.scratchpad_context.drawImage(
+    //   context.canvas,
+    //   0,
+    //   0,
+    //   1024,
+    //   1024
+    // )
 
-    this.texture.image.src =
-      this.scratchpad.toDataURL('image/png')
+    // this.texture.image.src =
+    //   this.scratchpad.toDataURL('image/png')
 
-    if (this.skipped_first_frame)
-      // Update the texture with the current scene:
-      this.texture.copy_onto_graphics_card(
-        context.context,
-        false
-      )
-    this.skipped_first_frame = true
+    // if (this.skipped_first_frame)
+    //   // Update the texture with the current scene:
+    //   this.texture.copy_onto_graphics_card(
+    //     context.context,
+    //     false
+    //   )
+    // this.skipped_first_frame = true
 
-    context.context.clear(
-      context.context.COLOR_BUFFER_BIT |
-        context.context.DEPTH_BUFFER_BIT
-    )
+    // context.context.clear(
+    //   context.context.COLOR_BUFFER_BIT |
+    //     context.context.DEPTH_BUFFER_BIT
+    // )
 
-    this.shapes.screen_quad.draw(
-      context,
-      program_state,
-      Mat4.identity(),
-      this.materials.postprocess
-    )
+    // this.shapes.screen_quad.draw(
+    //   context,
+    //   program_state,
+    //   Mat4.identity(),
+    //   this.materials.postprocess
+    // )
   }
 }
