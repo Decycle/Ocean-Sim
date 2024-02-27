@@ -1,6 +1,6 @@
 import { defs, tiny } from './examples/common.js'
-import Ocean_Shader from './ocean_shader.js'
-import PostProcessingShader from './post_processing.js'
+import Ocean_Shader from './shaders/ocean.js'
+import PostProcessingShader from './shaders/post_processing.js'
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -24,7 +24,7 @@ const Ocean = class Ocean extends tiny.Vertex_Buffer {
     super('position')
     // Describe the where the points of a triangle are in space, and also describe their colors:
     // TODO: Edit the position and color here
-    const boundary = 0.7
+    const boundary = 5
     const subdivision = 100
     const step = (2 * boundary) / subdivision
     const position = []
@@ -91,14 +91,15 @@ export class Project_Scene extends Scene {
   }
 
   display(context, program_state) {
-    program_state.set_camera(Mat4.translation(0, 0, -2))
+    program_state.set_camera(Mat4.translation(0, 0, -15))
     program_state.projection_transform = Mat4.perspective(
       Math.PI / 4,
       context.width / context.height,
       1,
-      100
+      1000
     )
 
+    // first pass
     const model_transform = Mat4.identity()
       .times(Mat4.rotation(-1, 1, 0, 0))
       .times(
@@ -117,35 +118,36 @@ export class Project_Scene extends Scene {
       this.materials.ocean
     )
 
-    this.scratchpad_context.drawImage(
-      context.canvas,
-      0,
-      0,
-      1024,
-      1024
-    )
+    // second pass
+    // this.scratchpad_context.drawImage(
+    //   context.canvas,
+    //   0,
+    //   0,
+    //   1024,
+    //   1024
+    // )
 
-    this.texture.image.src =
-      this.scratchpad.toDataURL('image/png')
+    // this.texture.image.src =
+    //   this.scratchpad.toDataURL('image/png')
 
-    if (this.skipped_first_frame)
-      // Update the texture with the current scene:
-      this.texture.copy_onto_graphics_card(
-        context.context,
-        false
-      )
-    this.skipped_first_frame = true
+    // if (this.skipped_first_frame)
+    //   // Update the texture with the current scene:
+    //   this.texture.copy_onto_graphics_card(
+    //     context.context,
+    //     false
+    //   )
+    // this.skipped_first_frame = true
 
-    context.context.clear(
-      context.context.COLOR_BUFFER_BIT |
-        context.context.DEPTH_BUFFER_BIT
-    )
+    // context.context.clear(
+    //   context.context.COLOR_BUFFER_BIT |
+    //     context.context.DEPTH_BUFFER_BIT
+    // )
 
-    this.shapes.screen_quad.draw(
-      context,
-      program_state,
-      Mat4.identity(),
-      this.materials.postprocess
-    )
+    // this.shapes.screen_quad.draw(
+    //   context,
+    //   program_state,
+    //   Mat4.identity(),
+    //   this.materials.postprocess
+    // )
   }
 }

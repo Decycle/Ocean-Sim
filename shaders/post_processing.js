@@ -1,4 +1,4 @@
-import { tiny } from './tiny-graphics.js'
+import { tiny } from '../tiny-graphics.js'
 
 const { Shader, Matrix } = tiny
 class PostProcessingShader extends Shader {
