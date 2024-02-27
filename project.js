@@ -4,6 +4,7 @@ import PostProcessingShader from './shaders/post_processing.js'
 import BackgroundShader from './shaders/background.js'
 import Quaternion from './util/quaternion.js'
 import { Boat } from './boat.js'
+import BoatShader from './shaders/boat.js'
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -99,12 +100,7 @@ export class Project_Scene extends Scene {
         seedOffset: this.seedOffset,
         sea_color: hex_color('#3b59CC'),
       }),
-      boat: new Material(new Phong_Shader(), {
-        ambient: 0.3,
-        diffusivity: 0.8,
-        specularity: 0.5,
-        color: color(0.9, 0.9, 0.9, 1),
-      }),
+      boat: new Material(new BoatShader(), {}),
       postprocess: new Material(
         new PostProcessingShader(),
         {
@@ -376,7 +372,7 @@ export class Project_Scene extends Scene {
     const boatLength = 0.3
     const boatHeight = 0.1
     const heightLerpFactor = 0.05
-    const quaternionInterpolation = 0.07
+    const quaternionInterpolation = 0.05
     const boatFallingAcceleration = 1
 
     this.boat_position = this.boat_position.plus(
@@ -410,13 +406,13 @@ export class Project_Scene extends Scene {
           this.boat_position[1],
           this.boat_position[2]
         )
-          .times(Mat4.rotation(1.4, 1, 0, 0))
-          .times(Mat4.translation(0, 0.4, 2))
+          .times(Mat4.rotation(1.1, 1, 0, 0))
+          .times(Mat4.translation(0, 0.5, 2))
       )
     )
 
     program_state.projection_transform = Mat4.perspective(
-      Math.PI / 4,
+      Math.PI / 3,
       context.width / context.height,
       0.1,
       1000
@@ -551,35 +547,35 @@ export class Project_Scene extends Scene {
     )
 
     // second pass
-    this.scratchpad_context.drawImage(
-      context.canvas,
-      0,
-      0,
-      512,
-      512
-    )
+    // this.scratchpad_context.drawImage(
+    //   context.canvas,
+    //   0,
+    //   0,
+    //   512,
+    //   512
+    // )
 
-    this.texture.image.src =
-      this.scratchpad.toDataURL('image/png')
+    // this.texture.image.src =
+    //   this.scratchpad.toDataURL('image/png')
 
-    if (this.skipped_first_frame)
-      // Update the texture with the current scene:
-      this.texture.copy_onto_graphics_card(
-        context.context,
-        false
-      )
-    this.skipped_first_frame = true
+    // if (this.skipped_first_frame)
+    //   // Update the texture with the current scene:
+    //   this.texture.copy_onto_graphics_card(
+    //     context.context,
+    //     false
+    //   )
+    // this.skipped_first_frame = true
 
-    context.context.clear(
-      context.context.COLOR_BUFFER_BIT |
-        context.context.DEPTH_BUFFER_BIT
-    )
+    // context.context.clear(
+    //   context.context.COLOR_BUFFER_BIT |
+    //     context.context.DEPTH_BUFFER_BIT
+    // )
 
-    this.shapes.screen_quad.draw(
-      context,
-      program_state,
-      Mat4.identity(),
-      this.materials.postprocess
-    )
+    // this.shapes.screen_quad.draw(
+    //   context,
+    //   program_state,
+    //   Mat4.identity(),
+    //   this.materials.postprocess
+    // )
   }
 }

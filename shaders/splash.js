@@ -1,7 +1,7 @@
 import { tiny } from '../tiny-graphics.js'
 
 const { Shader, Matrix } = tiny
-class OceanShader extends Shader {
+class SplashShader extends Shader {
   // **Basic_Shader** is nearly the simplest example of a subclass of Shader, which stores and
   // maanges a GPU program.  Basic_Shader is a trivial pass-through shader that applies a
   // shape's matrices and then simply samples literal colors stored at each vertex.
@@ -29,14 +29,6 @@ class OceanShader extends Shader {
       gpu_addresses.camera_inverse,
       false,
       Matrix.flatten_2D_to_1D(C.transposed())
-    )
-
-    context.uniformMatrix4fv(
-      gpu_addresses.camera_transform,
-      false,
-      Matrix.flatten_2D_to_1D(
-        graphics_state.camera_transform.transposed()
-      )
     )
 
     context.uniformMatrix4fv(
@@ -84,7 +76,6 @@ class OceanShader extends Shader {
             varying vec3 OLD_VERTEX_POS;
             varying vec3 VERTEX_POS;
             varying vec3 VERTEX_NORMAL;
-            varying vec3 VIEW_DIR;
             varying float Z;
       `
   }
@@ -102,7 +93,6 @@ class OceanShader extends Shader {
         uniform mat4 projection_transform;
         uniform mat4 camera_inverse;
         uniform mat4 model_transform;
-        uniform mat4 camera_transform;
 
         uniform float amplitude;
         uniform float wave_mut;
@@ -164,11 +154,6 @@ class OceanShader extends Shader {
           VERTEX_POS = new_position;
           VERTEX_NORMAL = normal;
           OLD_VERTEX_POS = position;
-
-          vec4 world_pos = model_transform * vec4(position, 1.0);
-          vec4 camera_pos = camera_transform * vec4(0., 0., 0., 1.);
-
-          VIEW_DIR = normalize((world_pos - camera_pos).xyz);
         }
         `
     )
@@ -204,46 +189,6 @@ class OceanShader extends Shader {
         return mix(a, b, u.x) + (c - a) * u.y * (1. - u.x) + (d - b) * u.x * u.y;
       }
 
-
-    vec3 sky(vec3 rd, vec3 lightDir)
-    {
-        vec3 col = vec3(0.3,0.5,0.85) - rd.y*rd.y*0.5;
-        col = mix( col, 0.85*vec3(0.7,0.75,0.85), pow( 1.0-max(rd.y,0.0), 4.0 ) );
-
-        // horizon
-        col = mix( col, 0.68*vec3(0.4,0.65,1.0), pow( 1.0-max(rd.y,0.0), 16.0 ) );
-
-        return col;
-    }
-
-    float fresnel(vec3 N, vec3 V)
-    {
-        float F0 = 0.04;
-
-        return F0 + (1. - F0) * pow(1. - dot(V, N), 5.);
-    }
-
-    vec3 lighting(vec3 N, vec3 L, vec3 V)
-    {
-
-        vec3 R = normalize(reflect(-L, N));
-
-        float spec = max(dot(R, V), 0.);
-        spec = pow(spec, 60.);
-        spec = clamp(spec, 0., 1.);
-
-        float fresnel = fresnel(N, V);
-        fresnel = clamp(fresnel, 0., 1.);
-
-        vec3 reflected = sky(reflect(-V, N), L);
-        vec3 refracted = vec3(.059, .059, .235);	// ocean color
-        vec3 col = mix(refracted, reflected, fresnel);
-        col += vec3(spec) ;
-        // return vec3(fresnel);
-
-        return clamp(col, 0., 1.);
-    }
-
       void main(){
 
         vec3 normal = VERTEX_NORMAL;
@@ -252,14 +197,23 @@ class OceanShader extends Shader {
         float noiseFactor = 0.05;
 
         float noise1 = (smoothNoise(OLD_VERTEX_POS.xy * noiseFrequency) - 0.5) * noiseFactor;
-        float noise2 = (smoothNoise((OLD_VERTEX_POS.xy - 10000.637) * noiseFrequency) - 0.5) * noiseFactor;
-        float noise3 = (smoothNoise((OLD_VERTEX_POS.xy - 20000.253) * noiseFrequency) - 0.5) * noiseFactor;
+        float noise2 = (smoothNoise((OLD_VERTEX_POS.xy - 100000.) * noiseFrequency) - 0.5) * noiseFactor;
+        float noise3 = (smoothNoise((OLD_VERTEX_POS.xy - 200000.) * noiseFrequency) - 0.5) * noiseFactor;
 
         normal = normalize(normal + vec3(noise1, noise2, noise3));
 
-        vec3 lightDir = normalize(vec3(1., 1., 1.));
+        // diffuse
+        vec3 light_direction = normalize(vec3(1., 1., 1.));
+        float diffuse = max(0.0, dot(normal, light_direction));
 
-        vec3 color = lighting(normal, lightDir, -VIEW_DIR);
+        vec3 color = sea_color.xyz * diffuse;
+
+        // reflection
+        vec3 eye = vec3(0., 0., 1.);
+        vec3 reflected = reflect(-light_direction, normal);
+        float spec = pow(max(dot(reflected, eye), 0.), 20.);
+
+        color = color + vec3(1., 1., 1.) * spec;
 
         gl_FragColor = vec4( color, 1.0 );
       }
@@ -268,4 +222,4 @@ class OceanShader extends Shader {
   }
 }
 
-export default OceanShader
+export default Ocean_Shader
