@@ -207,7 +207,7 @@ class OceanShader extends Shader {
 
     vec3 sky(vec3 rd, vec3 lightDir)
     {
-        vec3 col = vec3(0.3,0.5,0.85) - rd.y*rd.y*0.5;
+        vec3 col = vec3(0.3,0.5,0.85) - rd.y * rd.y * 0.5;
         col = mix( col, 0.85*vec3(0.7,0.75,0.85), pow( 1.0-max(rd.y,0.0), 4.0 ) );
 
         // horizon
@@ -236,7 +236,7 @@ class OceanShader extends Shader {
         fresnel = clamp(fresnel, 0., 1.);
 
         vec3 reflected = sky(reflect(-V, N), L);
-        vec3 refracted = vec3(.059, .059, .235);	// ocean color
+        vec3 refracted = vec3(.109, .109, .435);	// ocean color
         vec3 col = mix(refracted, reflected, fresnel);
         col += vec3(spec) ;
         // return vec3(fresnel);
