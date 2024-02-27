@@ -39,7 +39,7 @@ class Ocean_Shader extends Shader {
 
     context.uniform1f(
       gpu_addresses.animation_time,
-      graphics_state.animation_time / 1000
+      material.time
     )
 
     context.uniform1f(
@@ -177,7 +177,8 @@ class Ocean_Shader extends Shader {
         vec3 eye = vec3(0., 0., 1.);
         vec3 reflected = reflect(-light_direction, normal);
         float spec = pow(max(dot(reflected, eye), 0.), 20.);
-        color += vec3(1, 1, 1) * spec;
+
+        color = color + vec3(1., 1., 1.) * spec;
 
         gl_FragColor = vec4( color, 1.0 );
       }

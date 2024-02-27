@@ -2,6 +2,7 @@ import { defs, tiny } from './examples/common.js'
 import Ocean_Shader from './shaders/ocean.js'
 import PostProcessingShader from './shaders/post_processing.js'
 import BackgroundShader from './shaders/background.js'
+import Quaternion from './util/quaternion.js'
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -113,40 +114,62 @@ export class Project_Scene extends Scene {
     this.boat_position = vec3(0, 0, 0)
     this.boat_velocity = vec3(0, 0, 0)
 
-    this.show_advanced_controls = false
+    this.show_advanced_controls = true
+
+    this.quaternion = Quaternion.identity()
+    this.last_quaternion = this.quaternion
   }
 
   make_control_panel() {
-    this.control_panel.innerHTML += 'blah blah blah'
+    this.control_panel.innerHTML += 'Controls:'
 
-    const speed = 10
-
+    const force = 0.5
+    const max_speed = 3
     this.key_triggered_button('Left', ['a'], () => {
-      this.boat_velocity[0] -= (1 / 60) * speed
+      this.boat_velocity[0] -= force
+      this.boat_velocity[0] = Math.max(
+        this.boat_velocity[0],
+        -max_speed
+      )
     })
 
     this.key_triggered_button('Right', ['d'], () => {
-      this.boat_velocity[0] += (1 / 60) * speed
+      this.boat_velocity[0] += force
+      this.boat_velocity[0] = Math.min(
+        this.boat_velocity[0],
+        max_speed
+      )
     })
 
     this.key_triggered_button('Forward', ['w'], () => {
-      this.boat_velocity[1] += (1 / 60) * speed
+      this.boat_velocity[1] += force
+      this.boat_velocity[1] = Math.min(
+        this.boat_velocity[1],
+        max_speed
+      )
     })
 
     this.key_triggered_button('Backward', ['s'], () => {
-      this.boat_velocity[1] -= (1 / 60) * speed
+      this.boat_velocity[1] -= force
+      this.boat_velocity[1] = Math.max(
+        this.boat_velocity[1],
+        -max_speed
+      )
     })
 
     this.new_line()
 
     if (this.show_advanced_controls) {
-      this.key_triggered_button('+', ['a'], () => {
+      this.control_panel.innerHTML += 'Wave Configuration:'
+      this.new_line()
+
+      this.key_triggered_button('+', ['q'], () => {
         this.amplitude += 0.01
       })
 
       this.key_triggered_button(
         '+',
-        ['Control', 'a'],
+        ['Control', 'q'],
         () => {
           this.amplitude += 0.1
         }
@@ -158,13 +181,13 @@ export class Project_Scene extends Scene {
         )}`
       })
 
-      this.key_triggered_button('-', ['s'], () => {
+      this.key_triggered_button('-', ['e'], () => {
         this.amplitude = Math.max(0, this.amplitude - 0.01)
       })
 
       this.key_triggered_button(
         '-',
-        ['Control', 's'],
+        ['Control', 'e'],
         () => {
           this.amplitude = Math.max(0, this.amplitude - 0.1)
         }
@@ -210,13 +233,13 @@ export class Project_Scene extends Scene {
 
       this.new_line()
 
-      this.key_triggered_button('+', ['d'], () => {
+      this.key_triggered_button('+', ['t'], () => {
         this.waveMut += 0.01
       })
 
       this.key_triggered_button(
         '+',
-        ['Control', 'd'],
+        ['Control', 't'],
         () => {
           this.waveMut += 0.1
         }
@@ -228,13 +251,13 @@ export class Project_Scene extends Scene {
         )}`
       })
 
-      this.key_triggered_button('-', ['f'], () => {
+      this.key_triggered_button('-', ['y'], () => {
         this.waveMut = Math.max(0, this.waveMut - 0.01)
       })
 
       this.key_triggered_button(
         '-',
-        ['Control', 'f'],
+        ['Control', 'y'],
         () => {
           this.waveMut = Math.max(0, this.waveMut - 0.1)
         }
@@ -242,13 +265,13 @@ export class Project_Scene extends Scene {
 
       this.new_line()
 
-      this.key_triggered_button('+', ['q'], () => {
+      this.key_triggered_button('+', ['f'], () => {
         this.waveMultiplier += 0.01
       })
 
       this.key_triggered_button(
         '+',
-        ['Control', 'q'],
+        ['Control', 'f'],
         () => {
           this.waveMultiplier += 0.1
         }
@@ -260,7 +283,7 @@ export class Project_Scene extends Scene {
         )}`
       })
 
-      this.key_triggered_button('-', ['w'], () => {
+      this.key_triggered_button('-', ['g'], () => {
         this.waveMultiplier = Math.max(
           0,
           this.waveMultiplier - 0.01
@@ -269,7 +292,7 @@ export class Project_Scene extends Scene {
 
       this.key_triggered_button(
         '-',
-        ['Control', 'w'],
+        ['Control', 'g'],
         () => {
           this.waveMultiplier = Math.max(
             0,
@@ -291,6 +314,7 @@ export class Project_Scene extends Scene {
     }
   }
 
+  // same calculation as in the shader to get the relative movement of the boat
   get_gerstner_wave(x, y, t) {
     let amplitude = this.amplitude
     let waveMut = this.waveMut
@@ -299,6 +323,9 @@ export class Project_Scene extends Scene {
     let nx = x
     let ny = y
     let nz = 0
+
+    let vx = vec3(1, 0, 0)
+    let vy = vec3(0, 1, 0)
 
     const g = 9.81
     const ITERATIONS = 40
@@ -317,19 +344,56 @@ export class Project_Scene extends Scene {
       ny -= ky * amplitude * Math.sin(theta)
       nz += amplitude * Math.cos(theta)
 
+      const dv = vec3(
+        kx * Math.cos(theta),
+        ky * Math.cos(theta),
+        Math.sin(theta)
+      ).times(amplitude)
+
+      vx = vx.minus(dv.times(kx))
+      vy = vy.minus(dv.times(ky))
+
       amplitude *= this.amplitudeMultiplier
       waveMut *= this.waveMultiplier
       seed += this.seedOffset
     }
 
-    return [nx, ny, nz]
+    return [vec3(nx, ny, nz), vx.cross(vy).normalized()]
   }
 
   display(context, program_state) {
+    const t = program_state.animation_time / 1000
+    const dt = program_state.animation_delta_time / 1000
+
+    const boatWidth = 0.3
+    const boatLength = 0.3
+    const boatHeight = 0.1
+    const heightLerpFactor = 0.05
+    const quaternionInterpolation = 0.1
+    const boatFallingAcceleration = 1
+
+    this.boat_position = this.boat_position.plus(
+      this.boat_velocity.times(dt)
+    )
+
+    const x = this.boat_position[0]
+    const y = this.boat_position[1]
+    // const z = this.boat_position[2]
+
+    const wave_pos = this.get_gerstner_wave(x, y, t)[0]
+
+    const nz = wave_pos[2]
+
+    if (this.boat_position[2] < nz) {
+      this.boat_position[2] =
+        (nz + boatHeight / 2) * heightLerpFactor +
+        this.boat_position[2] * (1 - heightLerpFactor)
+      this.boat_velocity[2] = 0
+    } else {
+      this.boat_velocity[2] -= boatFallingAcceleration * dt
+    }
+
     program_state.set_camera(
-      // Mat4.translation(0, 0, -7).times(
-      //   Mat4.rotation(-0.4, 1, 0, 0)
-      // )
       Mat4.inverse(
         Mat4.translation(
           this.boat_position[0],
@@ -337,7 +401,7 @@ export class Project_Scene extends Scene {
           this.boat_position[2]
         )
           .times(Mat4.rotation(1.4, 1, 0, 0))
-          .times(Mat4.translation(0, 0.4, 1))
+          .times(Mat4.translation(0, 0.4, 2))
       )
     )
 
@@ -370,37 +434,68 @@ export class Project_Scene extends Scene {
         amplitudeMultiplier: this.amplitudeMultiplier,
         waveMultiplier: this.waveMultiplier,
         seedOffset: this.seedOffset,
+        time: t,
       })
     )
 
-    const x = this.boat_position[0]
-    const y = this.boat_position[1]
-    const z = this.boat_position[2]
+    let new_quaternion = this.quaternion
+    if (this.boat_position[2] < nz + boatHeight / 2) {
+      const x1 = x + boatWidth / 2
+      const x2 = x - boatWidth / 2
+      const y1 = y + boatLength / 2
+      const y2 = y - boatLength / 2
 
-    const [nx, ny, nz] = this.get_gerstner_wave(
-      x,
-      y,
-      program_state.animation_time / 1000
-    )
+      const wave_normal1 = this.get_gerstner_wave(
+        x1,
+        y1,
+        t
+      )[1]
+      const wave_normal2 = this.get_gerstner_wave(
+        x1,
+        y2,
+        t
+      )[1]
+      const wave_normal3 = this.get_gerstner_wave(
+        x2,
+        y1,
+        t
+      )[1]
+      const wave_normal4 = this.get_gerstner_wave(
+        x2,
+        y2,
+        t
+      )[1]
 
-    let zForce = 0
+      const wave_normal = wave_normal1
+        .plus(wave_normal2)
+        .plus(wave_normal3)
+        .plus(wave_normal4)
+        .times(0.25)
 
-    if (z > nz) {
-      zForce = Math.min(0.5, z - nz) * -9.81 * 2
+      const up = vec3(0, 1, 0)
+      const right = wave_normal.cross(up).normalized()
+      const theta = Math.acos(up.dot(wave_normal))
+
+      let q0 = Math.cos(theta / 2)
+      let q1 = right[0] * Math.sin(theta / 2)
+      let q2 = right[1] * Math.sin(theta / 2)
+      let q3 = right[2] * Math.sin(theta / 2)
+
+      new_quaternion = new Quaternion(q0, q1, q2, q3)
+      this.last_quaternion = this.quaternion
+      this.quaternion = this.quaternion.slerp(
+        new_quaternion,
+        quaternionInterpolation
+      )
     } else {
-      zForce = Math.min(0.5, nz - z) * 9.81 * 2
+      new_quaternion = this.quaternion.predictNext(
+        this.last_quaternion
+      )
+      this.last_quaternion = this.quaternion
+      this.quaternion = new_quaternion
     }
 
-    const dt = program_state.animation_delta_time / 1000
-    const force = 5
-
-    this.boat_velocity = this.boat_velocity
-      .plus(vec3(nx - x, ny - y, 0).times(force * dt))
-      .plus(vec3(0, 0, zForce).times(dt))
-
-    this.boat_position = this.boat_position.plus(
-      this.boat_velocity.minus(this.boat_position).times(dt)
-    )
+    const rotation = this.quaternion.toMatrix()
 
     this.shapes.box.draw(
       context,
@@ -410,40 +505,44 @@ export class Project_Scene extends Scene {
         this.boat_position[0],
         this.boat_position[1],
         this.boat_position[2]
-      ).times(Mat4.scale(0.3, 0.3, 0.3)),
+      )
+        .times(rotation)
+        .times(
+          Mat4.scale(boatWidth, boatHeight, boatLength)
+        ),
       this.materials.box
     )
 
     // second pass
-    // this.scratchpad_context.drawImage(
-    //   context.canvas,
-    //   0,
-    //   0,
-    //   1024,
-    //   1024
-    // )
+    this.scratchpad_context.drawImage(
+      context.canvas,
+      0,
+      0,
+      1024,
+      1024
+    )
 
-    // this.texture.image.src =
-    //   this.scratchpad.toDataURL('image/png')
+    this.texture.image.src =
+      this.scratchpad.toDataURL('image/png')
 
-    // if (this.skipped_first_frame)
-    //   // Update the texture with the current scene:
-    //   this.texture.copy_onto_graphics_card(
-    //     context.context,
-    //     false
-    //   )
-    // this.skipped_first_frame = true
+    if (this.skipped_first_frame)
+      // Update the texture with the current scene:
+      this.texture.copy_onto_graphics_card(
+        context.context,
+        false
+      )
+    this.skipped_first_frame = true
 
-    // context.context.clear(
-    //   context.context.COLOR_BUFFER_BIT |
-    //     context.context.DEPTH_BUFFER_BIT
-    // )
+    context.context.clear(
+      context.context.COLOR_BUFFER_BIT |
+        context.context.DEPTH_BUFFER_BIT
+    )
 
-    // this.shapes.screen_quad.draw(
-    //   context,
-    //   program_state,
-    //   Mat4.identity(),
-    //   this.materials.postprocess
-    // )
+    this.shapes.screen_quad.draw(
+      context,
+      program_state,
+      Mat4.identity(),
+      this.materials.postprocess
+    )
   }
 }

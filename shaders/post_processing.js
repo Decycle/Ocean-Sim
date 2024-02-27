@@ -69,7 +69,7 @@ class PostProcessingShader extends Shader {
       void main(){
         vec2 uv = f_tex_coord;
         vec3 color = texture2D( texture, uv ).xyz;
-        // color = aces_tonemap(color);
+        color = aces_tonemap(color);
         gl_FragColor = vec4( color, 1.0 );
       }
       `
