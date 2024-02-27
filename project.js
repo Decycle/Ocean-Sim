@@ -69,7 +69,7 @@ export class Project_Scene extends Scene {
     )
 
     this.widget_options = {
-      make_controls: false,
+      make_controls: true,
       show_explanation: false,
     }
     // Send a Triangle's vertices to the GPU buffers:
@@ -77,8 +77,24 @@ export class Project_Scene extends Scene {
       ocean: new Ocean(),
       screen_quad: new defs.Square(),
     }
+
+    this.amplitude = 0.07
+    this.waveMut = 1.2
+    this.seed = 1941.52
+
+    this.amplitudeMultiplier = 0.9
+    this.waveMultiplier = 1.11
+    this.seedOffset = 1232.399963
+
     this.materials = {
-      ocean: new Material(new Ocean_Shader()),
+      ocean: new Material(new Ocean_Shader(), {
+        amplitude: this.amplitude,
+        waveMut: this.waveMut,
+        seed: this.seed,
+        amplitudeMultiplier: this.amplitudeMultiplier,
+        waveMultiplier: this.waveMultiplier,
+        seedOffset: this.seedOffset,
+      }),
       cube: new Material(new Phong_Shader()),
       postprocess: new Material(
         new PostProcessingShader(),
@@ -90,8 +106,131 @@ export class Project_Scene extends Scene {
     this.skipped_first_frame = false
   }
 
+  make_control_panel() {
+    this.control_panel.innerHTML += 'blah blah blah'
+
+    this.new_line()
+
+    this.key_triggered_button('+', ['a'], () => {
+      this.amplitude += 0.01
+    })
+
+    this.key_triggered_button('+', ['Control', 'a'], () => {
+      this.amplitude += 0.1
+    })
+
+    this.live_string((box) => {
+      box.textContent = `Amplitude: ${this.amplitude.toFixed(
+        2
+      )}`
+    })
+
+    this.key_triggered_button('-', ['s'], () => {
+      this.amplitude = Math.max(0, this.amplitude - 0.01)
+    })
+
+    this.key_triggered_button('-', ['Control', 's'], () => {
+      this.amplitude = Math.max(0, this.amplitude - 0.1)
+    })
+
+    this.new_line()
+
+    this.key_triggered_button('+', ['z'], () => {
+      this.amplitudeMultiplier += 0.01
+    })
+
+    this.key_triggered_button('+', ['Control', 'z'], () => {
+      this.amplitudeMultiplier += 0.1
+    })
+
+    this.live_string((box) => {
+      box.textContent = `Amplitude Multiplier: ${this.amplitudeMultiplier.toFixed(
+        2
+      )}`
+    })
+
+    this.key_triggered_button('-', ['x'], () => {
+      this.amplitudeMultiplier = Math.max(
+        0,
+        this.amplitudeMultiplier - 0.01
+      )
+    })
+
+    this.key_triggered_button('-', ['Control', 'x'], () => {
+      this.amplitudeMultiplier = Math.max(
+        0,
+        this.amplitudeMultiplier - 0.1
+      )
+    })
+
+    this.new_line()
+
+    this.key_triggered_button('+', ['d'], () => {
+      this.waveMut += 0.01
+    })
+
+    this.key_triggered_button('+', ['Control', 'd'], () => {
+      this.waveMut += 0.1
+    })
+
+    this.live_string((box) => {
+      box.textContent = `Starting Wave Multiplier: ${this.waveMut.toFixed(
+        2
+      )}`
+    })
+
+    this.key_triggered_button('-', ['f'], () => {
+      this.waveMut = Math.max(0, this.waveMut - 0.01)
+    })
+
+    this.key_triggered_button('-', ['Control', 'f'], () => {
+      this.waveMut = Math.max(0, this.waveMut - 0.1)
+    })
+
+    this.new_line()
+
+    this.key_triggered_button('+', ['q'], () => {
+      this.waveMultiplier += 0.01
+    })
+
+    this.key_triggered_button('+', ['Control', 'q'], () => {
+      this.waveMultiplier += 0.1
+    })
+
+    this.live_string((box) => {
+      box.textContent = `Progressive Wave Multiplier: ${this.waveMultiplier.toFixed(
+        2
+      )}`
+    })
+
+    this.key_triggered_button('-', ['w'], () => {
+      this.waveMultiplier = Math.max(
+        0,
+        this.waveMultiplier - 0.01
+      )
+    })
+
+    this.key_triggered_button('-', ['Control', 'w'], () => {
+      this.waveMultiplier = Math.max(
+        0,
+        this.waveMultiplier - 0.1
+      )
+    })
+
+    this.new_line()
+
+    this.key_triggered_button('randomize', ['r'], () => {
+      this.seed = Math.random() * 10000
+      this.seedOffset = Math.random() * 10000
+    })
+
+    this.live_string((box) => {
+      box.textContent = `Seed: ${this.seed} | Seed Offset: ${this.seedOffset}`
+    })
+  }
+
   display(context, program_state) {
-    program_state.set_camera(Mat4.translation(0, 0, -15))
+    program_state.set_camera(Mat4.translation(0, 0, -10))
     program_state.projection_transform = Mat4.perspective(
       Math.PI / 4,
       context.width / context.height,
@@ -115,7 +254,14 @@ export class Project_Scene extends Scene {
       context,
       program_state,
       model_transform,
-      this.materials.ocean
+      this.materials.ocean.override({
+        amplitude: this.amplitude,
+        waveMut: this.waveMut,
+        seed: this.seed,
+        amplitudeMultiplier: this.amplitudeMultiplier,
+        waveMultiplier: this.waveMultiplier,
+        seedOffset: this.seedOffset,
+      })
     )
 
     // second pass

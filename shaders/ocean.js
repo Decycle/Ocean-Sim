@@ -41,6 +41,29 @@ class Ocean_Shader extends Shader {
       gpu_addresses.animation_time,
       graphics_state.animation_time / 1000
     )
+
+    context.uniform1f(
+      gpu_addresses.amplitude,
+      material.amplitude
+    )
+    context.uniform1f(
+      gpu_addresses.wave_mut,
+      material.waveMut
+    )
+    context.uniform1f(gpu_addresses.seed, material.seed)
+
+    context.uniform1f(
+      gpu_addresses.amplitude_multiplier,
+      material.amplitudeMultiplier
+    )
+    context.uniform1f(
+      gpu_addresses.wave_multiplier,
+      material.waveMultiplier
+    )
+    context.uniform1f(
+      gpu_addresses.seed_offset,
+      material.seedOffset
+    )
   }
   shared_glsl_code() {
     // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
@@ -65,13 +88,20 @@ class Ocean_Shader extends Shader {
         uniform mat4 camera_inverse;
         uniform mat4 model_transform;
 
+        uniform float amplitude;
+        uniform float wave_mut;
+        uniform float seed;
+        uniform float amplitude_multiplier;
+        uniform float wave_multiplier;
+        uniform float seed_offset;
+
         #define PI 3.1415926535897932384626433832795
 
         // gerstner wave
         // math source: https://en.wikipedia.org/wiki/Trochoidal_wave
         vec3 gerstner_wave(vec2 p, float t, inout vec3 normal) {
           const float g = 9.81;
-          const int ITERATIONS = 10;
+          const int ITERATIONS = 40;
 
           float x = p.x;
           float y = p.y;
@@ -80,15 +110,9 @@ class Ocean_Shader extends Shader {
           vec3 vx = vec3(1., 0., 0.);
           vec3 vy = vec3(0., 1., 0.);
 
-          float amplitude = 0.06;
-          float wave_mut = 1.0;
-          float seed = 1941.52;
-
-          const float AMPLITUDE_MULTIPLIER = 0.75;
-          const float WAVE_MULTIPLIER = 1.27;
-          const float SEED_OFFSET = 1312.13;
-
-          float total_amplitude = 0.;
+          float amplitude = amplitude;
+          float wave_mut = wave_mut;
+          float seed = seed;
 
           for (int i = 0; i < ITERATIONS; i++) {
             vec2 k = vec2(sin(seed), cos(seed));
@@ -104,9 +128,9 @@ class Ocean_Shader extends Shader {
             vx -= k.x * dv;
             vy -= k.y * dv;
 
-            amplitude *= AMPLITUDE_MULTIPLIER;
-            wave_mut *= WAVE_MULTIPLIER;
-            seed += SEED_OFFSET;
+            amplitude *= amplitude_multiplier;
+            wave_mut *= wave_multiplier;
+            seed += seed_offset;
           }
 
           normal = normalize(cross(vx, vy));
@@ -141,8 +165,14 @@ class Ocean_Shader extends Shader {
         vec3 normal = normalize(VERTEX_NORMAL);
         float diffuse = max(0.0, dot(normal, light_direction));
 
-        vec3 sea_color = vec3(0.5, 0.55, 0.7);
+        vec3 sea_color = vec3(0.27, 0.75, 1.);
         vec3 color = sea_color * diffuse;
+
+        // reflection
+        vec3 eye = vec3(0, 0, 1);
+        vec3 reflected = reflect(-light_direction, normal);
+        float spec = pow(max(dot(reflected, eye), 0.), 10.);
+        color += vec3(1, 1, 1) * spec;
 
         gl_FragColor = vec4( color, 1.0 );
       }
