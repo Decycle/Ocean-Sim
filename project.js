@@ -116,6 +116,14 @@ export class Project_Scene extends Scene {
     this.boat_position = vec3(0, 0, 0)
     this.boat_velocity = vec3(0, 0, 0)
 
+    this.boat_rotate_left = false
+    this.boat_rotate_right = false
+    this.boat_horizontal_angle = 0
+
+    this.camera_rotate_left = false
+    this.camera_rotate_right = false
+    this.camera_horizontal_angle = 0
+
     this.show_advanced_controls = true
 
     this.quaternion = Quaternion.identity()
@@ -138,23 +146,31 @@ export class Project_Scene extends Scene {
 
     this.new_line()
 
-    const force = 0.5
-    const max_speed = 3
-    this.key_triggered_button('Left', ['a'], () => {
-      this.boat_velocity[0] -= force
-      this.boat_velocity[0] = Math.max(
-        this.boat_velocity[0],
-        -max_speed
-      )
-    })
+    const force = 1
+    const max_speed = 5
+    this.key_triggered_button(
+      'Left Turn',
+      ['a'],
+      () => {
+        this.boat_rotate_left = true
+      },
+      undefined,
+      () => {
+        this.boat_rotate_left = false
+      }
+    )
 
-    this.key_triggered_button('Right', ['d'], () => {
-      this.boat_velocity[0] += force
-      this.boat_velocity[0] = Math.min(
-        this.boat_velocity[0],
-        max_speed
-      )
-    })
+    this.key_triggered_button(
+      'Right Turn',
+      ['d'],
+      () => {
+        this.boat_rotate_right = true
+      },
+      undefined,
+      () => {
+        this.boat_rotate_right = false
+      }
+    )
 
     this.key_triggered_button('Forward', ['w'], () => {
       this.boat_velocity[1] += force
@@ -174,21 +190,57 @@ export class Project_Scene extends Scene {
 
     this.new_line()
 
+    this.key_triggered_button('full screen', ['f'], () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen()
+      } else {
+        const canvas =
+          document.getElementById('main-canvas').firstChild
+        canvas.requestFullscreen()
+      }
+    })
+
+    this.new_line()
+
+    this.key_triggered_button(
+      'Rotate Left',
+      ['q'],
+      () => {
+        this.camera_rotate_left = true
+      },
+      undefined,
+      () => {
+        this.camera_rotate_left = false
+      }
+    )
+
+    this.key_triggered_button(
+      'Rotate Right',
+      ['e'],
+      () => {
+        this.camera_rotate_right = true
+      },
+      undefined,
+      () => {
+        this.camera_rotate_right = false
+      }
+    )
+
+    this.new_line()
+    this.new_line()
+
     if (this.show_advanced_controls) {
       this.control_panel.innerHTML += 'Wave Configuration:'
+
       this.new_line()
 
-      this.key_triggered_button('+', ['q'], () => {
-        this.amplitude += 0.01
+      this.key_triggered_button('+0.1', [], () => {
+        this.amplitude += 0.1
       })
 
-      this.key_triggered_button(
-        '+',
-        ['Control', 'q'],
-        () => {
-          this.amplitude += 0.1
-        }
-      )
+      this.key_triggered_button('+0.01', [], () => {
+        this.amplitude += 0.01
+      })
 
       this.live_string((box) => {
         box.textContent = `Amplitude: ${this.amplitude.toFixed(
@@ -196,31 +248,23 @@ export class Project_Scene extends Scene {
         )}`
       })
 
-      this.key_triggered_button('-', ['e'], () => {
+      this.key_triggered_button('-0.01', [], () => {
         this.amplitude = Math.max(0, this.amplitude - 0.01)
       })
 
-      this.key_triggered_button(
-        '-',
-        ['Control', 'e'],
-        () => {
-          this.amplitude = Math.max(0, this.amplitude - 0.1)
-        }
-      )
+      this.key_triggered_button('-0.1', [], () => {
+        this.amplitude = Math.max(0, this.amplitude - 0.1)
+      })
 
       this.new_line()
 
-      this.key_triggered_button('+', ['z'], () => {
-        this.amplitudeMultiplier += 0.01
+      this.key_triggered_button('+0.1', [], () => {
+        this.amplitudeMultiplier += 0.1
       })
 
-      this.key_triggered_button(
-        '+',
-        ['Control', 'z'],
-        () => {
-          this.amplitudeMultiplier += 0.1
-        }
-      )
+      this.key_triggered_button('+0.01', [], () => {
+        this.amplitudeMultiplier += 0.01
+      })
 
       this.live_string((box) => {
         box.textContent = `Amplitude Multiplier: ${this.amplitudeMultiplier.toFixed(
@@ -228,37 +272,29 @@ export class Project_Scene extends Scene {
         )}`
       })
 
-      this.key_triggered_button('-', ['x'], () => {
+      this.key_triggered_button('-0.01', [], () => {
         this.amplitudeMultiplier = Math.max(
           0,
           this.amplitudeMultiplier - 0.01
         )
       })
 
-      this.key_triggered_button(
-        '-',
-        ['Control', 'x'],
-        () => {
-          this.amplitudeMultiplier = Math.max(
-            0,
-            this.amplitudeMultiplier - 0.1
-          )
-        }
-      )
+      this.key_triggered_button('-0.1', [], () => {
+        this.amplitudeMultiplier = Math.max(
+          0,
+          this.amplitudeMultiplier - 0.1
+        )
+      })
 
       this.new_line()
 
-      this.key_triggered_button('+', ['t'], () => {
+      this.key_triggered_button('+0.01', [], () => {
         this.waveMut += 0.01
       })
 
-      this.key_triggered_button(
-        '+',
-        ['Control', 't'],
-        () => {
-          this.waveMut += 0.1
-        }
-      )
+      this.key_triggered_button('+0.1', [], () => {
+        this.waveMut += 0.1
+      })
 
       this.live_string((box) => {
         box.textContent = `Starting Wave Multiplier: ${this.waveMut.toFixed(
@@ -266,31 +302,23 @@ export class Project_Scene extends Scene {
         )}`
       })
 
-      this.key_triggered_button('-', ['y'], () => {
+      this.key_triggered_button('-0.01', [], () => {
         this.waveMut = Math.max(0, this.waveMut - 0.01)
       })
 
-      this.key_triggered_button(
-        '-',
-        ['Control', 'y'],
-        () => {
-          this.waveMut = Math.max(0, this.waveMut - 0.1)
-        }
-      )
+      this.key_triggered_button('-0.1', [], () => {
+        this.waveMut = Math.max(0, this.waveMut - 0.1)
+      })
 
       this.new_line()
 
-      this.key_triggered_button('+', ['g'], () => {
-        this.waveMultiplier += 0.01
+      this.key_triggered_button('+0.1', [], () => {
+        this.waveMultiplier += 0.1
       })
 
-      this.key_triggered_button(
-        '+',
-        ['Control', 'g'],
-        () => {
-          this.waveMultiplier += 0.1
-        }
-      )
+      this.key_triggered_button('+0.01', [], () => {
+        this.waveMultiplier += 0.01
+      })
 
       this.live_string((box) => {
         box.textContent = `Progressive Wave Multiplier: ${this.waveMultiplier.toFixed(
@@ -298,23 +326,19 @@ export class Project_Scene extends Scene {
         )}`
       })
 
-      this.key_triggered_button('-', ['h'], () => {
+      this.key_triggered_button('-0.01', [], () => {
         this.waveMultiplier = Math.max(
           0,
           this.waveMultiplier - 0.01
         )
       })
 
-      this.key_triggered_button(
-        '-',
-        ['Control', 'h'],
-        () => {
-          this.waveMultiplier = Math.max(
-            0,
-            this.waveMultiplier - 0.1
-          )
-        }
-      )
+      this.key_triggered_button('-0.1', [''], () => {
+        this.waveMultiplier = Math.max(
+          0,
+          this.waveMultiplier - 0.1
+        )
+      })
 
       this.new_line()
 
@@ -326,24 +350,6 @@ export class Project_Scene extends Scene {
       this.live_string((box) => {
         box.textContent = `Seed: ${this.seed} | Seed Offset: ${this.seedOffset}`
       })
-
-      this.new_line()
-
-      this.key_triggered_button(
-        'full screen',
-        ['f'],
-        () => {
-          if (document.fullscreenElement) {
-            document.exitFullscreen()
-          } else {
-            const canvas =
-              document.getElementById(
-                'main-canvas'
-              ).firstChild
-            canvas.requestFullscreen()
-          }
-        }
-      )
     }
   }
 
@@ -406,8 +412,21 @@ export class Project_Scene extends Scene {
     const quaternionInterpolation = 0.05
     const boatFallingAcceleration = 1
 
+    if (this.boat_rotate_left) {
+      this.boat_horizontal_angle += 0.03
+    }
+    if (this.boat_rotate_right) {
+      this.boat_horizontal_angle -= 0.03
+    }
+
     this.boat_position = this.boat_position.plus(
-      this.boat_velocity.times(dt)
+      // this.boat_velocity.times(dt)
+      Mat4.rotation(
+        this.boat_horizontal_angle,
+        0,
+        0,
+        1
+      ).times(this.boat_velocity.times(dt))
     )
 
     const x = this.boat_position[0]
@@ -430,6 +449,20 @@ export class Project_Scene extends Scene {
     this.boat_velocity[0] *= 0.95
     this.boat_velocity[1] *= 0.95
 
+    if (this.camera_rotate_left) {
+      this.camera_horizontal_angle += 0.02
+      this.camera_horizontal_angle = Math.min(
+        this.camera_horizontal_angle,
+        Math.PI / 4
+      )
+    } else if (this.camera_rotate_right) {
+      this.camera_horizontal_angle -= 0.02
+      this.camera_horizontal_angle = Math.max(
+        this.camera_horizontal_angle,
+        -Math.PI / 4
+      )
+    }
+
     program_state.set_camera(
       Mat4.inverse(
         Mat4.translation(
@@ -437,6 +470,14 @@ export class Project_Scene extends Scene {
           this.boat_position[1],
           this.boat_position[2]
         )
+          .times(
+            Mat4.rotation(
+              this.camera_horizontal_angle,
+              0,
+              0,
+              1
+            )
+          )
           .times(Mat4.rotation(1.1, 1, 0, 0))
           .times(Mat4.translation(0, 0.5, 2))
       )
@@ -570,8 +611,12 @@ export class Project_Scene extends Scene {
         this.boat_position[1],
         this.boat_position[2]
       )
+        .times(
+          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
+        )
         .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
         .times(rotation)
+
         .times(
           Mat4.scale(boatWidth, boatHeight, boatLength)
         ),
@@ -587,10 +632,31 @@ export class Project_Scene extends Scene {
         this.boat_position[1],
         this.boat_position[2]
       )
+        .times(
+          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
+        )
         .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
         .times(rotation)
         .times(Mat4.scale(0.03, 0.3, 0.03))
         .times(Mat4.translation(0, -1, 0)),
+      this.materials.boat
+    )
+
+    this.shapes.boat.draw(
+      context,
+      program_state,
+      Mat4.translation(
+        this.boat_position[0],
+        this.boat_position[1],
+        this.boat_position[2]
+      )
+        .times(
+          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
+        )
+        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
+        .times(rotation)
+        .times(Mat4.scale(0.3, 0.03, 0.03))
+        .times(Mat4.translation(1, 0, 0)),
       this.materials.boat
     )
 
