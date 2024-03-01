@@ -27,8 +27,8 @@ const Ocean = class Ocean extends tiny.Vertex_Buffer {
   constructor() {
     super('position')
 
-    const boundary = 20
-    const subdivision = 100
+    const boundary = 100
+    const subdivision = 500
     const step = (2 * boundary) / subdivision
     const position = []
 
@@ -413,10 +413,10 @@ export class Project_Scene extends Scene {
     const boatFallingAcceleration = 1
 
     if (this.boat_rotate_left) {
-      this.boat_horizontal_angle += 0.005
+      this.boat_horizontal_angle += 0.015
     }
     if (this.boat_rotate_right) {
-      this.boat_horizontal_angle -= 0.005
+      this.boat_horizontal_angle -= 0.015
     }
 
     this.boat_position = this.boat_position.plus(
@@ -481,7 +481,7 @@ export class Project_Scene extends Scene {
             )
           )
           .times(Mat4.rotation(1.1, 1, 0, 0)) // edit this to change camera angle
-          .times(Mat4.translation(0, 0.5, 2))
+          .times(Mat4.translation(0, 0.3, 1.3))
       )
     )
 
@@ -491,6 +491,7 @@ export class Project_Scene extends Scene {
       0.1,
       1000
     )
+
     this.shapes.screen_quad.draw(
       context,
       program_state,
