@@ -161,14 +161,14 @@ class OceanShader extends Shader {
           mat4 projection_camera_model_transform = projection_transform * camera_inverse * model_transform;
           gl_Position = projection_camera_model_transform * vec4( new_position, 1.0 );
 
-          VERTEX_POS = new_position;
-          VERTEX_NORMAL = normal;
-          OLD_VERTEX_POS = position;
-
           vec4 world_pos = model_transform * vec4(position, 1.0);
           vec4 camera_pos = camera_transform * vec4(0., 0., 0., 1.);
 
           VIEW_DIR = normalize((world_pos - camera_pos).xyz);
+
+          VERTEX_POS = world_pos.xyz;
+          VERTEX_NORMAL = normal;
+          OLD_VERTEX_POS = position;
         }
         `
     )
@@ -236,7 +236,9 @@ class OceanShader extends Shader {
         fresnel = clamp(fresnel, 0., 1.);
 
         vec3 reflected = sky(reflect(-V, N), L);
-        vec3 refracted = vec3(.109, .109, .435);	// ocean color
+
+        // rgb = 74, 201, 255
+        vec3 refracted = vec3(.109,.109, .435) * 0.3;
         vec3 col = mix(refracted, reflected, fresnel);
         col += vec3(spec) ;
         // return vec3(fresnel);

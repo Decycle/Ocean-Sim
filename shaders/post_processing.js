@@ -49,21 +49,15 @@ class PostProcessingShader extends Shader {
       uniform float animation_time;
       uniform sampler2D texture;
 
-      vec3 aces_tonemap(vec3 color) {
-        mat3 m1 = mat3(
-          0.59719, 0.07600, 0.02840,
-          0.35458, 0.90834, 0.13383,
-          0.04823, 0.01566, 0.83777
-        );
-        mat3 m2 = mat3(
-          1.60475, -0.10208, -0.00327,
-          -0.53108,  1.10813, -0.07276,
-          -0.07367, -0.00605,  1.07602
-        );
-        vec3 v = m1 * color;
-        vec3 a = v * (v + 0.0245786) - 0.000090537;
-        vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081;
-        return pow(clamp(m2 * (a / b), 0.0, 1.0), vec3(1.0 / 2.2));
+      // Lottes 2016, "Advanced Techniques and Optimization of HDR Color Pipelines"
+      // https://github.com/dmnsgn/glsl-tone-map/blob/main/lottes.glsl
+      vec3 aces(vec3 x) {
+        const float a = 2.51;
+        const float b = 0.03;
+        const float c = 2.43;
+        const float d = 0.59;
+        const float e = 0.14;
+        return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
       }
 
       void main(){
@@ -81,7 +75,7 @@ class PostProcessingShader extends Shader {
         float b = texture2D(texture, uv + vec2(blueOffset)).b;
 
         vec3 color = vec3(r, g, b);
-        // color = aces_tonemap(color);
+        color = aces(color);
         color *= vignette;
 
         gl_FragColor = vec4( color, 1.0 );

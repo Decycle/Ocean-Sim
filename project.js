@@ -440,6 +440,12 @@ export class Project_Scene extends Scene {
     context.context.clear(context.context.DEPTH_BUFFER_BIT)
 
     // first pass
+    // const model_transform = Mat4.translation(
+    //   this.boat_position[0],
+    //   this.boat_position[1],
+    //   this.boat_position[2]
+    // )
+
     const model_transform = Mat4.identity()
 
     this.shapes.ocean.draw(
@@ -458,6 +464,8 @@ export class Project_Scene extends Scene {
     )
 
     let new_quaternion = this.quaternion
+
+    //if boat is below water, rotate it to match the waves
     if (this.boat_position[2] < nz + boatHeight / 2) {
       const x1 = x + boatWidth / 2
       const x2 = x - boatWidth / 2
@@ -518,7 +526,8 @@ export class Project_Scene extends Scene {
       ) {
         console.error('slerp caused NaN')
       }
-    } else {
+    } // otherwise, rotate the boat according to the angular velocity
+    else {
       new_quaternion = this.quaternion.predictNext(
         this.last_quaternion
       )
@@ -535,9 +544,6 @@ export class Project_Scene extends Scene {
 
     const rotation = this.quaternion.toMatrix()
 
-    program_state.lights = [
-      new Light(vec3(1, 1, 1), hex_color('#ffffff'), 1000),
-    ]
     this.shapes.boat.draw(
       context,
       program_state,
@@ -551,12 +557,23 @@ export class Project_Scene extends Scene {
         .times(
           Mat4.scale(boatWidth, boatHeight, boatLength)
         ),
-      this.materials.boat.override({
-        ambient: 1.0,
-        diffusivity: 0.8,
-        specularity: 0.5,
-        color: hex_color('#3b59CC'),
-      })
+      this.materials.boat
+    )
+
+    // temporary pole
+    this.shapes.boat.draw(
+      context,
+      program_state,
+      Mat4.translation(
+        this.boat_position[0],
+        this.boat_position[1],
+        this.boat_position[2]
+      )
+        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
+        .times(rotation)
+        .times(Mat4.scale(0.03, 0.3, 0.03))
+        .times(Mat4.translation(0, -1, 0)),
+      this.materials.boat
     )
 
     // second pass

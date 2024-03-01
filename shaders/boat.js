@@ -70,8 +70,8 @@ class BoatShader extends Shader {
           mat4 projection_camera_model_transform = projection_transform * camera_inverse * model_transform;
           gl_Position = projection_camera_model_transform * vec4( position, 1.0 );
 
-          VERTEX_POS = (model_transform * vec4(position, 1.0)).xyz;
-          VERTEX_NORMAL = normal;
+          VERTEX_POS = position;
+          VERTEX_NORMAL = (model_transform * vec4(normal, 0.0)).xyz;
         }
         `
     )
@@ -85,9 +85,13 @@ class BoatShader extends Shader {
       void main(){
 
         vec3 normal = VERTEX_NORMAL;
-        vec3 color = vec3(1.);
-        // float diffuse = max( 0.0, dot( normalize( normal ), vec3( 1.0, 1.0, 1.0 ) ) );
-        gl_FragColor = vec4( normal * 2. + 0.5, 1.0 );
+        vec3 boat_color = vec3(1.);
+        vec3 ambient = vec3(0.2, 0.2, 0.2);
+        vec3 light = normalize(vec3(1, 1, 1));
+
+        float diffuse = max( 0.0, dot( normalize( normal ), light));
+
+        gl_FragColor = vec4( boat_color * (ambient + diffuse), 1.0 );
       }
       `
     )
