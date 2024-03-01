@@ -243,7 +243,7 @@ export class Project_Scene extends Scene {
       })
 
       this.live_string((box) => {
-        box.textContent = `Amplitude: ${this.amplitude.toFixed(
+        box.textContent = `Wave Amplitude: ${this.amplitude.toFixed(
           2
         )}`
       })
@@ -267,7 +267,7 @@ export class Project_Scene extends Scene {
       })
 
       this.live_string((box) => {
-        box.textContent = `Amplitude Multiplier: ${this.amplitudeMultiplier.toFixed(
+        box.textContent = `Wave Amplitude Multiplier: ${this.amplitudeMultiplier.toFixed(
           2
         )}`
       })
@@ -297,7 +297,7 @@ export class Project_Scene extends Scene {
       })
 
       this.live_string((box) => {
-        box.textContent = `Starting Wave Multiplier: ${this.waveMut.toFixed(
+        box.textContent = `Wave Number: ${this.waveMut.toFixed(
           2
         )}`
       })
@@ -321,7 +321,7 @@ export class Project_Scene extends Scene {
       })
 
       this.live_string((box) => {
-        box.textContent = `Progressive Wave Multiplier: ${this.waveMultiplier.toFixed(
+        box.textContent = `Wave Number Multiplier: ${this.waveMultiplier.toFixed(
           2
         )}`
       })
@@ -413,10 +413,10 @@ export class Project_Scene extends Scene {
     const boatFallingAcceleration = 1
 
     if (this.boat_rotate_left) {
-      this.boat_horizontal_angle += 0.03
+      this.boat_horizontal_angle += 0.005
     }
     if (this.boat_rotate_right) {
-      this.boat_horizontal_angle -= 0.03
+      this.boat_horizontal_angle -= 0.005
     }
 
     this.boat_position = this.boat_position.plus(
@@ -463,6 +463,8 @@ export class Project_Scene extends Scene {
       )
     }
 
+    // camera should be rotated on top of the boat rotation
+
     program_state.set_camera(
       Mat4.inverse(
         Mat4.translation(
@@ -472,13 +474,13 @@ export class Project_Scene extends Scene {
         )
           .times(
             Mat4.rotation(
-              this.camera_horizontal_angle,
+              this.boat_horizontal_angle,
               0,
               0,
               1
             )
           )
-          .times(Mat4.rotation(1.1, 1, 0, 0))
+          .times(Mat4.rotation(1.1, 1, 0, 0)) // edit this to change camera angle
           .times(Mat4.translation(0, 0.5, 2))
       )
     )
