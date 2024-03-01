@@ -280,13 +280,13 @@ export class Project_Scene extends Scene {
 
       this.new_line()
 
-      this.key_triggered_button('+', ['f'], () => {
+      this.key_triggered_button('+', ['g'], () => {
         this.waveMultiplier += 0.01
       })
 
       this.key_triggered_button(
         '+',
-        ['Control', 'f'],
+        ['Control', 'g'],
         () => {
           this.waveMultiplier += 0.1
         }
@@ -298,7 +298,7 @@ export class Project_Scene extends Scene {
         )}`
       })
 
-      this.key_triggered_button('-', ['g'], () => {
+      this.key_triggered_button('-', ['h'], () => {
         this.waveMultiplier = Math.max(
           0,
           this.waveMultiplier - 0.01
@@ -307,7 +307,7 @@ export class Project_Scene extends Scene {
 
       this.key_triggered_button(
         '-',
-        ['Control', 'g'],
+        ['Control', 'h'],
         () => {
           this.waveMultiplier = Math.max(
             0,
@@ -326,6 +326,24 @@ export class Project_Scene extends Scene {
       this.live_string((box) => {
         box.textContent = `Seed: ${this.seed} | Seed Offset: ${this.seedOffset}`
       })
+
+      this.new_line()
+
+      this.key_triggered_button(
+        'full screen',
+        ['f'],
+        () => {
+          if (document.fullscreenElement) {
+            document.exitFullscreen()
+          } else {
+            const canvas =
+              document.getElementById(
+                'main-canvas'
+              ).firstChild
+            canvas.requestFullscreen()
+          }
+        }
+      )
     }
   }
 
