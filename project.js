@@ -122,27 +122,27 @@ export class Project_Scene extends Scene {
 
     const force = 0.5
     const max_speed = 3
-    this.key_triggered_button('Left', ['a'], () => {
-      this.boat_velocity[0] -= force
-      this.boat_velocity[0] = Math.max(this.boat_velocity[0], -max_speed)
-    })
+    // this.key_triggered_button('Left', ['a'], () => {
+    //   this.boat_velocity[0] -= force
+    //   this.boat_velocity[0] = Math.max(this.boat_velocity[0], -max_speed)
+    // })
 
-    this.key_triggered_button('Right', ['d'], () => {
-      this.boat_velocity[0] += force
-      this.boat_velocity[0] = Math.min(this.boat_velocity[0], max_speed)
-    })
+    // this.key_triggered_button('Right', ['d'], () => {
+    //   this.boat_velocity[0] += force
+    //   this.boat_velocity[0] = Math.min(this.boat_velocity[0], max_speed)
+    // })
 
-    this.key_triggered_button('Forward', ['w'], () => {
-      this.boat_velocity[1] += force
-      this.boat_velocity[1] = Math.min(this.boat_velocity[1], max_speed)
-    })
+    // this.key_triggered_button('Forward', ['w'], () => {
+    //   this.boat_velocity[1] += force
+    //   this.boat_velocity[1] = Math.min(this.boat_velocity[1], max_speed)
+    // })
 
-    this.key_triggered_button('Backward', ['s'], () => {
-      this.boat_velocity[1] -= force
-      this.boat_velocity[1] = Math.max(this.boat_velocity[1], -max_speed)
-    })
+    // this.key_triggered_button('Backward', ['s'], () => {
+    //   this.boat_velocity[1] -= force
+    //   this.boat_velocity[1] = Math.max(this.boat_velocity[1], -max_speed)
+    // })
 
-    this.new_line()
+    // this.new_line()
 
     if (this.show_advanced_controls) {
       this.control_panel.innerHTML += 'Wave Configuration:'
@@ -302,7 +302,13 @@ export class Project_Scene extends Scene {
         (context.scratchpad.controls = new defs.Movement_Controls())
       )
       // Define the global camera and projection matrices, which are stored in program_state.
-      program_state.set_camera(Mat4.translation(0, 0, -2))
+
+      program_state.set_camera(
+        Mat4.inverse(
+          Mat4.translation(0, -4, 1).times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+          // .times(Mat4.translation(0, 0.5, 2))
+        )
+      )
     }
 
     const t = program_state.animation_time / 1000
@@ -336,18 +342,6 @@ export class Project_Scene extends Scene {
 
     this.boat_velocity[0] *= 0.95
     this.boat_velocity[1] *= 0.95
-
-    program_state.set_camera(
-      Mat4.inverse(
-        Mat4.translation(
-          this.boat_position[0],
-          this.boat_position[1],
-          this.boat_position[2]
-        )
-          .times(Mat4.rotation(1.1, 1, 0, 0))
-          .times(Mat4.translation(0, 0.5, 2))
-      )
-    )
 
     program_state.projection_transform = Mat4.perspective(
       Math.PI / 3,
