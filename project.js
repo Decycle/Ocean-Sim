@@ -130,6 +130,13 @@ export class Project_Scene extends Scene {
     this.last_quaternion = this.quaternion
 
     this.enable_post_processing = true
+
+    this.camera_z_offset = 2.3
+    this.camera_z_min_offset = 1.0
+    this.camera_z_max_offset = 20
+
+    this.is_zooming_in = false
+    this.is_zooming_out = false
   }
 
   make_control_panel() {
@@ -146,7 +153,7 @@ export class Project_Scene extends Scene {
 
     this.new_line()
 
-    const force = 1
+    const force = 10
     const max_speed = 5
     this.key_triggered_button(
       'Left Turn',
@@ -223,6 +230,31 @@ export class Project_Scene extends Scene {
       undefined,
       () => {
         this.camera_rotate_right = false
+      }
+    )
+    this.new_line()
+
+    this.key_triggered_button(
+      'Zoom In',
+      ['z'],
+      () => {
+        this.is_zooming_in = true
+      },
+      undefined,
+      () => {
+        this.is_zooming_in = false
+      }
+    )
+
+    this.key_triggered_button(
+      'Zoom Out',
+      ['x'],
+      () => {
+        this.is_zooming_out = true
+      },
+      undefined,
+      () => {
+        this.is_zooming_out = false
       }
     )
 
@@ -465,6 +497,22 @@ export class Project_Scene extends Scene {
 
     // camera should be rotated on top of the boat rotation
 
+    if (this.is_zooming_in) {
+      this.camera_z_offset *= 0.97
+      this.camera_z_offset = Math.max(
+        this.camera_z_offset,
+        this.camera_z_min_offset
+      )
+    }
+
+    if (this.is_zooming_out) {
+      this.camera_z_offset *= 1.03
+      this.camera_z_offset = Math.min(
+        this.camera_z_offset,
+        this.camera_z_max_offset
+      )
+    }
+
     program_state.set_camera(
       Mat4.inverse(
         Mat4.translation(
@@ -481,7 +529,9 @@ export class Project_Scene extends Scene {
             )
           )
           .times(Mat4.rotation(1.1, 1, 0, 0)) // edit this to change camera angle
-          .times(Mat4.translation(0, 0.3, 1.3))
+          .times(
+            Mat4.translation(0, 0.3, this.camera_z_offset)
+          )
       )
     )
 
