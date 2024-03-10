@@ -34,7 +34,7 @@ class PostProcessingShader extends Shader {
 
         void main(){
             f_tex_coord = texture_coord;
-            f_tex_coord.y = 1.0 - f_tex_coord.y;
+            // f_tex_coord.y = f_tex_coord.y;
             gl_Position = vec4((texture_coord - 0.5) * 2., 0, 1);
         }
         `

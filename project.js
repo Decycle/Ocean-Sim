@@ -433,38 +433,38 @@ export class Project_Scene extends Scene {
     )
 
     // second pass
-    // if (this.enable_post_processing) {
-    //   this.scratchpad_context.drawImage(
-    //     context.canvas,
-    //     0,
-    //     0,
-    //     512,
-    //     512
-    //   )
+    if (this.enable_post_processing) {
+      this.scratchpad_context.drawImage(
+        context.canvas,
+        0,
+        0,
+        512,
+        512
+      )
 
-    //   this.texture.image.src =
-    //     this.scratchpad.toDataURL('image/png')
+      this.texture.image.src =
+        this.scratchpad.toDataURL('image/png')
 
-    //   if (this.skipped_first_frame)
-    //     // Update the texture with the current scene:
-    //     this.texture.copy_onto_graphics_card(
-    //       context.context,
-    //       false
-    //     )
-    //   this.skipped_first_frame = true
+      if (this.skipped_first_frame)
+        // Update the texture with the current scene:
+        this.texture.copy_onto_graphics_card(
+          context.context,
+          false
+        )
+      this.skipped_first_frame = true
 
-    //   context.context.clear(
-    //     context.context.COLOR_BUFFER_BIT |
-    //       context.context.DEPTH_BUFFER_BIT
-    //   )
+      context.context.clear(
+        context.context.COLOR_BUFFER_BIT |
+          context.context.DEPTH_BUFFER_BIT
+      )
 
-    //   this.shapes.screen_quad.draw(
-    //     context,
-    //     program_state,
-    //     Mat4.identity(),
-    //     this.materials.postprocess
-    //   )
-    // }
+      this.shapes.screen_quad.draw(
+        context,
+        program_state,
+        Mat4.identity(),
+        this.materials.postprocess
+      )
+    }
 
     if (
       this.is_splashing &&
