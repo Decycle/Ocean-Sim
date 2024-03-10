@@ -3,10 +3,10 @@
  * This file defines a lot of panels that can be placed on websites to create interactive graphics programs that use tiny-graphics.js.
  */
 
-import { tiny } from './tiny-graphics.js'
+import {tiny} from './tiny-graphics.js'
 
 // Pull these names into this module's scope for convenience.
-const { color, Scene } = tiny
+const {color, Scene} = tiny
 
 export const widgets = {}
 
@@ -106,7 +106,7 @@ const Canvas_Widget = (widgets.Canvas_Widget = class Canvas_Widget {
 				this.embedded_code_nav_area,
 				primary_scene_definiton,
 				additional_scenes,
-				{ associated_editor: this.embedded_editor },
+				{associated_editor: this.embedded_editor},
 			)
 
 		// Start WebGL initialization.  Note that render() will re-queue itself for continuous calls.
@@ -239,7 +239,7 @@ const Code_Manager = (widgets.Code_Manager = class Code_Manager {
 		this.no_comments = []
 		let single_token = null
 		while ((single_token = es6_tokens_parser.exec(code)) !== null) {
-			let token = { type: 'invalid', value: single_token[0] }
+			let token = {type: 'invalid', value: single_token[0]}
 			if (single_token[1]) {
 				token.type = 'string'
 				token.closed = !!(single_token[3] || single_token[4])
@@ -504,7 +504,7 @@ const Editor_Widget = (widgets.Editor_Widget = class Editor_Widget {
 		return fetch(url, {
 			body: body,
 			method: body === undefined ? 'GET' : 'POST',
-			headers: { 'content-type': 'application/json' },
+			headers: {'content-type': 'application/json'},
 		}).then((response) => {
 			if (response.ok) return Promise.resolve(response.json())
 			else return Promise.reject(response.status)
@@ -554,7 +554,7 @@ const Text_Widget = (widgets.Text_Widget = class Text_Widget {
 		for (const r of rules)
 			document.styleSheets[document.styleSheets.length - 1].insertRule(r, 0)
 
-		Object.assign(this, { element, scenes, webgl_manager })
+		Object.assign(this, {element, scenes, webgl_manager})
 		this.render()
 	}
 

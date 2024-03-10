@@ -1,4 +1,4 @@
-import { defs, tiny } from './common.js'
+import {defs, tiny} from './common.js'
 // Pull these names into this module's scope for convenience:
 const {
 	vec3,
@@ -114,7 +114,7 @@ export class Shape_From_File extends Shape {
 			}
 		}
 		{
-			const { verts, norms, textures } = unpacked
+			const {verts, norms, textures} = unpacked
 			for (var j = 0; j < verts.length / 3; j++) {
 				this.arrays.position.push(
 					vec3(verts[3 * j], verts[3 * j + 1], verts[3 * j + 2]),
@@ -151,10 +151,10 @@ export class Obj_File_Demo extends Scene {
 	constructor() {
 		super()
 		// Load the model file:
-		this.shapes = { teapot: new Shape_From_File('assets/teapot.obj') }
+		this.shapes = {teapot: new Shape_From_File('assets/teapot.obj')}
 
 		// Don't create any DOM elements to control this scene:
-		this.widget_options = { make_controls: false }
+		this.widget_options = {make_controls: false}
 		// Non bump mapped:
 		this.stars = new Material(new defs.Textured_Phong(1), {
 			color: color(0.5, 0.5, 0.5, 1),

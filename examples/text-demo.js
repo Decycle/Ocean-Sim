@@ -1,4 +1,4 @@
-import { defs, tiny } from './common.js'
+import {defs, tiny} from './common.js'
 // Pull these names into this module's scope for convenience:
 const {
 	Vector,
@@ -76,9 +76,9 @@ export class Text_Demo extends Scene {
 	// **Text_Demo** is a scene with a cube, for demonstrating the Text_Line utility Shape.
 	constructor() {
 		super()
-		this.shapes = { cube: new defs.Cube(), text: new Text_Line(35) }
+		this.shapes = {cube: new defs.Cube(), text: new Text_Line(35)}
 		// Don't create any DOM elements to control this scene:
-		this.widget_options = { make_controls: false }
+		this.widget_options = {make_controls: false}
 
 		const phong = new defs.Phong_Shader()
 		const texture = new defs.Textured_Phong(1)

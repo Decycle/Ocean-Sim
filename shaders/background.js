@@ -1,6 +1,6 @@
-import { tiny } from '../tiny-graphics.js'
+import {tiny} from '../tiny-graphics.js'
 
-const { Shader, Matrix } = tiny
+const {Shader, Matrix} = tiny
 class BackgroundShader extends Shader {
 	update_GPU(
 		context,

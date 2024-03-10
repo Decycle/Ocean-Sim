@@ -1,6 +1,6 @@
-import { tiny, defs } from './examples/common.js'
-import { SplashShader } from './shaders/splash.js'
-const { vec3, Mat4, Material, Texture } = tiny
+import {tiny, defs} from './examples/common.js'
+import {SplashShader} from './shaders/splash.js'
+const {vec3, Mat4, Material, Texture} = tiny
 
 class CylinderStrip extends tiny.Shape {
 	constructor(columns) {

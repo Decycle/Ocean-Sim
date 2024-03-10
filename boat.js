@@ -44,9 +44,9 @@
 // [3, 15, 14]
 // [1, 14, 12]
 
-import { tiny, defs } from './examples/common.js'
+import {tiny, defs} from './examples/common.js'
 
-const { Vector3, Shape } = tiny
+const {Vector3, Shape} = tiny
 
 export class Boat extends Shape {
 	constructor() {

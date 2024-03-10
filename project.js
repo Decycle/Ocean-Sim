@@ -1,17 +1,17 @@
-import { defs, tiny } from './examples/common.js'
+import {defs, tiny} from './examples/common.js'
 import Ocean_Shader from './shaders/ocean.js'
 import PostProcessingShader from './shaders/post_processing.js'
 import BackgroundShader from './shaders/background.js'
 import Quaternion from './util/quaternion.js'
-import { Boat } from './boat.js'
+import {Boat} from './boat.js'
 import BoatShader from './shaders/boat.js'
-import { SplashEffect } from './splash_effect.js'
+import {SplashEffect} from './splash_effect.js'
 
 // Pull these names into this module's scope for convenience:
-const { vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture } =
+const {vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture} =
 	tiny
 
-const { Phong_Shader, Basic_Shader, Cube } = defs
+const {Phong_Shader, Basic_Shader, Cube} = defs
 
 const Ocean = class Ocean extends tiny.Vertex_Buffer {
 	// **Minimal_Shape** an even more minimal triangle, with three

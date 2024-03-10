@@ -1,4 +1,4 @@
-import { defs, tiny } from './common.js'
+import {defs, tiny} from './common.js'
 // Pull these names into this module's scope for convenience:
 const {
 	Vector3,
@@ -13,8 +13,7 @@ const {
 	Texture,
 	Scene,
 } = tiny
-const { Triangle, Square, Tetrahedron, Windmill, Cube, Subdivision_Sphere } =
-	defs
+const {Triangle, Square, Tetrahedron, Windmill, Cube, Subdivision_Sphere} = defs
 
 export class Surfaces_Demo extends Scene {
 	constructor(scene_id, material) {
@@ -31,7 +30,7 @@ export class Surfaces_Demo extends Scene {
 		this.material = material
 
 		// Don't create any DOM elements to control this scene:
-		this.widget_options = { make_controls: false }
+		this.widget_options = {make_controls: false}
 
 		if (this.is_master) {
 			const textured = new defs.Textured_Phong(1)
@@ -118,7 +117,7 @@ export class Surfaces_Demo extends Scene {
 			[0, 0, -1.7],
 		)
 
-		this.shapes = { bullet: new defs.Surface_Of_Revolution(9, 9, points) }
+		this.shapes = {bullet: new defs.Surface_Of_Revolution(9, 9, points)}
 
 		const phong = new defs.Phong_Shader(1)
 		this.solid = new Material(phong, {
@@ -446,7 +445,7 @@ export class Surfaces_Demo extends Scene {
 					element_2,
 					Surfaces_Demo.prototype['construct_scene_' + i],
 					[],
-					{ hide_navigator: true },
+					{hide_navigator: true},
 				)
 
 				const element_3 = document_element.appendChild(
@@ -458,7 +457,7 @@ export class Surfaces_Demo extends Scene {
 					element_3,
 					Surfaces_Demo.prototype['display_scene_' + i],
 					[],
-					{ hide_navigator: true },
+					{hide_navigator: true},
 				)
 			}
 

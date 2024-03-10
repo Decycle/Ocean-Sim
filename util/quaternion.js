@@ -1,6 +1,6 @@
-import { tiny } from './../examples/common.js'
+import {tiny} from './../examples/common.js'
 
-const { Mat4 } = tiny
+const {Mat4} = tiny
 
 class Quaternion {
 	constructor(w, x, y, z) {

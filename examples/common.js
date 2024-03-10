@@ -1,5 +1,5 @@
-import { tiny } from '../tiny-graphics.js'
-import { widgets } from '../tiny-graphics-widgets.js'
+import {tiny} from '../tiny-graphics.js'
+import {widgets} from '../tiny-graphics-widgets.js'
 // Pull these names into this module's scope for convenience:
 const {
 	Vector,
@@ -22,7 +22,7 @@ Object.assign(tiny, widgets)
 
 const defs = {}
 
-export { tiny, defs }
+export {tiny, defs}
 
 const Triangle = (defs.Triangle = class Triangle extends Shape {
 	// **Triangle** The simplest possible 2D Shape – one triangle.  It stores 3 vertices, each
@@ -706,7 +706,7 @@ const Minimal_Webgl_Demo =
 				show_explanation: false,
 			}
 			// Send a Triangle's vertices to the GPU's buffers:
-			this.shapes = { triangle: new Minimal_Shape() }
+			this.shapes = {triangle: new Minimal_Shape()}
 			this.shader = new Basic_Shader()
 		}
 
@@ -1189,7 +1189,7 @@ const Movement_Controls =
 		add_mouse_controls(canvas) {
 			// add_mouse_controls():  Attach HTML mouse events to the drawing canvas.
 			// First, measure mouse steering, for rotating the flyaround camera:
-			this.mouse = { from_center: vec(0, 0) }
+			this.mouse = {from_center: vec(0, 0)}
 			const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
 				vec(
 					e.clientX - (rect.left + rect.right) / 2,

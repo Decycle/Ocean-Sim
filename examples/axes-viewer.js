@@ -1,4 +1,4 @@
-import { defs, tiny } from './common.js'
+import {defs, tiny} from './common.js'
 // Pull these names into this module's scope for convenience:
 const {
 	vec3,
@@ -33,7 +33,7 @@ export class Axes_Viewer extends Scene {
 
 		this.selected_basis_id = 0
 		this.reset()
-		this.shapes = { axes: new defs.Axis_Arrows() }
+		this.shapes = {axes: new defs.Axis_Arrows()}
 		const bump = new defs.Fake_Bump_Map()
 		this.material = new Material(bump, {
 			color: color(0, 0, 0, 1),
@@ -96,9 +96,9 @@ export class Axes_Viewer_Test_Scene extends Scene {
 		super()
 		this.children.push((this.axes_viewer = new Axes_Viewer()))
 		// Scene defaults:
-		this.shapes = { box: new defs.Cube() }
+		this.shapes = {box: new defs.Cube()}
 		const phong = new defs.Phong_Shader()
-		this.material = new Material(phong, { color: color(0.8, 0.4, 0.8, 1) })
+		this.material = new Material(phong, {color: color(0.8, 0.4, 0.8, 1)})
 	}
 
 	make_control_panel() {

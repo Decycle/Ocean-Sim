@@ -1,4 +1,4 @@
-import { defs, tiny } from './common.js'
+import {defs, tiny} from './common.js'
 // Pull these names into this module's scope for convenience:
 const {
 	vec3,
@@ -13,8 +13,7 @@ const {
 	Texture,
 	Scene,
 } = tiny
-const { Triangle, Square, Tetrahedron, Windmill, Cube, Subdivision_Sphere } =
-	defs
+const {Triangle, Square, Tetrahedron, Windmill, Cube, Subdivision_Sphere} = defs
 
 const Minimal_Shape = class Minimal_Shape extends tiny.Vertex_Buffer {
 	// **Minimal_Shape** an even more minimal triangle, with three
@@ -23,7 +22,7 @@ const Minimal_Shape = class Minimal_Shape extends tiny.Vertex_Buffer {
 		super('position', 'normal', 'texture_coord')
 		// Describe the where the points of a triangle are in space, and also describe their colors:
 		// TODO: Edit the position and color here
-		const { vertices, normals, texture_coords, indices } = getExample()
+		const {vertices, normals, texture_coords, indices} = getExample()
 		this.arrays.position = vertices
 		this.arrays.normal = normals
 		this.arrays.texture_coord = texture_coords

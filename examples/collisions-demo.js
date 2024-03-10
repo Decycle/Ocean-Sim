@@ -1,4 +1,4 @@
-import { defs, tiny } from './common.js'
+import {defs, tiny} from './common.js'
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -20,7 +20,7 @@ export class Body {
 	// moves from its previous place due to velocities.  It conforms to the
 	// approach outlined in the "Fix Your Timestep!" blog post by Glenn Fiedler.
 	constructor(shape, material, size) {
-		Object.assign(this, { shape, material, size })
+		Object.assign(this, {shape, material, size})
 	}
 
 	// (within some margin of distance).
@@ -50,7 +50,7 @@ export class Body {
 		// drawn_location gets replaced with an interpolated quantity:
 		this.drawn_location = location_matrix
 		this.temp_matrix = Mat4.identity()
-		return Object.assign(this, { linear_velocity, angular_velocity, spin_axis })
+		return Object.assign(this, {linear_velocity, angular_velocity, spin_axis})
 	}
 
 	advance(time_amount) {
@@ -105,7 +105,7 @@ export class Body {
 		// Convert sphere b to the frame where a is a unit sphere:
 		const T = this.inverse.times(b.drawn_location, this.temp_matrix)
 
-		const { intersect_test, points, leeway } = collider
+		const {intersect_test, points, leeway} = collider
 		// For each vertex in that b, shift to the coordinate frame of
 		// a_inv*b.  Check if in that coordinate frame it penetrates
 		// the unit sphere at the origin.  Leave some leeway.
@@ -477,7 +477,7 @@ export class Collision_Demo extends Simulation {
 
 		// Draw an extra bounding sphere around each drawn shape to show
 		// the physical shape that is really being collided with:
-		const { points, leeway } = this.colliders[this.collider_selection]
+		const {points, leeway} = this.colliders[this.collider_selection]
 		const size = vec3(1 + leeway, 1 + leeway, 1 + leeway)
 		for (let b of this.bodies)
 			points.draw(

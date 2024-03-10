@@ -1,6 +1,6 @@
-import { tiny } from '../tiny-graphics.js'
+import {tiny} from '../tiny-graphics.js'
 
-const { Shader, Matrix } = tiny
+const {Shader, Matrix} = tiny
 class BoatShader extends Shader {
 	// **Basic_Shader** is nearly the simplest example of a subclass of Shader, which stores and
 	// maanges a GPU program.  Basic_Shader is a trivial pass-through shader that applies a

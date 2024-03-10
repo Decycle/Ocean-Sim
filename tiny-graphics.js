@@ -1251,7 +1251,7 @@ const Material = (tiny.Material = class Material extends Container {
 	// command), as well as a collection of any options wanted by the shader.
 	constructor(shader, options) {
 		super()
-		Object.assign(this, { shader }, options)
+		Object.assign(this, {shader}, options)
 	}
 })
 
@@ -1417,7 +1417,7 @@ const Texture = (tiny.Texture = class Texture extends Graphics_Card_Object {
 	// optionally generating mip maps of it and storing them there too.
 	constructor(filename, min_filter = 'LINEAR_MIPMAP_LINEAR') {
 		super()
-		Object.assign(this, { filename, min_filter })
+		Object.assign(this, {filename, min_filter})
 		// Create a new HTML Image object:
 		this.image = new Image()
 		this.image.onload = () => (this.ready = true)
@@ -1591,8 +1591,8 @@ const Webgl_Manager = (tiny.Webgl_Manager = class Webgl_Manager {
 		const [width, height] = dimensions
 		this.canvas.style['width'] = width + 'px'
 		this.canvas.style['height'] = height + 'px'
-		Object.assign(this, { width, height })
-		Object.assign(this.canvas, { width, height })
+		Object.assign(this, {width, height})
+		Object.assign(this.canvas, {width, height})
 		// Build the canvas's matrix for converting -1 to 1 ranged coords (NCDS) into its own pixel coords:
 		this.context.viewport(0, 0, width, height)
 	}

@@ -1,4 +1,4 @@
-import { defs, tiny } from './common.js'
+import {defs, tiny} from './common.js'
 // Pull these names into this module's scope for convenience:
 const {
 	vec3,
@@ -23,9 +23,9 @@ export class Many_Lights_Demo extends Scene {
 	constructor() {
 		super()
 		// Define how many boxes (buildings) to draw:
-		Object.assign(this, { rows: 20, columns: 35 })
+		Object.assign(this, {rows: 20, columns: 35})
 
-		this.shapes = { cube: new defs.Cube() }
+		this.shapes = {cube: new defs.Cube()}
 		const shader = new defs.Fake_Bump_Map()
 		this.brick = new Material(shader, {
 			color: color(1, 1, 1, 1),
@@ -37,7 +37,7 @@ export class Many_Lights_Demo extends Scene {
 		})
 
 		// Don't create any DOM elements to control this scene:
-		this.widget_options = { make_controls: false }
+		this.widget_options = {make_controls: false}
 
 		this.box_positions = []
 		this.row_lights = {}
