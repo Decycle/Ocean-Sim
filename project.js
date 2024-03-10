@@ -6,6 +6,7 @@ import Quaternion from './util/quaternion.js'
 import { Boat } from './boat.js'
 import BoatShader from './shaders/boat.js'
 import { SplashEffect } from './splash_effect.js'
+import { Shape_From_File } from './examples/obj-file-demo.js'
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -20,7 +21,7 @@ const {
   Texture,
 } = tiny
 
-const { Phong_Shader, Basic_Shader, Cube } = defs
+const { Phong_Shader, Basic_Shader, Cube, Textured_Phong } = defs
 
 const Ocean = class Ocean extends tiny.Vertex_Buffer {
   // **Minimal_Shape** an even more minimal triangle, with three
@@ -80,7 +81,7 @@ export class Project_Scene extends Scene {
     this.shapes = {
       ocean: new Ocean(),
       screen_quad: new defs.Square(),
-      boat: new Cube(),
+      boat: new Shape_From_File("./assets/minecraft-boat.obj"),
     }
 
     this.amplitude = 0.13
@@ -101,7 +102,13 @@ export class Project_Scene extends Scene {
         seedOffset: this.seedOffset,
         sea_color: hex_color('#3b59CC'),
       }),
-      boat: new Material(new BoatShader(), {}),
+      boat: new Material(new Textured_Phong(), {
+        color: hex_color("#000000"),
+        ambient: 1,
+        diffusivity: 0,
+        specularity: 0,
+        texture: new Texture('./assets/oak-wood.jpeg')
+      }),
       postprocess: new Material(
         new PostProcessingShader(),
         {
@@ -395,42 +402,42 @@ export class Project_Scene extends Scene {
       this.materials.boat
     )
 
-    // temporary pole
-    this.shapes.boat.draw(
-      context,
-      program_state,
-      Mat4.translation(
-        this.boat_position[0],
-        this.boat_position[1],
-        this.boat_position[2]
-      )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
-        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
-        .times(rotation)
-        .times(Mat4.scale(0.03, 0.3, 0.03))
-        .times(Mat4.translation(0, -1, 0)),
-      this.materials.boat
-    )
+    // // temporary pole
+    // this.shapes.boat.draw(
+    //   context,
+    //   program_state,
+    //   Mat4.translation(
+    //     this.boat_position[0],
+    //     this.boat_position[1],
+    //     this.boat_position[2]
+    //   )
+    //     .times(
+    //       Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
+    //     )
+    //     .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
+    //     .times(rotation)
+    //     .times(Mat4.scale(0.03, 0.3, 0.03))
+    //     .times(Mat4.translation(0, -1, 0)),
+    //   this.materials.boat
+    // )
 
-    this.shapes.boat.draw(
-      context,
-      program_state,
-      Mat4.translation(
-        this.boat_position[0],
-        this.boat_position[1],
-        this.boat_position[2]
-      )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
-        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
-        .times(rotation)
-        .times(Mat4.scale(0.3, 0.03, 0.03))
-        .times(Mat4.translation(1, 0, 0)),
-      this.materials.boat
-    )
+    // this.shapes.boat.draw(
+    //   context,
+    //   program_state,
+    //   Mat4.translation(
+    //     this.boat_position[0],
+    //     this.boat_position[1],
+    //     this.boat_position[2]
+    //   )
+    //     .times(
+    //       Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
+    //     )
+    //     .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
+    //     .times(rotation)
+    //     .times(Mat4.scale(0.3, 0.03, 0.03))
+    //     .times(Mat4.translation(1, 0, 0)),
+    //   this.materials.boat
+    // )
 
     // second pass
     if (this.enable_post_processing) {
