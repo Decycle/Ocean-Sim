@@ -5,6 +5,7 @@ import BackgroundShader from './shaders/background.js'
 import Quaternion from './util/quaternion.js'
 import { Boat } from './boat.js'
 import BoatShader from './shaders/boat.js'
+import { SplashEffect } from './splash_effect.js'
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -137,6 +138,341 @@ export class Project_Scene extends Scene {
 
     this.is_zooming_in = false
     this.is_zooming_out = false
+
+    this.splash_effect = new SplashEffect(0)
+  }
+
+  display(context, program_state) {
+    super.display(context, program_state)
+    const t = program_state.animation_time / 1000
+    const dt = program_state.animation_delta_time / 1000
+
+    const boatWidth = 0.3
+    const boatLength = 0.3
+    const boatHeight = 0.1
+    const heightLerpFactor = 0.05
+    const quaternionInterpolation = 0.05
+    const boatFallingAcceleration = 1
+
+    if (this.boat_rotate_left) {
+      this.boat_horizontal_angle += 0.015
+    }
+    if (this.boat_rotate_right) {
+      this.boat_horizontal_angle -= 0.015
+    }
+
+    this.boat_position = this.boat_position.plus(
+      // this.boat_velocity.times(dt)
+      Mat4.rotation(
+        this.boat_horizontal_angle,
+        0,
+        0,
+        1
+      ).times(this.boat_velocity.times(dt))
+    )
+
+    const x = this.boat_position[0]
+    const y = this.boat_position[1]
+    // const z = this.boat_position[2]
+
+    const wave_pos = this.get_gerstner_wave(x, y, t)[0]
+
+    const nz = wave_pos[2]
+
+    if (this.boat_position[2] < nz) {
+      const threshold = 0.25
+      const maximum_threhold = 1.4
+      if (-this.boat_velocity[2] > threshold) {
+        // splash!
+        const strength = Math.min(
+          1,
+          (-this.boat_velocity[2] - threshold) /
+            (maximum_threhold - threshold)
+        )
+        this.splash_effect.set_start_time(t)
+        this.splash_effect.set_splash_position(x, y)
+        this.splash_effect.set_splash_strength(strength)
+      }
+
+      this.boat_position[2] =
+        (nz + boatHeight / 2) * heightLerpFactor +
+        this.boat_position[2] * (1 - heightLerpFactor)
+      this.boat_velocity[2] = 0
+    } else {
+      this.boat_velocity[2] -= boatFallingAcceleration * dt
+    }
+
+    this.boat_velocity[0] *= 0.95
+    this.boat_velocity[1] *= 0.95
+
+    if (this.camera_rotate_left) {
+      this.camera_horizontal_angle += 0.02
+      this.camera_horizontal_angle = Math.min(
+        this.camera_horizontal_angle,
+        Math.PI / 4
+      )
+    } else if (this.camera_rotate_right) {
+      this.camera_horizontal_angle -= 0.02
+      this.camera_horizontal_angle = Math.max(
+        this.camera_horizontal_angle,
+        -Math.PI / 4
+      )
+    }
+
+    // camera should be rotated on top of the boat rotation
+    if (this.is_zooming_in) {
+      this.camera_z_offset *= 0.97
+      this.camera_z_offset = Math.max(
+        this.camera_z_offset,
+        this.camera_z_min_offset
+      )
+    }
+
+    if (this.is_zooming_out) {
+      this.camera_z_offset *= 1.03
+      this.camera_z_offset = Math.min(
+        this.camera_z_offset,
+        this.camera_z_max_offset
+      )
+    }
+
+    program_state.set_camera(
+      Mat4.inverse(
+        Mat4.translation(
+          this.boat_position[0],
+          this.boat_position[1],
+          this.boat_position[2]
+        )
+          .times(
+            Mat4.rotation(
+              this.boat_horizontal_angle,
+              0,
+              0,
+              1
+            )
+          )
+          .times(Mat4.rotation(1.1, 1, 0, 0)) // edit this to change camera angle
+          .times(
+            Mat4.translation(0, 0.3, this.camera_z_offset)
+          )
+      )
+    )
+
+    program_state.projection_transform = Mat4.perspective(
+      Math.PI / 3,
+      context.width / context.height,
+      0.1,
+      1000
+    )
+
+    this.shapes.screen_quad.draw(
+      context,
+      program_state,
+      Mat4.identity(),
+      this.materials.background
+    )
+
+    context.context.clear(context.context.DEPTH_BUFFER_BIT)
+
+    this.splash_effect.draw(context, program_state, nz)
+
+    // first pass
+    const model_transform = Mat4.identity()
+
+    this.shapes.ocean.draw(
+      context,
+      program_state,
+      model_transform,
+      this.materials.ocean.override({
+        amplitude: this.amplitude,
+        waveMut: this.waveMut,
+        seed: this.seed,
+        amplitudeMultiplier: this.amplitudeMultiplier,
+        waveMultiplier: this.waveMultiplier,
+        seedOffset: this.seedOffset,
+        time: t,
+      })
+    )
+
+    let new_quaternion = this.quaternion
+
+    //if boat is below water, rotate it to match the waves
+    if (this.boat_position[2] < nz + boatHeight / 2) {
+      const x1 = x + boatWidth / 2
+      const x2 = x - boatWidth / 2
+      const y1 = y + boatLength / 2
+      const y2 = y - boatLength / 2
+
+      const wave_normal1 = this.get_gerstner_wave(
+        x1,
+        y1,
+        t
+      )[1]
+      const wave_normal2 = this.get_gerstner_wave(
+        x1,
+        y2,
+        t
+      )[1]
+      const wave_normal3 = this.get_gerstner_wave(
+        x2,
+        y1,
+        t
+      )[1]
+      const wave_normal4 = this.get_gerstner_wave(
+        x2,
+        y2,
+        t
+      )[1]
+
+      const wave_normal = wave_normal1
+        .plus(wave_normal2)
+        .plus(wave_normal3)
+        .plus(wave_normal4)
+        .times(0.25)
+
+      const up = vec3(0, 1, 0)
+      const right = wave_normal.cross(up).normalized()
+      if (isNaN(wave_normal[0])) {
+        console.error('normal is NaN')
+      }
+      const theta = Math.acos(up.dot(wave_normal))
+
+      let q0 = Math.cos(theta / 2)
+      let q1 = right[0] * Math.sin(theta / 2)
+      let q2 = right[1] * Math.sin(theta / 2)
+      let q3 = right[2] * Math.sin(theta / 2)
+
+      new_quaternion = new Quaternion(q0, q1, q2, q3)
+      if (new_quaternion.isNan()) {
+        console.error('new_quaternion is NaN')
+      }
+      this.last_quaternion = this.quaternion
+      this.quaternion = this.quaternion.slerp(
+        new_quaternion,
+        quaternionInterpolation
+      )
+      if (
+        !this.last_quaternion.isNan() &&
+        this.quaternion.isNan()
+      ) {
+        console.error('slerp caused NaN')
+      }
+    } // otherwise, rotate the boat according to the angular velocity
+    else {
+      new_quaternion = this.quaternion.predictNext(
+        this.last_quaternion
+      )
+      if (
+        !this.last_quaternion.isNan() &&
+        !this.quaternion.isNan() &&
+        new_quaternion.isNan()
+      ) {
+        console.error('predictNext caused NaN')
+      }
+      this.last_quaternion = this.quaternion
+      this.quaternion = new_quaternion
+    }
+
+    const rotation = this.quaternion.toMatrix()
+
+    this.shapes.boat.draw(
+      context,
+      program_state,
+      Mat4.translation(
+        this.boat_position[0],
+        this.boat_position[1],
+        this.boat_position[2]
+      )
+        .times(
+          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
+        )
+        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
+        .times(rotation)
+
+        .times(
+          Mat4.scale(boatWidth, boatHeight, boatLength)
+        ),
+      this.materials.boat
+    )
+
+    // temporary pole
+    this.shapes.boat.draw(
+      context,
+      program_state,
+      Mat4.translation(
+        this.boat_position[0],
+        this.boat_position[1],
+        this.boat_position[2]
+      )
+        .times(
+          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
+        )
+        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
+        .times(rotation)
+        .times(Mat4.scale(0.03, 0.3, 0.03))
+        .times(Mat4.translation(0, -1, 0)),
+      this.materials.boat
+    )
+
+    this.shapes.boat.draw(
+      context,
+      program_state,
+      Mat4.translation(
+        this.boat_position[0],
+        this.boat_position[1],
+        this.boat_position[2]
+      )
+        .times(
+          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
+        )
+        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
+        .times(rotation)
+        .times(Mat4.scale(0.3, 0.03, 0.03))
+        .times(Mat4.translation(1, 0, 0)),
+      this.materials.boat
+    )
+
+    // second pass
+    // if (this.enable_post_processing) {
+    //   this.scratchpad_context.drawImage(
+    //     context.canvas,
+    //     0,
+    //     0,
+    //     512,
+    //     512
+    //   )
+
+    //   this.texture.image.src =
+    //     this.scratchpad.toDataURL('image/png')
+
+    //   if (this.skipped_first_frame)
+    //     // Update the texture with the current scene:
+    //     this.texture.copy_onto_graphics_card(
+    //       context.context,
+    //       false
+    //     )
+    //   this.skipped_first_frame = true
+
+    //   context.context.clear(
+    //     context.context.COLOR_BUFFER_BIT |
+    //       context.context.DEPTH_BUFFER_BIT
+    //   )
+
+    //   this.shapes.screen_quad.draw(
+    //     context,
+    //     program_state,
+    //     Mat4.identity(),
+    //     this.materials.postprocess
+    //   )
+    // }
+
+    if (
+      this.is_splashing &&
+      !this.splash_effect.is_alive(t)
+    ) {
+      this.splash_effect = new SplashEffect(t)
+      this.is_splashing = false
+    }
   }
 
   make_control_panel() {
@@ -382,9 +718,14 @@ export class Project_Scene extends Scene {
       this.live_string((box) => {
         box.textContent = `Seed: ${this.seed} | Seed Offset: ${this.seedOffset}`
       })
+
+      this.new_line()
+
+      this.key_triggered_button('splash!', ['l'], () => {
+        this.is_splashing = true
+      })
     }
   }
-
   // same calculation as in the shader to get the relative movement of the boat
   get_gerstner_wave(x, y, t) {
     let amplitude = this.amplitude
@@ -430,321 +771,5 @@ export class Project_Scene extends Scene {
     }
 
     return [vec3(nx, ny, nz), vx.cross(vy).normalized()]
-  }
-
-  display(context, program_state) {
-    super.display(context, program_state)
-    const t = program_state.animation_time / 1000
-    const dt = program_state.animation_delta_time / 1000
-
-    const boatWidth = 0.3
-    const boatLength = 0.3
-    const boatHeight = 0.1
-    const heightLerpFactor = 0.05
-    const quaternionInterpolation = 0.05
-    const boatFallingAcceleration = 1
-
-    if (this.boat_rotate_left) {
-      this.boat_horizontal_angle += 0.015
-    }
-    if (this.boat_rotate_right) {
-      this.boat_horizontal_angle -= 0.015
-    }
-
-    this.boat_position = this.boat_position.plus(
-      // this.boat_velocity.times(dt)
-      Mat4.rotation(
-        this.boat_horizontal_angle,
-        0,
-        0,
-        1
-      ).times(this.boat_velocity.times(dt))
-    )
-
-    const x = this.boat_position[0]
-    const y = this.boat_position[1]
-    // const z = this.boat_position[2]
-
-    const wave_pos = this.get_gerstner_wave(x, y, t)[0]
-
-    const nz = wave_pos[2]
-
-    if (this.boat_position[2] < nz) {
-      this.boat_position[2] =
-        (nz + boatHeight / 2) * heightLerpFactor +
-        this.boat_position[2] * (1 - heightLerpFactor)
-      this.boat_velocity[2] = 0
-    } else {
-      this.boat_velocity[2] -= boatFallingAcceleration * dt
-    }
-
-    this.boat_velocity[0] *= 0.95
-    this.boat_velocity[1] *= 0.95
-
-    if (this.camera_rotate_left) {
-      this.camera_horizontal_angle += 0.02
-      this.camera_horizontal_angle = Math.min(
-        this.camera_horizontal_angle,
-        Math.PI / 4
-      )
-    } else if (this.camera_rotate_right) {
-      this.camera_horizontal_angle -= 0.02
-      this.camera_horizontal_angle = Math.max(
-        this.camera_horizontal_angle,
-        -Math.PI / 4
-      )
-    }
-
-    // camera should be rotated on top of the boat rotation
-
-    if (this.is_zooming_in) {
-      this.camera_z_offset *= 0.97
-      this.camera_z_offset = Math.max(
-        this.camera_z_offset,
-        this.camera_z_min_offset
-      )
-    }
-
-    if (this.is_zooming_out) {
-      this.camera_z_offset *= 1.03
-      this.camera_z_offset = Math.min(
-        this.camera_z_offset,
-        this.camera_z_max_offset
-      )
-    }
-
-    program_state.set_camera(
-      Mat4.inverse(
-        Mat4.translation(
-          this.boat_position[0],
-          this.boat_position[1],
-          this.boat_position[2]
-        )
-          .times(
-            Mat4.rotation(
-              this.boat_horizontal_angle,
-              0,
-              0,
-              1
-            )
-          )
-          .times(Mat4.rotation(1.1, 1, 0, 0)) // edit this to change camera angle
-          .times(
-            Mat4.translation(0, 0.3, this.camera_z_offset)
-          )
-      )
-    )
-
-    program_state.projection_transform = Mat4.perspective(
-      Math.PI / 3,
-      context.width / context.height,
-      0.1,
-      1000
-    )
-
-    this.shapes.screen_quad.draw(
-      context,
-      program_state,
-      Mat4.identity(),
-      this.materials.background
-    )
-
-    context.context.clear(context.context.DEPTH_BUFFER_BIT)
-
-    // first pass
-    // const model_transform = Mat4.translation(
-    //   this.boat_position[0],
-    //   this.boat_position[1],
-    //   this.boat_position[2]
-    // )
-
-    const model_transform = Mat4.identity()
-
-    this.shapes.ocean.draw(
-      context,
-      program_state,
-      model_transform,
-      this.materials.ocean.override({
-        amplitude: this.amplitude,
-        waveMut: this.waveMut,
-        seed: this.seed,
-        amplitudeMultiplier: this.amplitudeMultiplier,
-        waveMultiplier: this.waveMultiplier,
-        seedOffset: this.seedOffset,
-        time: t,
-      })
-    )
-
-    let new_quaternion = this.quaternion
-
-    //if boat is below water, rotate it to match the waves
-    if (this.boat_position[2] < nz + boatHeight / 2) {
-      const x1 = x + boatWidth / 2
-      const x2 = x - boatWidth / 2
-      const y1 = y + boatLength / 2
-      const y2 = y - boatLength / 2
-
-      const wave_normal1 = this.get_gerstner_wave(
-        x1,
-        y1,
-        t
-      )[1]
-      const wave_normal2 = this.get_gerstner_wave(
-        x1,
-        y2,
-        t
-      )[1]
-      const wave_normal3 = this.get_gerstner_wave(
-        x2,
-        y1,
-        t
-      )[1]
-      const wave_normal4 = this.get_gerstner_wave(
-        x2,
-        y2,
-        t
-      )[1]
-
-      const wave_normal = wave_normal1
-        .plus(wave_normal2)
-        .plus(wave_normal3)
-        .plus(wave_normal4)
-        .times(0.25)
-
-      const up = vec3(0, 1, 0)
-      const right = wave_normal.cross(up).normalized()
-      if (isNaN(wave_normal[0])) {
-        console.error('normal is NaN')
-      }
-      const theta = Math.acos(up.dot(wave_normal))
-
-      let q0 = Math.cos(theta / 2)
-      let q1 = right[0] * Math.sin(theta / 2)
-      let q2 = right[1] * Math.sin(theta / 2)
-      let q3 = right[2] * Math.sin(theta / 2)
-
-      new_quaternion = new Quaternion(q0, q1, q2, q3)
-      if (new_quaternion.isNan()) {
-        console.error('new_quaternion is NaN')
-      }
-      this.last_quaternion = this.quaternion
-      this.quaternion = this.quaternion.slerp(
-        new_quaternion,
-        quaternionInterpolation
-      )
-      if (
-        !this.last_quaternion.isNan() &&
-        this.quaternion.isNan()
-      ) {
-        console.error('slerp caused NaN')
-      }
-    } // otherwise, rotate the boat according to the angular velocity
-    else {
-      new_quaternion = this.quaternion.predictNext(
-        this.last_quaternion
-      )
-      if (
-        !this.last_quaternion.isNan() &&
-        !this.quaternion.isNan() &&
-        new_quaternion.isNan()
-      ) {
-        console.error('predictNext caused NaN')
-      }
-      this.last_quaternion = this.quaternion
-      this.quaternion = new_quaternion
-    }
-
-    const rotation = this.quaternion.toMatrix()
-
-    this.shapes.boat.draw(
-      context,
-      program_state,
-      Mat4.translation(
-        this.boat_position[0],
-        this.boat_position[1],
-        this.boat_position[2]
-      )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
-        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
-        .times(rotation)
-
-        .times(
-          Mat4.scale(boatWidth, boatHeight, boatLength)
-        ),
-      this.materials.boat
-    )
-
-    // temporary pole
-    this.shapes.boat.draw(
-      context,
-      program_state,
-      Mat4.translation(
-        this.boat_position[0],
-        this.boat_position[1],
-        this.boat_position[2]
-      )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
-        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
-        .times(rotation)
-        .times(Mat4.scale(0.03, 0.3, 0.03))
-        .times(Mat4.translation(0, -1, 0)),
-      this.materials.boat
-    )
-
-    this.shapes.boat.draw(
-      context,
-      program_state,
-      Mat4.translation(
-        this.boat_position[0],
-        this.boat_position[1],
-        this.boat_position[2]
-      )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
-        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
-        .times(rotation)
-        .times(Mat4.scale(0.3, 0.03, 0.03))
-        .times(Mat4.translation(1, 0, 0)),
-      this.materials.boat
-    )
-
-    // second pass
-    if (this.enable_post_processing) {
-      this.scratchpad_context.drawImage(
-        context.canvas,
-        0,
-        0,
-        512,
-        512
-      )
-
-      this.texture.image.src =
-        this.scratchpad.toDataURL('image/png')
-
-      if (this.skipped_first_frame)
-        // Update the texture with the current scene:
-        this.texture.copy_onto_graphics_card(
-          context.context,
-          false
-        )
-      this.skipped_first_frame = true
-
-      context.context.clear(
-        context.context.COLOR_BUFFER_BIT |
-          context.context.DEPTH_BUFFER_BIT
-      )
-
-      this.shapes.screen_quad.draw(
-        context,
-        program_state,
-        Mat4.identity(),
-        this.materials.postprocess
-      )
-    }
   }
 }
