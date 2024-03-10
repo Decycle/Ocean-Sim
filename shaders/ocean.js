@@ -203,7 +203,7 @@ class OceanShader extends Shader {
         return F0 + (1. - F0) * pow(1. - dot(V, N), 5.);
     }
 
-    vec3 lighting(vec3 N, vec3 L, vec3 V)
+    vec3 lighting(vec3 N, vec3 L, vec3 V, vec3 oceanColor)
     {
 
         vec3 R = normalize(reflect(-L, N));
@@ -216,10 +216,7 @@ class OceanShader extends Shader {
         fresnel = clamp(fresnel, 0., 1.);
 
         vec3 reflected = sky(reflect(-V, N), L);
-
-        // rgb = 74, 201, 255
-        vec3 refracted = vec3(.109,.109, .435) * 0.3;
-        vec3 col = mix(refracted, reflected, fresnel);
+        vec3 col = mix(oceanColor, reflected, fresnel);
         col += vec3(spec) ;
         // return vec3(fresnel);
 
@@ -240,8 +237,11 @@ class OceanShader extends Shader {
         normal = normalize(normal + vec3(noise1, noise2, noise3));
 
         vec3 lightDir = normalize(vec3(1., 1., 1.));
-
-        vec3 color = lighting(normal, lightDir, -VIEW_DIR);
+        vec3 blue = vec3(.109,.109, .435) * 0.3;
+        vec3 red = vec3(1.0, 0.0, 0.0);
+        vec3 oceanColor = mix(blue, red, VERTEX_POS.y / 100.);
+        // VERTEX_POS
+        vec3 color = lighting(normal, lightDir, -VIEW_DIR, oceanColor);
 
         gl_FragColor = vec4( color, 1.0 );
       }
