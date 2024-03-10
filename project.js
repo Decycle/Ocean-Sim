@@ -1,25 +1,16 @@
-import { defs, tiny } from './examples/common.js'
+import {defs, tiny} from './examples/common.js'
 import Ocean_Shader from './shaders/ocean.js'
 import PostProcessingShader from './shaders/post_processing.js'
 import BackgroundShader from './shaders/background.js'
 import Quaternion from './util/quaternion.js'
-import { Boat } from './boat.js'
+import {Boat} from './boat.js'
 import BoatShader from './shaders/boat.js'
 
 // Pull these names into this module's scope for convenience:
-const {
-  vec3,
-  vec4,
-  Mat4,
-  color,
-  hex_color,
-  Material,
-  Scene,
-  Light,
-  Texture,
-} = tiny
+const {vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture} =
+  tiny
 
-const { Phong_Shader, Basic_Shader, Cube } = defs
+const {Phong_Shader, Basic_Shader, Cube} = defs
 
 const Ocean = class Ocean extends tiny.Vertex_Buffer {
   // **Minimal_Shape** an even more minimal triangle, with three
@@ -27,15 +18,15 @@ const Ocean = class Ocean extends tiny.Vertex_Buffer {
   constructor() {
     super('position')
 
-    const boundary = 100
+    const width = 100
     const subdivision = 500
-    const step = (2 * boundary) / subdivision
+    const step = width / subdivision
     const position = []
 
     for (let i = 0; i < subdivision; i++) {
       for (let j = 0; j < subdivision; j++) {
-        const x = -boundary + step * i
-        const y = -boundary + step * j
+        const x = -width / 2 + step * i
+        const y = -width / 2 + step * j
 
         const x2 = x + step
         const y2 = y + step
@@ -46,7 +37,7 @@ const Ocean = class Ocean extends tiny.Vertex_Buffer {
           vec3(x2, y, 0),
           vec3(x2, y, 0),
           vec3(x, y2, 0),
-          vec3(x2, y2, 0),
+          vec3(x2, y2, 0)
         ]
         position.push(...new_position)
       }
@@ -63,8 +54,7 @@ export class Project_Scene extends Scene {
 
     this.scratchpad = document.createElement('canvas')
     // A hidden canvas for re-sizing the real canvas to be square:
-    this.scratchpad_context =
-      this.scratchpad.getContext('2d')
+    this.scratchpad_context = this.scratchpad.getContext('2d')
     this.scratchpad.width = 512
     this.scratchpad.height = 512 // Initial image source: Blank gif file:
     this.texture = new Texture(
@@ -73,13 +63,7 @@ export class Project_Scene extends Scene {
 
     this.widget_options = {
       make_controls: true,
-      show_explanation: false,
-    }
-    // Send a Triangle's vertices to the GPU buffers:
-    this.shapes = {
-      ocean: new Ocean(),
-      screen_quad: new defs.Square(),
-      boat: new Cube(),
+      show_explanation: false
     }
 
     this.amplitude = 0.13
@@ -90,6 +74,13 @@ export class Project_Scene extends Scene {
     this.waveMultiplier = 1.1
     this.seedOffset = 8780.3143875966
 
+    // Send a Triangle's vertices to the GPU buffers:
+    this.shapes = {
+      ocean: new Ocean(),
+      screen_quad: new defs.Square(),
+      boat: new Cube()
+    }
+
     this.materials = {
       ocean: new Material(new Ocean_Shader(), {
         amplitude: this.amplitude,
@@ -98,18 +89,15 @@ export class Project_Scene extends Scene {
         amplitudeMultiplier: this.amplitudeMultiplier,
         waveMultiplier: this.waveMultiplier,
         seedOffset: this.seedOffset,
-        sea_color: hex_color('#3b59CC'),
+        sea_color: hex_color('#3b59CC')
       }),
       boat: new Material(new BoatShader(), {}),
-      postprocess: new Material(
-        new PostProcessingShader(),
-        {
-          texture: this.texture,
-        }
-      ),
-      background: new Material(new BackgroundShader(), {
-        color: hex_color('#3b59CC'),
+      postprocess: new Material(new PostProcessingShader(), {
+        texture: this.texture
       }),
+      background: new Material(new BackgroundShader(), {
+        color: hex_color('#3b59CC')
+      })
     }
     this.skipped_first_frame = false
 
@@ -133,7 +121,7 @@ export class Project_Scene extends Scene {
 
     this.camera_z_offset = 2.3
     this.camera_z_min_offset = 1.0
-    this.camera_z_max_offset = 20
+    this.camera_z_max_offset = 5
 
     this.is_zooming_in = false
     this.is_zooming_out = false
@@ -142,14 +130,9 @@ export class Project_Scene extends Scene {
   make_control_panel() {
     this.control_panel.innerHTML += 'Controls:'
 
-    this.key_triggered_button(
-      'Toggle Post Processing',
-      ['p'],
-      () => {
-        this.enable_post_processing =
-          !this.enable_post_processing
-      }
-    )
+    this.key_triggered_button('Toggle Post Processing', ['p'], () => {
+      this.enable_post_processing = !this.enable_post_processing
+    })
 
     this.new_line()
 
@@ -181,18 +164,12 @@ export class Project_Scene extends Scene {
 
     this.key_triggered_button('Forward', ['w'], () => {
       this.boat_velocity[1] += force
-      this.boat_velocity[1] = Math.min(
-        this.boat_velocity[1],
-        max_speed
-      )
+      this.boat_velocity[1] = Math.min(this.boat_velocity[1], max_speed)
     })
 
     this.key_triggered_button('Backward', ['s'], () => {
       this.boat_velocity[1] -= force
-      this.boat_velocity[1] = Math.max(
-        this.boat_velocity[1],
-        -max_speed
-      )
+      this.boat_velocity[1] = Math.max(this.boat_velocity[1], -max_speed)
     })
 
     this.new_line()
@@ -201,8 +178,7 @@ export class Project_Scene extends Scene {
       if (document.fullscreenElement) {
         document.exitFullscreen()
       } else {
-        const canvas =
-          document.getElementById('main-canvas').firstChild
+        const canvas = document.getElementById('main-canvas').firstChild
         canvas.requestFullscreen()
       }
     })
@@ -274,10 +250,8 @@ export class Project_Scene extends Scene {
         this.amplitude += 0.01
       })
 
-      this.live_string((box) => {
-        box.textContent = `Wave Amplitude: ${this.amplitude.toFixed(
-          2
-        )}`
+      this.live_string(box => {
+        box.textContent = `Wave Amplitude: ${this.amplitude.toFixed(2)}`
       })
 
       this.key_triggered_button('-0.01', [], () => {
@@ -298,24 +272,18 @@ export class Project_Scene extends Scene {
         this.amplitudeMultiplier += 0.01
       })
 
-      this.live_string((box) => {
+      this.live_string(box => {
         box.textContent = `Wave Amplitude Multiplier: ${this.amplitudeMultiplier.toFixed(
           2
         )}`
       })
 
       this.key_triggered_button('-0.01', [], () => {
-        this.amplitudeMultiplier = Math.max(
-          0,
-          this.amplitudeMultiplier - 0.01
-        )
+        this.amplitudeMultiplier = Math.max(0, this.amplitudeMultiplier - 0.01)
       })
 
       this.key_triggered_button('-0.1', [], () => {
-        this.amplitudeMultiplier = Math.max(
-          0,
-          this.amplitudeMultiplier - 0.1
-        )
+        this.amplitudeMultiplier = Math.max(0, this.amplitudeMultiplier - 0.1)
       })
 
       this.new_line()
@@ -328,10 +296,8 @@ export class Project_Scene extends Scene {
         this.waveMut += 0.1
       })
 
-      this.live_string((box) => {
-        box.textContent = `Wave Number: ${this.waveMut.toFixed(
-          2
-        )}`
+      this.live_string(box => {
+        box.textContent = `Wave Number: ${this.waveMut.toFixed(2)}`
       })
 
       this.key_triggered_button('-0.01', [], () => {
@@ -352,24 +318,18 @@ export class Project_Scene extends Scene {
         this.waveMultiplier += 0.01
       })
 
-      this.live_string((box) => {
+      this.live_string(box => {
         box.textContent = `Wave Number Multiplier: ${this.waveMultiplier.toFixed(
           2
         )}`
       })
 
       this.key_triggered_button('-0.01', [], () => {
-        this.waveMultiplier = Math.max(
-          0,
-          this.waveMultiplier - 0.01
-        )
+        this.waveMultiplier = Math.max(0, this.waveMultiplier - 0.01)
       })
 
       this.key_triggered_button('-0.1', [''], () => {
-        this.waveMultiplier = Math.max(
-          0,
-          this.waveMultiplier - 0.1
-        )
+        this.waveMultiplier = Math.max(0, this.waveMultiplier - 0.1)
       })
 
       this.new_line()
@@ -379,7 +339,7 @@ export class Project_Scene extends Scene {
         this.seedOffset = Math.random() * 10000
       })
 
-      this.live_string((box) => {
+      this.live_string(box => {
         box.textContent = `Seed: ${this.seed} | Seed Offset: ${this.seedOffset}`
       })
     }
@@ -405,11 +365,7 @@ export class Project_Scene extends Scene {
       const kx = Math.sin(seed)
       const ky = Math.cos(seed)
       const omega = Math.sqrt(g * waveMut)
-      const theta =
-        kx * waveMut * nx +
-        ky * waveMut * ny -
-        omega * t -
-        seed
+      const theta = kx * waveMut * nx + ky * waveMut * ny - omega * t - seed
 
       nx -= kx * amplitude * Math.sin(theta)
       ny -= ky * amplitude * Math.sin(theta)
@@ -437,6 +393,14 @@ export class Project_Scene extends Scene {
     const t = program_state.animation_time / 1000
     const dt = program_state.animation_delta_time / 1000
 
+    // if (!context.scratchpad.controls) {
+    //   this.children.push(
+    //     (context.scratchpad.controls = new defs.Movement_Controls())
+    //   )
+
+    //   program_state.set_camera(Mat4.inverse(Mat4.translation(0, 0, 50)))
+    // }
+
     const boatWidth = 0.3
     const boatLength = 0.3
     const boatHeight = 0.1
@@ -453,12 +417,9 @@ export class Project_Scene extends Scene {
 
     this.boat_position = this.boat_position.plus(
       // this.boat_velocity.times(dt)
-      Mat4.rotation(
-        this.boat_horizontal_angle,
-        0,
-        0,
-        1
-      ).times(this.boat_velocity.times(dt))
+      Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1).times(
+        this.boat_velocity.times(dt)
+      )
     )
 
     const x = this.boat_position[0]
@@ -496,7 +457,6 @@ export class Project_Scene extends Scene {
     }
 
     // camera should be rotated on top of the boat rotation
-
     if (this.is_zooming_in) {
       this.camera_z_offset *= 0.97
       this.camera_z_offset = Math.max(
@@ -520,18 +480,9 @@ export class Project_Scene extends Scene {
           this.boat_position[1],
           this.boat_position[2]
         )
-          .times(
-            Mat4.rotation(
-              this.boat_horizontal_angle,
-              0,
-              0,
-              1
-            )
-          )
+          .times(Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1))
           .times(Mat4.rotation(1.1, 1, 0, 0)) // edit this to change camera angle
-          .times(
-            Mat4.translation(0, 0.3, this.camera_z_offset)
-          )
+          .times(Mat4.translation(0, 0.3, this.camera_z_offset))
       )
     )
 
@@ -539,7 +490,7 @@ export class Project_Scene extends Scene {
       Math.PI / 3,
       context.width / context.height,
       0.1,
-      1000
+      100
     )
 
     this.shapes.screen_quad.draw(
@@ -558,7 +509,11 @@ export class Project_Scene extends Scene {
     //   this.boat_position[2]
     // )
 
-    const model_transform = Mat4.identity()
+    const model_transform = Mat4.translation(
+      this.boat_position[0],
+      this.boat_position[1],
+      0
+    )
 
     this.shapes.ocean.draw(
       context,
@@ -571,7 +526,7 @@ export class Project_Scene extends Scene {
         amplitudeMultiplier: this.amplitudeMultiplier,
         waveMultiplier: this.waveMultiplier,
         seedOffset: this.seedOffset,
-        time: t,
+        time: t
       })
     )
 
@@ -584,26 +539,10 @@ export class Project_Scene extends Scene {
       const y1 = y + boatLength / 2
       const y2 = y - boatLength / 2
 
-      const wave_normal1 = this.get_gerstner_wave(
-        x1,
-        y1,
-        t
-      )[1]
-      const wave_normal2 = this.get_gerstner_wave(
-        x1,
-        y2,
-        t
-      )[1]
-      const wave_normal3 = this.get_gerstner_wave(
-        x2,
-        y1,
-        t
-      )[1]
-      const wave_normal4 = this.get_gerstner_wave(
-        x2,
-        y2,
-        t
-      )[1]
+      const wave_normal1 = this.get_gerstner_wave(x1, y1, t)[1]
+      const wave_normal2 = this.get_gerstner_wave(x1, y2, t)[1]
+      const wave_normal3 = this.get_gerstner_wave(x2, y1, t)[1]
+      const wave_normal4 = this.get_gerstner_wave(x2, y2, t)[1]
 
       const wave_normal = wave_normal1
         .plus(wave_normal2)
@@ -632,17 +571,12 @@ export class Project_Scene extends Scene {
         new_quaternion,
         quaternionInterpolation
       )
-      if (
-        !this.last_quaternion.isNan() &&
-        this.quaternion.isNan()
-      ) {
+      if (!this.last_quaternion.isNan() && this.quaternion.isNan()) {
         console.error('slerp caused NaN')
       }
     } // otherwise, rotate the boat according to the angular velocity
     else {
-      new_quaternion = this.quaternion.predictNext(
-        this.last_quaternion
-      )
+      new_quaternion = this.quaternion.predictNext(this.last_quaternion)
       if (
         !this.last_quaternion.isNan() &&
         !this.quaternion.isNan() &&
@@ -664,15 +598,10 @@ export class Project_Scene extends Scene {
         this.boat_position[1],
         this.boat_position[2]
       )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
+        .times(Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1))
         .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
         .times(rotation)
-
-        .times(
-          Mat4.scale(boatWidth, boatHeight, boatLength)
-        ),
+        .times(Mat4.scale(boatWidth, boatHeight, boatLength)),
       this.materials.boat
     )
 
@@ -685,9 +614,7 @@ export class Project_Scene extends Scene {
         this.boat_position[1],
         this.boat_position[2]
       )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
+        .times(Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1))
         .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
         .times(rotation)
         .times(Mat4.scale(0.03, 0.3, 0.03))
@@ -703,9 +630,7 @@ export class Project_Scene extends Scene {
         this.boat_position[1],
         this.boat_position[2]
       )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
+        .times(Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1))
         .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
         .times(rotation)
         .times(Mat4.scale(0.3, 0.03, 0.03))
@@ -715,28 +640,17 @@ export class Project_Scene extends Scene {
 
     // second pass
     if (this.enable_post_processing) {
-      this.scratchpad_context.drawImage(
-        context.canvas,
-        0,
-        0,
-        512,
-        512
-      )
+      this.scratchpad_context.drawImage(context.canvas, 0, 0, 512, 512)
 
-      this.texture.image.src =
-        this.scratchpad.toDataURL('image/png')
+      this.texture.image.src = this.scratchpad.toDataURL('image/png')
 
       if (this.skipped_first_frame)
         // Update the texture with the current scene:
-        this.texture.copy_onto_graphics_card(
-          context.context,
-          false
-        )
+        this.texture.copy_onto_graphics_card(context.context, false)
       this.skipped_first_frame = true
 
       context.context.clear(
-        context.context.COLOR_BUFFER_BIT |
-          context.context.DEPTH_BUFFER_BIT
+        context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT
       )
 
       this.shapes.screen_quad.draw(

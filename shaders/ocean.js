@@ -1,10 +1,7 @@
-import { tiny } from '../tiny-graphics.js'
+import {tiny} from '../tiny-graphics.js'
 
-const { Shader, Matrix } = tiny
+const {Shader, Matrix} = tiny
 class OceanShader extends Shader {
-  // **Basic_Shader** is nearly the simplest example of a subclass of Shader, which stores and
-  // maanges a GPU program.  Basic_Shader is a trivial pass-through shader that applies a
-  // shape's matrices and then simply samples literal colors stored at each vertex.
   update_GPU(
     context,
     gpu_addresses,
@@ -16,7 +13,7 @@ class OceanShader extends Shader {
     const [P, C, M] = [
       graphics_state.projection_transform,
       graphics_state.camera_inverse,
-      model_transform,
+      model_transform
     ]
 
     context.uniformMatrix4fv(
@@ -34,9 +31,7 @@ class OceanShader extends Shader {
     context.uniformMatrix4fv(
       gpu_addresses.camera_transform,
       false,
-      Matrix.flatten_2D_to_1D(
-        graphics_state.camera_transform.transposed()
-      )
+      Matrix.flatten_2D_to_1D(graphics_state.camera_transform.transposed())
     )
 
     context.uniformMatrix4fv(
@@ -45,39 +40,22 @@ class OceanShader extends Shader {
       Matrix.flatten_2D_to_1D(model_transform.transposed())
     )
 
-    context.uniform1f(
-      gpu_addresses.animation_time,
-      material.time
-    )
+    context.uniform1f(gpu_addresses.animation_time, material.time)
 
-    context.uniform1f(
-      gpu_addresses.amplitude,
-      material.amplitude
-    )
-    context.uniform1f(
-      gpu_addresses.wave_mut,
-      material.waveMut
-    )
+    context.uniform1f(gpu_addresses.amplitude, material.amplitude)
+    context.uniform1f(gpu_addresses.wave_mut, material.waveMut)
     context.uniform1f(gpu_addresses.seed, material.seed)
 
     context.uniform1f(
       gpu_addresses.amplitude_multiplier,
       material.amplitudeMultiplier
     )
-    context.uniform1f(
-      gpu_addresses.wave_multiplier,
-      material.waveMultiplier
-    )
-    context.uniform1f(
-      gpu_addresses.seed_offset,
-      material.seedOffset
-    )
+    context.uniform1f(gpu_addresses.wave_multiplier, material.waveMultiplier)
+    context.uniform1f(gpu_addresses.seed_offset, material.seedOffset)
 
-    context.uniform4fv(
-      gpu_addresses.sea_color,
-      material.sea_color
-    )
+    context.uniform4fv(gpu_addresses.sea_color, material.sea_color)
   }
+
   shared_glsl_code() {
     // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
     return `precision mediump float;
@@ -96,8 +74,7 @@ class OceanShader extends Shader {
       `
         uniform float animation_time;
         attribute vec4 color;
-        attribute vec3 position;
-        // Position is expressed in object coordinates.
+        attribute vec3 position;  // Position is expressed in object coordinates.
 
         uniform mat4 projection_transform;
         uniform mat4 camera_inverse;
@@ -113,8 +90,8 @@ class OceanShader extends Shader {
 
         #define PI 3.1415926535897932384626433832795
 
-        // gerstner wave
-        // math source: https://en.wikipedia.org/wiki/Trochoidal_wave
+        // Gerstner wave
+        // Math source: https://en.wikipedia.org/wiki/Trochoidal_wave
         vec3 gerstner_wave(vec2 p, float t, inout vec3 normal) {
           const float g = 9.81;
           const int ITERATIONS = 40;
@@ -154,15 +131,14 @@ class OceanShader extends Shader {
         }
 
         void main(){
-
           vec3 normal;
-          vec3 new_position = gerstner_wave(position.xy, animation_time, normal);
+          vec4 world_pos = model_transform * vec4( position, 1.0 );
+          vec3 new_position = gerstner_wave(world_pos.xy, animation_time, normal);
 
-          mat4 projection_camera_model_transform = projection_transform * camera_inverse * model_transform;
+          mat4 projection_camera_model_transform = projection_transform * camera_inverse;
           gl_Position = projection_camera_model_transform * vec4( new_position, 1.0 );
 
-          vec4 world_pos = model_transform * vec4(position, 1.0);
-          vec4 camera_pos = camera_transform * vec4(0., 0., 0., 1.);
+          vec4 camera_pos = camera_transform * vec4( 0., 0., 0., 1. );
 
           VIEW_DIR = normalize((world_pos - camera_pos).xyz);
 
@@ -186,7 +162,6 @@ class OceanShader extends Shader {
         return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
       }
 
-
       float smoothNoise(vec2 st)
       {
         vec2 i = floor(st);
@@ -204,50 +179,47 @@ class OceanShader extends Shader {
         return mix(a, b, u.x) + (c - a) * u.y * (1. - u.x) + (d - b) * u.x * u.y;
       }
 
+      vec3 sky(vec3 rd, vec3 lightDir)
+      {
+          vec3 col = vec3(0.3,0.5,0.85) - rd.y * rd.y * 0.5;
+          col = mix( col, 0.85*vec3(0.7,0.75,0.85), pow( 1.0-max(rd.y,0.0), 4.0 ) );
 
-    vec3 sky(vec3 rd, vec3 lightDir)
-    {
-        vec3 col = vec3(0.3,0.5,0.85) - rd.y * rd.y * 0.5;
-        col = mix( col, 0.85*vec3(0.7,0.75,0.85), pow( 1.0-max(rd.y,0.0), 4.0 ) );
+          // horizon
+          col = mix( col, 0.68*vec3(0.4,0.65,1.0), pow( 1.0-max(rd.y,0.0), 16.0 ) );
 
-        // horizon
-        col = mix( col, 0.68*vec3(0.4,0.65,1.0), pow( 1.0-max(rd.y,0.0), 16.0 ) );
+          return col;
+      }
 
-        return col;
-    }
+      float fresnel(vec3 N, vec3 V)
+      {
+          float F0 = 0.04;
 
-    float fresnel(vec3 N, vec3 V)
-    {
-        float F0 = 0.04;
+          return F0 + (1. - F0) * pow(1. - dot(V, N), 5.);
+      }
 
-        return F0 + (1. - F0) * pow(1. - dot(V, N), 5.);
-    }
+      vec3 lighting(vec3 N, vec3 L, vec3 V)
+      {
+          vec3 R = normalize(reflect(-L, N));
 
-    vec3 lighting(vec3 N, vec3 L, vec3 V)
-    {
+          float spec = max(dot(R, V), 0.);
+          spec = pow(spec, 60.);
+          spec = clamp(spec, 0., 1.);
 
-        vec3 R = normalize(reflect(-L, N));
+          float fresnel = fresnel(N, V);
+          fresnel = clamp(fresnel, 0., 1.);
 
-        float spec = max(dot(R, V), 0.);
-        spec = pow(spec, 60.);
-        spec = clamp(spec, 0., 1.);
+          vec3 reflected = sky(reflect(-V, N), L);
 
-        float fresnel = fresnel(N, V);
-        fresnel = clamp(fresnel, 0., 1.);
+          // rgb = 74, 201, 255
+          vec3 refracted = vec3(.109,.109, .435) * 0.3;
+          vec3 col = mix(refracted, reflected, fresnel);
+          col += vec3(spec) ;
+          // return vec3(fresnel);
 
-        vec3 reflected = sky(reflect(-V, N), L);
-
-        // rgb = 74, 201, 255
-        vec3 refracted = vec3(.109,.109, .435) * 0.3;
-        vec3 col = mix(refracted, reflected, fresnel);
-        col += vec3(spec) ;
-        // return vec3(fresnel);
-
-        return clamp(col, 0., 1.);
-    }
+          return clamp(col, 0., 1.);
+      }
 
       void main(){
-
         vec3 normal = VERTEX_NORMAL;
 
         float noiseFrequency = 20.;

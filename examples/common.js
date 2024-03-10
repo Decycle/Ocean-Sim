@@ -1156,7 +1156,7 @@ const Movement_Controls =
         z_axis: vec3(0, 0, 0),
         radians_per_frame: 1 / 200,
         meters_per_frame: 20,
-        speed_multiplier: 0.2
+        speed_multiplier: 0.75
       }
       Object.assign(this, data_members)
 
