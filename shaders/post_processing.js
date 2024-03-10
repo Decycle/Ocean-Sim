@@ -2,33 +2,33 @@ import { tiny } from '../tiny-graphics.js'
 
 const { Shader, Matrix } = tiny
 class PostProcessingShader extends Shader {
-  // **Basic_Shader** is nearly the simplest example of a subclass of Shader, which stores and
-  // maanges a GPU program.  Basic_Shader is a trivial pass-through shader that applies a
-  // shape's matrices and then simply samples literal colors stored at each vertex.
-  update_GPU(
-    context,
-    gpu_addresses,
-    graphics_state,
-    model_transform,
-    material
-  ) {
-    if (material.texture && material.texture.ready) {
-      context.uniform1i(gpu_addresses.texture, 0)
-      material.texture.activate(context, 0)
-    }
-  }
-  shared_glsl_code() {
-    // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
-    return `precision mediump float;
+	// **Basic_Shader** is nearly the simplest example of a subclass of Shader, which stores and
+	// maanges a GPU program.  Basic_Shader is a trivial pass-through shader that applies a
+	// shape's matrices and then simply samples literal colors stored at each vertex.
+	update_GPU(
+		context,
+		gpu_addresses,
+		graphics_state,
+		model_transform,
+		material,
+	) {
+		if (material.texture && material.texture.ready) {
+			context.uniform1i(gpu_addresses.texture, 0)
+			material.texture.activate(context, 0)
+		}
+	}
+	shared_glsl_code() {
+		// ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
+		return `precision mediump float;
             varying vec2 f_tex_coord;
       `
-  }
+	}
 
-  vertex_glsl_code() {
-    // ********* VERTEX SHADER *********
-    return (
-      this.shared_glsl_code() +
-      `
+	vertex_glsl_code() {
+		// ********* VERTEX SHADER *********
+		return (
+			this.shared_glsl_code() +
+			`
         attribute vec3 position;
         attribute vec2 texture_coord;
 
@@ -38,14 +38,14 @@ class PostProcessingShader extends Shader {
             gl_Position = vec4((texture_coord - 0.5) * 2., 0, 1);
         }
         `
-    )
-  }
+		)
+	}
 
-  fragment_glsl_code() {
-    // ********* FRAGMENT SHADER *********
-    return (
-      this.shared_glsl_code() +
-      `
+	fragment_glsl_code() {
+		// ********* FRAGMENT SHADER *********
+		return (
+			this.shared_glsl_code() +
+			`
       uniform float animation_time;
       uniform sampler2D texture;
 
@@ -81,8 +81,8 @@ class PostProcessingShader extends Shader {
         gl_FragColor = vec4( color, 1.0 );
       }
       `
-    )
-  }
+		)
+	}
 }
 
 export default PostProcessingShader

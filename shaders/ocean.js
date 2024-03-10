@@ -2,98 +2,78 @@ import { tiny } from '../tiny-graphics.js'
 
 const { Shader, Matrix } = tiny
 class OceanShader extends Shader {
-  // **Basic_Shader** is nearly the simplest example of a subclass of Shader, which stores and
-  // maanges a GPU program.  Basic_Shader is a trivial pass-through shader that applies a
-  // shape's matrices and then simply samples literal colors stored at each vertex.
-  update_GPU(
-    context,
-    gpu_addresses,
-    graphics_state,
-    model_transform,
-    material
-  ) {
-    // update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
-    const [P, C, M] = [
-      graphics_state.projection_transform,
-      graphics_state.camera_inverse,
-      model_transform,
-    ]
+	// **Basic_Shader** is nearly the simplest example of a subclass of Shader, which stores and
+	// maanges a GPU program.  Basic_Shader is a trivial pass-through shader that applies a
+	// shape's matrices and then simply samples literal colors stored at each vertex.
+	update_GPU(
+		context,
+		gpu_addresses,
+		graphics_state,
+		model_transform,
+		material,
+	) {
+		// update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
+		const [P, C, M] = [
+			graphics_state.projection_transform,
+			graphics_state.camera_inverse,
+			model_transform,
+		]
 
-    context.uniformMatrix4fv(
-      gpu_addresses.projection_transform,
-      false,
-      Matrix.flatten_2D_to_1D(P.transposed())
-    )
+		context.uniformMatrix4fv(
+			gpu_addresses.projection_transform,
+			false,
+			Matrix.flatten_2D_to_1D(P.transposed()),
+		)
 
-    context.uniformMatrix4fv(
-      gpu_addresses.camera_inverse,
-      false,
-      Matrix.flatten_2D_to_1D(C.transposed())
-    )
+		context.uniformMatrix4fv(
+			gpu_addresses.camera_inverse,
+			false,
+			Matrix.flatten_2D_to_1D(C.transposed()),
+		)
 
-    context.uniformMatrix4fv(
-      gpu_addresses.camera_transform,
-      false,
-      Matrix.flatten_2D_to_1D(
-        graphics_state.camera_transform.transposed()
-      )
-    )
+		context.uniformMatrix4fv(
+			gpu_addresses.camera_transform,
+			false,
+			Matrix.flatten_2D_to_1D(graphics_state.camera_transform.transposed()),
+		)
 
-    context.uniformMatrix4fv(
-      gpu_addresses.model_transform,
-      false,
-      Matrix.flatten_2D_to_1D(model_transform.transposed())
-    )
+		context.uniformMatrix4fv(
+			gpu_addresses.model_transform,
+			false,
+			Matrix.flatten_2D_to_1D(model_transform.transposed()),
+		)
 
-    context.uniform1f(
-      gpu_addresses.animation_time,
-      material.time
-    )
+		context.uniform1f(gpu_addresses.animation_time, material.time)
 
-    context.uniform1f(
-      gpu_addresses.amplitude,
-      material.amplitude
-    )
-    context.uniform1f(
-      gpu_addresses.wave_mut,
-      material.waveMut
-    )
-    context.uniform1f(gpu_addresses.seed, material.seed)
+		context.uniform1f(gpu_addresses.amplitude, material.amplitude)
+		context.uniform1f(gpu_addresses.wave_mut, material.waveMut)
+		context.uniform1f(gpu_addresses.seed, material.seed)
 
-    context.uniform1f(
-      gpu_addresses.amplitude_multiplier,
-      material.amplitudeMultiplier
-    )
-    context.uniform1f(
-      gpu_addresses.wave_multiplier,
-      material.waveMultiplier
-    )
-    context.uniform1f(
-      gpu_addresses.seed_offset,
-      material.seedOffset
-    )
+		context.uniform1f(
+			gpu_addresses.amplitude_multiplier,
+			material.amplitudeMultiplier,
+		)
+		context.uniform1f(gpu_addresses.wave_multiplier, material.waveMultiplier)
+		context.uniform1f(gpu_addresses.seed_offset, material.seedOffset)
 
-    context.uniform4fv(
-      gpu_addresses.sea_color,
-      material.sea_color
-    )
-  }
-  shared_glsl_code() {
-    // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
-    return `precision mediump float;
+		context.uniform4fv(gpu_addresses.sea_color, material.sea_color)
+	}
+	shared_glsl_code() {
+		// ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
+		return `precision mediump float;
             varying vec3 OLD_VERTEX_POS;
             varying vec3 VERTEX_POS;
             varying vec3 VERTEX_NORMAL;
             varying vec3 VIEW_DIR;
             varying float Z;
       `
-  }
+	}
 
-  vertex_glsl_code() {
-    // ********* VERTEX SHADER *********
-    return (
-      this.shared_glsl_code() +
-      `
+	vertex_glsl_code() {
+		// ********* VERTEX SHADER *********
+		return (
+			this.shared_glsl_code() +
+			`
         uniform float animation_time;
         attribute vec4 color;
         attribute vec3 position;
@@ -171,14 +151,14 @@ class OceanShader extends Shader {
           OLD_VERTEX_POS = position;
         }
         `
-    )
-  }
+		)
+	}
 
-  fragment_glsl_code() {
-    // ********* FRAGMENT SHADER *********
-    return (
-      this.shared_glsl_code() +
-      `
+	fragment_glsl_code() {
+		// ********* FRAGMENT SHADER *********
+		return (
+			this.shared_glsl_code() +
+			`
       uniform float animation_time;
       uniform vec4 sea_color;
 
@@ -266,8 +246,8 @@ class OceanShader extends Shader {
         gl_FragColor = vec4( color, 1.0 );
       }
       `
-    )
-  }
+		)
+	}
 }
 
 export default OceanShader

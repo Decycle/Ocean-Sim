@@ -2,59 +2,56 @@ import { tiny } from '../tiny-graphics.js'
 
 const { Shader, Matrix } = tiny
 class BoatShader extends Shader {
-  // **Basic_Shader** is nearly the simplest example of a subclass of Shader, which stores and
-  // maanges a GPU program.  Basic_Shader is a trivial pass-through shader that applies a
-  // shape's matrices and then simply samples literal colors stored at each vertex.
-  update_GPU(
-    context,
-    gpu_addresses,
-    graphics_state,
-    model_transform,
-    material
-  ) {
-    // update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
-    const [P, C, M] = [
-      graphics_state.projection_transform,
-      graphics_state.camera_inverse,
-      model_transform,
-    ]
+	// **Basic_Shader** is nearly the simplest example of a subclass of Shader, which stores and
+	// maanges a GPU program.  Basic_Shader is a trivial pass-through shader that applies a
+	// shape's matrices and then simply samples literal colors stored at each vertex.
+	update_GPU(
+		context,
+		gpu_addresses,
+		graphics_state,
+		model_transform,
+		material,
+	) {
+		// update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
+		const [P, C, M] = [
+			graphics_state.projection_transform,
+			graphics_state.camera_inverse,
+			model_transform,
+		]
 
-    context.uniformMatrix4fv(
-      gpu_addresses.projection_transform,
-      false,
-      Matrix.flatten_2D_to_1D(P.transposed())
-    )
+		context.uniformMatrix4fv(
+			gpu_addresses.projection_transform,
+			false,
+			Matrix.flatten_2D_to_1D(P.transposed()),
+		)
 
-    context.uniformMatrix4fv(
-      gpu_addresses.camera_inverse,
-      false,
-      Matrix.flatten_2D_to_1D(C.transposed())
-    )
+		context.uniformMatrix4fv(
+			gpu_addresses.camera_inverse,
+			false,
+			Matrix.flatten_2D_to_1D(C.transposed()),
+		)
 
-    context.uniformMatrix4fv(
-      gpu_addresses.model_transform,
-      false,
-      Matrix.flatten_2D_to_1D(M.transposed())
-    )
+		context.uniformMatrix4fv(
+			gpu_addresses.model_transform,
+			false,
+			Matrix.flatten_2D_to_1D(M.transposed()),
+		)
 
-    context.uniform1f(
-      gpu_addresses.animation_time,
-      material.time
-    )
-  }
-  shared_glsl_code() {
-    // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
-    return `precision mediump float;
+		context.uniform1f(gpu_addresses.animation_time, material.time)
+	}
+	shared_glsl_code() {
+		// ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
+		return `precision mediump float;
             varying vec3 VERTEX_POS;
             varying vec3 VERTEX_NORMAL;
       `
-  }
+	}
 
-  vertex_glsl_code() {
-    // ********* VERTEX SHADER *********
-    return (
-      this.shared_glsl_code() +
-      `
+	vertex_glsl_code() {
+		// ********* VERTEX SHADER *********
+		return (
+			this.shared_glsl_code() +
+			`
         uniform float animation_time;
         attribute vec4 color;
         attribute vec3 position;
@@ -74,14 +71,14 @@ class BoatShader extends Shader {
           VERTEX_NORMAL = (model_transform * vec4(normal, 0.0)).xyz;
         }
         `
-    )
-  }
+		)
+	}
 
-  fragment_glsl_code() {
-    // ********* FRAGMENT SHADER *********
-    return (
-      this.shared_glsl_code() +
-      `
+	fragment_glsl_code() {
+		// ********* FRAGMENT SHADER *********
+		return (
+			this.shared_glsl_code() +
+			`
       void main(){
 
         vec3 normal = VERTEX_NORMAL;
@@ -94,8 +91,8 @@ class BoatShader extends Shader {
         gl_FragColor = vec4( boat_color * (ambient + diffuse), 1.0 );
       }
       `
-    )
-  }
+		)
+	}
 }
 
 export default BoatShader

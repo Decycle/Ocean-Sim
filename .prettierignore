@@ -1,0 +1,7 @@
+/.husky
+/assets
+/node_modules
+
+*.json
+*.bat
+*.command
