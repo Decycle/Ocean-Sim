@@ -470,7 +470,9 @@ export class Project_Scene extends Scene {
       this.is_splashing &&
       !this.splash_effect.is_alive(t)
     ) {
-      this.splash_effect = new SplashEffect(t)
+      this.splash_effect.set_start_time(t)
+      this.splash_effect.set_splash_position(x, y)
+      this.splash_effect.set_splash_strength(1)
       this.is_splashing = false
     }
   }
