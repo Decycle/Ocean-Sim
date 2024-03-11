@@ -1,61 +1,52 @@
-import { defs, tiny } from './examples/common.js'
+import {defs, tiny} from './examples/common.js'
 import Ocean_Shader from './shaders/ocean.js'
 import PostProcessingShader from './shaders/post_processing.js'
 import BackgroundShader from './shaders/background.js'
 import Quaternion from './util/quaternion.js'
-import { Boat } from './boat.js'
+import {Boat} from './boat.js'
 import BoatShader from './shaders/boat.js'
 import { SplashEffect } from './splash_effect.js'
 import { Shape_From_File } from './examples/obj-file-demo.js'
 
 // Pull these names into this module's scope for convenience:
-const {
-  vec3,
-  vec4,
-  Mat4,
-  color,
-  hex_color,
-  Material,
-  Scene,
-  Light,
-  Texture,
-} = tiny
+const {vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture} =
+	tiny
 
-const { Phong_Shader, Basic_Shader, Cube } = defs
+const {Phong_Shader, Basic_Shader, Cube} = defs
 
 const Ocean = class Ocean extends tiny.Vertex_Buffer {
-  // **Minimal_Shape** an even more minimal triangle, with three
-  // vertices each holding a 3D position and a color.
-  constructor() {
-    super('position')
+	// **Minimal_Shape** an even more minimal triangle, with three
+	// vertices each holding a 3D position and a color.
+	constructor() {
+		super('position')
 
-    const boundary = 100
-    const subdivision = 500
-    const step = (2 * boundary) / subdivision
-    const position = []
+		const boundary = 100
+		const subdivision = 500
+		const step = (2 * boundary) / subdivision
+		const position = []
 
-    for (let i = 0; i < subdivision; i++) {
-      for (let j = 0; j < subdivision; j++) {
-        const x = -boundary + step * i
-        const y = -boundary + step * j
+		for (let i = 0; i < subdivision; i++) {
+			for (let j = 0; j < subdivision; j++) {
+				const x = -boundary + step * i
+				const y = -boundary + step * j
 
-        const x2 = x + step
-        const y2 = y + step
+				const x2 = x + step
+				const y2 = y + step
 
-        const new_position = [
-          vec3(x, y, 0),
-          vec3(x, y2, 0),
-          vec3(x2, y, 0),
-          vec3(x2, y, 0),
-          vec3(x, y2, 0),
-          vec3(x2, y2, 0),
-        ]
-        position.push(...new_position)
-      }
-    }
+				const new_position = [
+					vec3(x, y, 0),
+					vec3(x, y2, 0),
+					vec3(x2, y, 0),
+					vec3(x2, y, 0),
+					vec3(x, y2, 0),
+					vec3(x2, y2, 0),
+				]
+				position.push(...new_position)
+			}
+		}
 
-    this.arrays.position = position
-  }
+		this.arrays.position = position
+	}
 }
 
 export class Project_Scene extends Scene {
