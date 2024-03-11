@@ -118,107 +118,125 @@ export class UIHandler {
 			scene.new_line()
 
 			scene.key_triggered_button('+0.1', [], () => {
-				scene.amplitude += 0.1
+				scene.oceanConfig.amplitude += 0.1
 			})
 
 			scene.key_triggered_button('+0.01', [], () => {
-				scene.amplitude += 0.01
+				scene.oceanConfig.amplitude += 0.01
 			})
 
 			scene.live_string((box) => {
-				box.textContent = `Wave Amplitude: ${scene.amplitude.toFixed(2)}`
+				box.textContent = `Wave Amplitude: ${scene.oceanConfig.amplitude.toFixed(2)}`
 			})
 
 			scene.key_triggered_button('-0.01', [], () => {
-				scene.amplitude = Math.max(0, scene.amplitude - 0.01)
-			})
-
-			scene.key_triggered_button('-0.1', [], () => {
-				scene.amplitude = Math.max(0, scene.amplitude - 0.1)
-			})
-
-			scene.new_line()
-
-			scene.key_triggered_button('+0.1', [], () => {
-				scene.amplitudeMultiplier += 0.1
-			})
-
-			scene.key_triggered_button('+0.01', [], () => {
-				scene.amplitudeMultiplier += 0.01
-			})
-
-			scene.live_string((box) => {
-				box.textContent = `Wave Amplitude Multiplier: ${scene.amplitudeMultiplier.toFixed(
-					2,
-				)}`
-			})
-
-			scene.key_triggered_button('-0.01', [], () => {
-				scene.amplitudeMultiplier = Math.max(
+				scene.oceanConfig.amplitude = Math.max(
 					0,
-					scene.amplitudeMultiplier - 0.01,
+					scene.oceanConfig.amplitude - 0.01,
 				)
 			})
 
 			scene.key_triggered_button('-0.1', [], () => {
-				scene.amplitudeMultiplier = Math.max(0, scene.amplitudeMultiplier - 0.1)
-			})
-
-			scene.new_line()
-
-			scene.key_triggered_button('+0.01', [], () => {
-				scene.waveMut += 0.01
-			})
-
-			scene.key_triggered_button('+0.1', [], () => {
-				scene.waveMut += 0.1
-			})
-
-			scene.live_string((box) => {
-				box.textContent = `Wave Number: ${scene.waveMut.toFixed(2)}`
-			})
-
-			scene.key_triggered_button('-0.01', [], () => {
-				scene.waveMut = Math.max(0, scene.waveMut - 0.01)
-			})
-
-			scene.key_triggered_button('-0.1', [], () => {
-				scene.waveMut = Math.max(0, scene.waveMut - 0.1)
+				scene.oceanConfig.amplitude = Math.max(
+					0,
+					scene.oceanConfig.amplitude - 0.1,
+				)
 			})
 
 			scene.new_line()
 
 			scene.key_triggered_button('+0.1', [], () => {
-				scene.waveMultiplier += 0.1
+				scene.oceanConfig.amplitudeMultiplier += 0.1
 			})
 
 			scene.key_triggered_button('+0.01', [], () => {
-				scene.waveMultiplier += 0.01
+				scene.oceanConfig.amplitudeMultiplier += 0.01
 			})
 
 			scene.live_string((box) => {
-				box.textContent = `Wave Number Multiplier: ${scene.waveMultiplier.toFixed(
+				box.textContent = `Wave Amplitude Multiplier: ${scene.oceanConfig.amplitudeMultiplier.toFixed(
 					2,
 				)}`
 			})
 
 			scene.key_triggered_button('-0.01', [], () => {
-				scene.waveMultiplier = Math.max(0, scene.waveMultiplier - 0.01)
+				scene.oceanConfig.amplitudeMultiplier = Math.max(
+					0,
+					scene.oceanConfig.amplitudeMultiplier - 0.01,
+				)
+			})
+
+			scene.key_triggered_button('-0.1', [], () => {
+				scene.oceanConfig.amplitudeMultiplier = Math.max(
+					0,
+					scene.oceanConfig.amplitudeMultiplier - 0.1,
+				)
+			})
+
+			scene.new_line()
+
+			scene.key_triggered_button('+0.01', [], () => {
+				scene.oceanConfig.waveMut += 0.01
+			})
+
+			scene.key_triggered_button('+0.1', [], () => {
+				scene.oceanConfig.waveMut += 0.1
+			})
+
+			scene.live_string((box) => {
+				box.textContent = `Wave Number: ${scene.oceanConfig.waveMut.toFixed(2)}`
+			})
+
+			scene.key_triggered_button('-0.01', [], () => {
+				scene.oceanConfig.waveMut = Math.max(
+					0,
+					scene.oceanConfig.waveMut - 0.01,
+				)
+			})
+
+			scene.key_triggered_button('-0.1', [], () => {
+				scene.oceanConfig.waveMut = Math.max(0, scene.oceanConfig.waveMut - 0.1)
+			})
+
+			scene.new_line()
+
+			scene.key_triggered_button('+0.1', [], () => {
+				scene.oceanConfig.waveMultiplier += 0.1
+			})
+
+			scene.key_triggered_button('+0.01', [], () => {
+				scene.oceanConfig.waveMultiplier += 0.01
+			})
+
+			scene.live_string((box) => {
+				box.textContent = `Wave Number Multiplier: ${scene.oceanConfig.waveMultiplier.toFixed(
+					2,
+				)}`
+			})
+
+			scene.key_triggered_button('-0.01', [], () => {
+				scene.oceanConfig.waveMultiplier = Math.max(
+					0,
+					scene.oceanConfig.waveMultiplier - 0.01,
+				)
 			})
 
 			scene.key_triggered_button('-0.1', [''], () => {
-				scene.waveMultiplier = Math.max(0, scene.waveMultiplier - 0.1)
+				scene.oceanConfig.waveMultiplier = Math.max(
+					0,
+					scene.oceanConfig.waveMultiplier - 0.1,
+				)
 			})
 
 			scene.new_line()
 
 			scene.key_triggered_button('randomize', ['r'], () => {
-				scene.seed = Math.random() * 10000
-				scene.seedOffset = Math.random() * 10000
+				scene.oceanConfig.seed = Math.random() * 10000
+				scene.oceanConfig.seedOffset = Math.random() * 10000
 			})
 
 			scene.live_string((box) => {
-				box.textContent = `Seed: ${scene.seed} | Seed Offset: ${scene.seedOffset}`
+				box.textContent = `Seed: ${scene.oceanConfig.seed} | Seed Offset: ${scene.oceanConfig.seedOffset}`
 			})
 
 			scene.new_line()

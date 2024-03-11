@@ -34,7 +34,6 @@ export class Project_Scene extends Scene {
 		}
 		// Send a Triangle's vertices to the GPU buffers:
 		this.shapes = {
-			ocean: new OceanPlane(100, 500),
 			screen_quad: new defs.Square(),
 			big_boat: new Shape_From_File('assets/big_boat.obj'),
 			boat: new Shape_From_File('assets/minecraft-boat.obj'),
@@ -42,24 +41,7 @@ export class Project_Scene extends Scene {
 
 		this.backgroundRenderer = new BackgroundRenderer()
 
-		this.amplitude = 0.13
-		this.waveMut = 0.22
-		this.seed = 4551.671312417933
-
-		this.amplitudeMultiplier = 0.94
-		this.waveMultiplier = 1.1
-		this.seedOffset = 8780.3143875966
-
 		this.materials = {
-			ocean: new Material(new Ocean_Shader(), {
-				amplitude: this.amplitude,
-				waveMut: this.waveMut,
-				seed: this.seed,
-				amplitudeMultiplier: this.amplitudeMultiplier,
-				waveMultiplier: this.waveMultiplier,
-				seedOffset: this.seedOffset,
-				sea_color: hex_color('#3b59CC'),
-			}),
 			boat: new Material(new BoatShader(), {
 				texture: new Texture('assets/oak-wood.jpeg'),
 			}),
@@ -73,6 +55,18 @@ export class Project_Scene extends Scene {
 
 		this.uiHandler = new UIHandler()
 		this.skipped_first_frame = false
+
+		this.oceanConfig = {
+			amplitude: 0.13,
+			waveMut: 0.22,
+			seed: 4551.671312417933,
+			amplitudeMultiplier: 0.94,
+			waveMultiplier: 1.1,
+			seedOffset: 8780.3143875966,
+			seaColor: hex_color('#3b59CC'),
+		}
+
+		this.ocean = new Ocean(100, 500, this.oceanConfig)
 
 		this.boat_position = vec3(0, 0, 0)
 		this.boat_velocity = vec3(0, 0, 0)
@@ -250,19 +244,12 @@ export class Project_Scene extends Scene {
 		// first pass
 		const model_transform = Mat4.identity()
 
-		this.shapes.ocean.draw(
+		this.ocean.draw(
 			context,
 			program_state,
 			model_transform,
-			this.materials.ocean.override({
-				amplitude: this.amplitude,
-				waveMut: this.waveMut,
-				seed: this.seed,
-				amplitudeMultiplier: this.amplitudeMultiplier,
-				waveMultiplier: this.waveMultiplier,
-				seedOffset: this.seedOffset,
-				time: t,
-			}),
+			this.oceanConfig,
+			t,
 		)
 
 		let new_quaternion = this.quaternion
@@ -409,9 +396,9 @@ export class Project_Scene extends Scene {
 
 	// same calculation as in the shader to get the relative movement of the boat
 	get_gerstner_wave(x, y, t) {
-		let amplitude = this.amplitude
-		let waveMut = this.waveMut
-		let seed = this.seed
+		let amplitude = this.oceanConfig.amplitude
+		let waveMut = this.oceanConfig.waveMut
+		let seed = this.oceanConfig.seed
 
 		let nx = x
 		let ny = y
@@ -442,9 +429,9 @@ export class Project_Scene extends Scene {
 			vx = vx.minus(dv.times(kx))
 			vy = vy.minus(dv.times(ky))
 
-			amplitude *= this.amplitudeMultiplier
-			waveMut *= this.waveMultiplier
-			seed += this.seedOffset
+			amplitude *= this.oceanConfig.amplitudeMultiplier
+			waveMut *= this.oceanConfig.waveMultiplier
+			seed += this.oceanConfig.seedOffset
 		}
 
 		return [vec3(nx, ny, nz), vx.cross(vy).normalized()]

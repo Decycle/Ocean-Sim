@@ -56,7 +56,7 @@ class OceanShader extends Shader {
 		context.uniform1f(gpu_addresses.wave_multiplier, material.waveMultiplier)
 		context.uniform1f(gpu_addresses.seed_offset, material.seedOffset)
 
-		context.uniform4fv(gpu_addresses.sea_color, material.sea_color)
+		context.uniform4fv(gpu_addresses.sea_color, material.seaColor)
 	}
 	shared_glsl_code() {
 		// ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
