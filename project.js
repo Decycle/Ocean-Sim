@@ -6,6 +6,7 @@ import Quaternion from './util/quaternion.js'
 import { Boat } from './boat.js'
 import BoatShader from './shaders/boat.js'
 import { SplashEffect } from './splash_effect.js'
+import { Shape_From_File } from './examples/obj-file-demo.js'
 
 // Pull these names into this module's scope for convenience:
 const {
@@ -80,7 +81,11 @@ export class Project_Scene extends Scene {
     this.shapes = {
       ocean: new Ocean(),
       screen_quad: new defs.Square(),
-      boat: new Cube(),
+      // boat: new Cube(),
+      big_boat: new Shape_From_File('assets/big_boat.obj'),
+      boat: new Shape_From_File(
+        'assets/minecraft-boat.obj'
+      ),
     }
 
     this.amplitude = 0.13
@@ -101,7 +106,12 @@ export class Project_Scene extends Scene {
         seedOffset: this.seedOffset,
         sea_color: hex_color('#3b59CC'),
       }),
-      boat: new Material(new BoatShader(), {}),
+      boat: new Material(new BoatShader(), {
+        texture: new Texture('assets/oak-wood.jpeg'),
+      }),
+      big_boat: new Material(new BoatShader(), {
+        texture: new Texture('assets/big_boat_texture.png'),
+      }),
       postprocess: new Material(
         new PostProcessingShader(),
         {
@@ -132,24 +142,53 @@ export class Project_Scene extends Scene {
 
     this.enable_post_processing = true
 
-    this.camera_z_offset = 2.3
+    this.camera_z_offset = 4.3
     this.camera_z_min_offset = 1.0
     this.camera_z_max_offset = 20
+
+    this.mouse_camera_horizontal_angle = 0
+    this.mouse_camera_vertical_angle = 0
+    this.mouse_camera_horizontal_sensitivity = 0.005
+    this.mouse_camera_vertical_sensitivity = 0.003
 
     this.is_zooming_in = false
     this.is_zooming_out = false
 
     this.splash_effect = new SplashEffect(0)
+
+    this.is_big_boat = false
+  }
+
+  draw_boat(context, program_state, model_transform) {
+    if (this.is_big_boat) {
+      this.shapes.big_boat.draw(
+        context,
+        program_state,
+        model_transform,
+        this.materials.big_boat
+      )
+    } else {
+      this.shapes.boat.draw(
+        context,
+        program_state,
+        model_transform
+          .times(Mat4.translation(0, 0.95, 0))
+          .times(Mat4.scale(0.7, -0.7, 0.7))
+          .times(Mat4.rotation(Math.PI / 2, 0, 1, 0)),
+        this.materials.boat
+      )
+    }
   }
 
   display(context, program_state) {
     super.display(context, program_state)
+
     const t = program_state.animation_time / 1000
     const dt = program_state.animation_delta_time / 1000
 
-    const boatWidth = 0.3
-    const boatLength = 0.3
-    const boatHeight = 0.1
+    const boatWidth = 1
+    const boatLength = 1
+    const boatHeight = 1
     const heightLerpFactor = 0.05
     const quaternionInterpolation = 0.05
     const boatFallingAcceleration = 1
@@ -245,7 +284,23 @@ export class Project_Scene extends Scene {
         )
           .times(
             Mat4.rotation(
-              this.boat_horizontal_angle,
+              -this.mouse_camera_horizontal_angle,
+              0,
+              0,
+              1
+            )
+          )
+          .times(
+            Mat4.rotation(
+              -this.mouse_camera_vertical_angle,
+              1,
+              0,
+              0
+            )
+          )
+          .times(
+            Mat4.rotation(
+              -this.boat_horizontal_angle,
               0,
               0,
               1
@@ -253,7 +308,7 @@ export class Project_Scene extends Scene {
           )
           .times(Mat4.rotation(1.1, 1, 0, 0)) // edit this to change camera angle
           .times(
-            Mat4.translation(0, 0.3, this.camera_z_offset)
+            Mat4.translation(0, 0, this.camera_z_offset)
           )
       )
     )
@@ -261,7 +316,7 @@ export class Project_Scene extends Scene {
     program_state.projection_transform = Mat4.perspective(
       Math.PI / 3,
       context.width / context.height,
-      0.1,
+      0.5,
       1000
     )
 
@@ -375,61 +430,22 @@ export class Project_Scene extends Scene {
 
     const rotation = this.quaternion.toMatrix()
 
-    this.shapes.boat.draw(
-      context,
-      program_state,
-      Mat4.translation(
-        this.boat_position[0],
-        this.boat_position[1],
-        this.boat_position[2]
-      )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
-        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
-        .times(rotation)
-
-        .times(
-          Mat4.scale(boatWidth, boatHeight, boatLength)
-        ),
-      this.materials.boat
+    const boat_model_transform = Mat4.translation(
+      this.boat_position[0],
+      this.boat_position[1],
+      this.boat_position[2] + 1
     )
+      .times(
+        Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
+      )
+      .times(Mat4.rotation(Math.PI, 0, 0, 1))
+      .times(rotation)
+      .times(Mat4.scale(boatWidth, boatHeight, boatLength))
 
-    // temporary pole
-    this.shapes.boat.draw(
+    this.draw_boat(
       context,
       program_state,
-      Mat4.translation(
-        this.boat_position[0],
-        this.boat_position[1],
-        this.boat_position[2]
-      )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
-        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
-        .times(rotation)
-        .times(Mat4.scale(0.03, 0.3, 0.03))
-        .times(Mat4.translation(0, -1, 0)),
-      this.materials.boat
-    )
-
-    this.shapes.boat.draw(
-      context,
-      program_state,
-      Mat4.translation(
-        this.boat_position[0],
-        this.boat_position[1],
-        this.boat_position[2]
-      )
-        .times(
-          Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)
-        )
-        .times(Mat4.rotation(Math.PI / 2, 0, 0, 1))
-        .times(rotation)
-        .times(Mat4.scale(0.3, 0.03, 0.03))
-        .times(Mat4.translation(1, 0, 0)),
-      this.materials.boat
+      boat_model_transform
     )
 
     // second pass
@@ -477,7 +493,47 @@ export class Project_Scene extends Scene {
     }
   }
 
+  add_camera_controls(canvas) {
+    canvas.addEventListener('mousedown', (e) => {
+      console.log('mousedown')
+      this.mouse_down = true
+      this.last_mouse_x = e.clientX
+      this.last_mouse_y = e.clientY
+    })
+
+    canvas.addEventListener('mouseup', (e) => {
+      console.log('mouseup')
+      this.mouse_down = false
+    })
+
+    canvas.addEventListener('mousemove', (e) => {
+      console.log('mousemove')
+      if (this.mouse_down) {
+        const dx = e.clientX - this.last_mouse_x
+        const dy = e.clientY - this.last_mouse_y
+        this.mouse_camera_horizontal_angle +=
+          dx * this.mouse_camera_horizontal_sensitivity
+        this.mouse_camera_vertical_angle +=
+          dy * this.mouse_camera_vertical_sensitivity
+
+        // cap dy
+        this.mouse_camera_vertical_angle = Math.min(
+          Math.PI / 4,
+          Math.max(0, this.mouse_camera_vertical_angle)
+        )
+
+        this.last_mouse_x = e.clientX
+        this.last_mouse_y = e.clientY
+      }
+    })
+  }
+
   make_control_panel() {
+    const canvas =
+      document.getElementById('main-canvas').firstChild
+
+    this.add_camera_controls(canvas)
+
     this.control_panel.innerHTML += 'Controls:'
 
     this.key_triggered_button(
@@ -539,8 +595,6 @@ export class Project_Scene extends Scene {
       if (document.fullscreenElement) {
         document.exitFullscreen()
       } else {
-        const canvas =
-          document.getElementById('main-canvas').firstChild
         canvas.requestFullscreen()
       }
     })
@@ -725,6 +779,12 @@ export class Project_Scene extends Scene {
 
       this.key_triggered_button('splash!', ['l'], () => {
         this.is_splashing = true
+      })
+
+      this.new_line()
+
+      this.key_triggered_button('big boat', ['b'], () => {
+        this.is_big_boat = !this.is_big_boat
       })
     }
   }

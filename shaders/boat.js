@@ -41,11 +41,17 @@ class BoatShader extends Shader {
       gpu_addresses.animation_time,
       material.time
     )
+
+    //texture
+    if (material.texture && material.texture.ready) {
+      context.uniform1i(gpu_addresses.texture, 0)
+      material.texture.activate(context)
+    }
   }
   shared_glsl_code() {
     // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
     return `precision mediump float;
-            varying vec3 VERTEX_POS;
+            varying vec2 uv;
             varying vec3 VERTEX_NORMAL;
       `
   }
@@ -56,9 +62,9 @@ class BoatShader extends Shader {
       this.shared_glsl_code() +
       `
         uniform float animation_time;
-        attribute vec4 color;
         attribute vec3 position;
         attribute vec3 normal;
+        attribute vec2 texture_coord;
         // Position is expressed in object coordinates.
 
         uniform mat4 projection_transform;
@@ -70,8 +76,8 @@ class BoatShader extends Shader {
           mat4 projection_camera_model_transform = projection_transform * camera_inverse * model_transform;
           gl_Position = projection_camera_model_transform * vec4( position, 1.0 );
 
-          VERTEX_POS = position;
-          VERTEX_NORMAL = (model_transform * vec4(normal, 0.0)).xyz;
+          uv = texture_coord;
+          VERTEX_NORMAL = normal;
         }
         `
     )
@@ -82,10 +88,13 @@ class BoatShader extends Shader {
     return (
       this.shared_glsl_code() +
       `
+      uniform sampler2D texture;
+
       void main(){
 
         vec3 normal = VERTEX_NORMAL;
-        vec3 boat_color = vec3(1.);
+        gl_FragColor = vec4(uv.x, uv.y, 1.0, 1.0);
+        vec3 boat_color = texture2D(texture, vec2(uv.x, uv.y)).xyz;
         vec3 ambient = vec3(0.2, 0.2, 0.2);
         vec3 light = normalize(vec3(1, 1, 1));
 
