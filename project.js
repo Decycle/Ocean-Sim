@@ -1,18 +1,15 @@
 import {defs, tiny} from './examples/common.js'
-import Ocean_Shader from './shaders/ocean.js'
 import PostProcessingShader from './shaders/post_processing.js'
 import Quaternion from './util/quaternion.js'
-import BoatShader from './shaders/boat.js'
-import {Shape_From_File} from './examples/obj-file-demo.js'
 import {SplashEffect} from './models/splash_effect.js'
-import {Ocean, OceanPlane} from './models/ocean.js'
+import {Ocean} from './models/ocean.js'
 import {BackgroundRenderer} from './models/background.js'
 import {UIHandler} from './ui.js'
+import {Boat} from './models/boat.js'
+import {BigBoat} from './models/big_boat.js'
 // Pull these names into this module's scope for convenience:
 const {vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture} =
 	tiny
-
-const {Phong_Shader, Basic_Shader, Cube} = defs
 
 export class Project_Scene extends Scene {
 	// **Minimal_Webgl_Demo** is an extremely simple example of a Scene class.
@@ -32,22 +29,16 @@ export class Project_Scene extends Scene {
 			make_controls: true,
 			show_explanation: false,
 		}
-		// Send a Triangle's vertices to the GPU buffers:
+		this.boat = new Boat()
+		this.big_boat = new BigBoat()
+
 		this.shapes = {
 			screen_quad: new defs.Square(),
-			big_boat: new Shape_From_File('assets/big_boat.obj'),
-			boat: new Shape_From_File('assets/minecraft-boat.obj'),
 		}
 
 		this.backgroundRenderer = new BackgroundRenderer()
 
 		this.materials = {
-			boat: new Material(new BoatShader(), {
-				texture: new Texture('assets/oak-wood.jpeg'),
-			}),
-			big_boat: new Material(new BoatShader(), {
-				texture: new Texture('assets/big_boat_texture.png'),
-			}),
 			postprocess: new Material(new PostProcessingShader(), {
 				texture: this.texture,
 			}),
@@ -68,58 +59,66 @@ export class Project_Scene extends Scene {
 
 		this.ocean = new Ocean(100, 500, this.oceanConfig)
 
+		// boat position and velocity
 		this.boat_position = vec3(0, 0, 0)
 		this.boat_velocity = vec3(0, 0, 0)
 
+		// is the user rotating the boat
 		this.boat_rotate_left = false
 		this.boat_rotate_right = false
+		// current angle of the boat
 		this.boat_horizontal_angle = 0
 
+		//is the user rotating the camera
 		this.camera_rotate_left = false
 		this.camera_rotate_right = false
+		// current angle of the camera
 		this.camera_horizontal_angle = 0
 
+		// whether or not to show advanced controls
 		this.show_advanced_controls = true
 
+		// current boat quaternion
 		this.quaternion = Quaternion.identity()
+		// previous boat quaternion
 		this.last_quaternion = this.quaternion
 
+		// enable post processing
 		this.enable_post_processing = true
 
+		// current camera z offset (zoom)
 		this.camera_z_offset = 4.3
 		this.camera_z_min_offset = 1.0
 		this.camera_z_max_offset = 20
 
+		// camera rotation with mouse
 		this.mouse_camera_horizontal_angle = 0
 		this.mouse_camera_vertical_angle = 0
 		this.mouse_camera_horizontal_sensitivity = 0.005
 		this.mouse_camera_vertical_sensitivity = 0.003
 
+		// is the user zooming in or out
 		this.is_zooming_in = false
 		this.is_zooming_out = false
 
+		// splash effect
 		this.splash_effect = new SplashEffect(0)
 
+		// is the boat big
 		this.is_big_boat = false
 	}
 
 	draw_boat(context, program_state, model_transform) {
 		if (this.is_big_boat) {
-			this.shapes.big_boat.draw(
-				context,
-				program_state,
-				model_transform,
-				this.materials.big_boat,
-			)
+			this.big_boat.draw(context, program_state, model_transform)
 		} else {
-			this.shapes.boat.draw(
+			this.boat.draw(
 				context,
 				program_state,
 				model_transform
 					.times(Mat4.translation(0, 0.95, 0))
 					.times(Mat4.scale(0.7, -0.7, 0.7))
 					.times(Mat4.rotation(Math.PI / 2, 0, 1, 0)),
-				this.materials.boat,
 			)
 		}
 	}
@@ -137,6 +136,7 @@ export class Project_Scene extends Scene {
 		const quaternionInterpolation = 0.05
 		const boatFallingAcceleration = 1
 
+		// rotate the boat if the user is pressing the keys
 		if (this.boat_rotate_left) {
 			this.boat_horizontal_angle += 0.015
 		}
@@ -144,8 +144,8 @@ export class Project_Scene extends Scene {
 			this.boat_horizontal_angle -= 0.015
 		}
 
+		// move forward in the direction of the horizontal angle
 		this.boat_position = this.boat_position.plus(
-			// this.boat_velocity.times(dt)
 			Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1).times(
 				this.boat_velocity.times(dt),
 			),
@@ -153,17 +153,20 @@ export class Project_Scene extends Scene {
 
 		const x = this.boat_position[0]
 		const y = this.boat_position[1]
-		// const z = this.boat_position[2]
 
+		// calculate the new position of the boat at this instant
 		const wave_pos = this.get_gerstner_wave(x, y, t)[0]
-
+		// get the new z position
 		const nz = wave_pos[2]
 
+		// if the boat is below the water, move it up to the water level
 		if (this.boat_position[2] < nz) {
 			const threshold = 0.25
 			const maximum_threhold = 1.4
+			// if the boat is falling fast enough, make a splash when it hits the water
 			if (-this.boat_velocity[2] > threshold) {
-				// splash!
+				// strength of the splash is proportional to the velocity of the boat
+				// strength indicates the size of the splash
 				const strength = Math.min(
 					1,
 					(-this.boat_velocity[2] - threshold) / (maximum_threhold - threshold),
@@ -173,17 +176,22 @@ export class Project_Scene extends Scene {
 				this.splash_effect.set_splash_strength(strength)
 			}
 
+			// smoothly move the boat up to the water level
 			this.boat_position[2] =
 				(nz + boatHeight / 2) * heightLerpFactor +
 				this.boat_position[2] * (1 - heightLerpFactor)
 			this.boat_velocity[2] = 0
-		} else {
+		}
+		// if the boat is above water, make it fall
+		else {
 			this.boat_velocity[2] -= boatFallingAcceleration * dt
 		}
 
+		// apply drag to the boat (velocity decays over time)
 		this.boat_velocity[0] *= 0.95
 		this.boat_velocity[1] *= 0.95
 
+		// camera rotation
 		if (this.camera_rotate_left) {
 			this.camera_horizontal_angle += 0.02
 			this.camera_horizontal_angle = Math.min(
@@ -198,7 +206,7 @@ export class Project_Scene extends Scene {
 			)
 		}
 
-		// camera should be rotated on top of the boat rotation
+		// zooming in and out
 		if (this.is_zooming_in) {
 			this.camera_z_offset *= 0.97
 			this.camera_z_offset = Math.max(
@@ -221,27 +229,26 @@ export class Project_Scene extends Scene {
 					this.boat_position[0],
 					this.boat_position[1],
 					this.boat_position[2],
-				)
-					.times(Mat4.rotation(-this.mouse_camera_horizontal_angle, 0, 0, 1))
-					.times(Mat4.rotation(-this.mouse_camera_vertical_angle, 1, 0, 0))
-					.times(Mat4.rotation(-this.boat_horizontal_angle, 0, 0, 1))
-					.times(Mat4.rotation(1.1, 1, 0, 0)) // edit this to change camera angle
-					.times(Mat4.translation(0, 0, this.camera_z_offset)),
+				) //follow boat
+					.times(Mat4.rotation(-this.mouse_camera_horizontal_angle, 0, 0, 1)) // mouse camera rotation
+					.times(Mat4.rotation(-this.mouse_camera_vertical_angle, 1, 0, 0)) // mouse camera rotation
+					.times(Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)) // align with boat
+					.times(Mat4.rotation(1.1, 1, 0, 0)) // initial camera angle
+					.times(Mat4.translation(0, 0, this.camera_z_offset)), // zoom,
 			),
 		)
 
 		program_state.projection_transform = Mat4.perspective(
-			Math.PI / 3,
+			Math.PI / 3, // 60 degrees field of view //TODO: higher fov when going faster
 			context.width / context.height,
 			0.5,
 			1000,
 		)
 
-		this.backgroundRenderer.draw(context, program_state)
-
-		this.splash_effect.draw(context, program_state, nz)
-
 		// first pass
+		this.backgroundRenderer.draw(context, program_state) // render the background
+		this.splash_effect.draw(context, program_state, nz) // render the splash effect (if any)
+
 		const model_transform = Mat4.identity()
 
 		this.ocean.draw(
@@ -250,12 +257,13 @@ export class Project_Scene extends Scene {
 			model_transform,
 			this.oceanConfig,
 			t,
-		)
+		) // render the ocean
 
-		let new_quaternion = this.quaternion
+		let new_quaternion = this.quaternion //calculate the new rotation of the boat
 
 		//if boat is below water, rotate it to match the waves
 		if (this.boat_position[2] < nz + boatHeight / 2) {
+			// calculate the four quadrants of the boat and average the normals
 			const x1 = x + boatWidth / 2
 			const x2 = x - boatWidth / 2
 			const y1 = y + boatLength / 2
@@ -310,19 +318,20 @@ export class Project_Scene extends Scene {
 			this.quaternion = new_quaternion
 		}
 
+		// convert the quaternion to a rotation matrix1
 		const rotation = this.quaternion.toMatrix()
 
 		const boat_model_transform = Mat4.translation(
 			this.boat_position[0],
 			this.boat_position[1],
 			this.boat_position[2] + 1,
-		)
-			.times(Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1))
-			.times(Mat4.rotation(Math.PI, 0, 0, 1))
-			.times(rotation)
-			.times(Mat4.scale(boatWidth, boatHeight, boatLength))
+		) // boat position
+			.times(Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)) // boat horizontal angle
+			.times(Mat4.rotation(Math.PI, 0, 0, 1)) // rotate the boat 180 degrees by z axis so it faces the right way
+			.times(rotation) // boat quaternion rotation
+			.times(Mat4.scale(boatWidth, boatHeight, boatLength)) //scale by boat dimensions
 
-		this.draw_boat(context, program_state, boat_model_transform)
+		this.draw_boat(context, program_state, boat_model_transform) // render the boat
 
 		// second pass
 		if (this.enable_post_processing) {
@@ -347,6 +356,7 @@ export class Project_Scene extends Scene {
 			)
 		}
 
+		// if the user is pressing the splash key, splash
 		if (this.is_splashing && !this.splash_effect.is_alive(t)) {
 			this.splash_effect.set_start_time(t)
 			this.splash_effect.set_splash_position(x, y)
@@ -357,19 +367,16 @@ export class Project_Scene extends Scene {
 
 	add_camera_controls(canvas) {
 		canvas.addEventListener('mousedown', (e) => {
-			// console.log('mousedown')
 			this.mouse_down = true
 			this.last_mouse_x = e.clientX
 			this.last_mouse_y = e.clientY
 		})
 
 		canvas.addEventListener('mouseup', (e) => {
-			// console.log('mouseup')
 			this.mouse_down = false
 		})
 
 		canvas.addEventListener('mousemove', (e) => {
-			// console.log('mousemove')
 			if (this.mouse_down) {
 				const dx = e.clientX - this.last_mouse_x
 				const dy = e.clientY - this.last_mouse_y

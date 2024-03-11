@@ -4,11 +4,11 @@ import BoatShader from '../shaders/boat.js'
 
 const {vec3, Material, hex_color, Texture} = tiny
 
-export class Boat {
+export class BigBoat {
 	constructor() {
-		this.model = new Shape_From_File('assets/minecraft-boat.obj')
+		this.model = new Shape_From_File('assets/big_boat.obj')
 		this.material = new Material(new BoatShader(), {
-			texture: new Texture('assets/oak-wood.jpeg'),
+			texture: new Texture('assets/big_boat_texture.png'),
 		})
 	}
 

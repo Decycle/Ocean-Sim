@@ -63,7 +63,6 @@ export class Ocean {
 	}
 
 	draw(context, program_state, model_transform, configs, t) {
-		console.log(configs)
 		this.ocean_plane.draw(
 			context,
 			program_state,
