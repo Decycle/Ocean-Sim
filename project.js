@@ -87,6 +87,9 @@ export class Project_Scene extends Scene {
     this.waveMultiplier = 1.1
     this.seedOffset = 8780.3143875966
 
+
+    // original boat texture density: 2 (max)
+    this.boat_texture_density = 2
     this.materials = {
       ocean: new Material(new Ocean_Shader(), {
         amplitude: this.amplitude,
@@ -97,9 +100,17 @@ export class Project_Scene extends Scene {
         seedOffset: this.seedOffset,
         sea_color: hex_color('#3b59CC'),
       }),
-      boat: new Material(new BoatShader(), {
+      boat_textures: [
+        new Material(new BoatShader(), {
         texture: new Texture('assets/oak-wood.jpeg'),
       }),
+        new Material(new BoatShader(), {
+        texture: new Texture('assets/denser-oak-texture.jpg'),
+      }),
+        new Material(new BoatShader(), {
+        texture: new Texture('assets/densest-oak-texture.jpg'),
+      }),
+      ],
       big_boat: new Material(new BoatShader(), {
         texture: new Texture('assets/big_boat_texture.png'),
       }),
@@ -150,6 +161,7 @@ export class Project_Scene extends Scene {
     this.is_big_boat = false
   }
 
+
   draw_boat(context, program_state, model_transform) {
     if (this.is_big_boat) {
       this.shapes.big_boat.draw(
@@ -159,6 +171,8 @@ export class Project_Scene extends Scene {
         this.materials.big_boat
       )
     } else {
+      const little_boat_texture = this.materials.boat_textures[this.boat_texture_density % 3]
+
       this.shapes.boat.draw(
         context,
         program_state,
@@ -166,7 +180,7 @@ export class Project_Scene extends Scene {
           .times(Mat4.translation(0, 0.95, 0))
           .times(Mat4.scale(0.7, -0.7, 0.7))
           .times(Mat4.rotation(Math.PI / 2, 0, 1, 0)),
-        this.materials.boat
+        little_boat_texture
       )
     }
   }
@@ -638,6 +652,14 @@ export class Project_Scene extends Scene {
       undefined,
       () => {
         this.is_zooming_out = false
+      }
+    )
+
+    this.key_triggered_button(
+      'Change Boat Texture Density',
+      ["t"],
+      () => {
+        this.boat_texture_density++
       }
     )
 
