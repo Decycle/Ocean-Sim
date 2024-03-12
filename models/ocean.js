@@ -68,6 +68,7 @@ export class Ocean {
 			program_state,
 			model_transform,
 			this.material.override({
+				...configs,
 				time: t,
 			}),
 		)

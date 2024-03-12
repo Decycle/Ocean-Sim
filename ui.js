@@ -1,3 +1,5 @@
+import {clamp} from './util/common.js'
+
 export class UIHandler {
 	setup_ui(scene) {
 		const canvas = document.getElementById('main-canvas').firstChild
@@ -11,9 +13,6 @@ export class UIHandler {
 		})
 
 		scene.new_line()
-
-		const force = 10
-		const max_speed = 5
 		scene.key_triggered_button(
 			'Left Turn',
 			['a'],
@@ -39,17 +38,12 @@ export class UIHandler {
 		)
 
 		scene.key_triggered_button('Forward', ['w'], () => {
-			scene.boat_velocity[1] += force
-			scene.boat_velocity[1] = Math.min(scene.boat_velocity[1], max_speed)
+			scene.boat_velocity[1] += scene.boat_moving_force
 		})
-
 		scene.key_triggered_button('Backward', ['s'], () => {
-			scene.boat_velocity[1] -= force
-			scene.boat_velocity[1] = Math.max(scene.boat_velocity[1], -max_speed)
+			scene.boat_velocity[1] -= scene.boat_moving_force
 		})
-
 		scene.new_line()
-
 		scene.key_triggered_button('full screen', ['f'], () => {
 			if (document.fullscreenElement) {
 				document.exitFullscreen()
@@ -130,19 +124,12 @@ export class UIHandler {
 			})
 
 			scene.key_triggered_button('-0.01', [], () => {
-				scene.oceanConfig.amplitude = Math.max(
-					0,
-					scene.oceanConfig.amplitude - 0.01,
-				)
+				scene.oceanConfig.amplitude -= 0.01
 			})
 
 			scene.key_triggered_button('-0.1', [], () => {
-				scene.oceanConfig.amplitude = Math.max(
-					0,
-					scene.oceanConfig.amplitude - 0.1,
-				)
+				scene.oceanConfig.amplitude -= 0.1
 			})
-
 			scene.new_line()
 
 			scene.key_triggered_button('+0.1', [], () => {
@@ -160,17 +147,11 @@ export class UIHandler {
 			})
 
 			scene.key_triggered_button('-0.01', [], () => {
-				scene.oceanConfig.amplitudeMultiplier = Math.max(
-					0,
-					scene.oceanConfig.amplitudeMultiplier - 0.01,
-				)
+				scene.oceanConfig.amplitudeMultiplier -= 0.01
 			})
 
 			scene.key_triggered_button('-0.1', [], () => {
-				scene.oceanConfig.amplitudeMultiplier = Math.max(
-					0,
-					scene.oceanConfig.amplitudeMultiplier - 0.1,
-				)
+				scene.oceanConfig.amplitudeMultiplier -= 0.1
 			})
 
 			scene.new_line()
@@ -188,14 +169,11 @@ export class UIHandler {
 			})
 
 			scene.key_triggered_button('-0.01', [], () => {
-				scene.oceanConfig.waveMut = Math.max(
-					0,
-					scene.oceanConfig.waveMut - 0.01,
-				)
+				scene.oceanConfig.waveMut -= 0.01
 			})
 
 			scene.key_triggered_button('-0.1', [], () => {
-				scene.oceanConfig.waveMut = Math.max(0, scene.oceanConfig.waveMut - 0.1)
+				scene.oceanConfig.waveMut -= 0.1
 			})
 
 			scene.new_line()
@@ -215,19 +193,12 @@ export class UIHandler {
 			})
 
 			scene.key_triggered_button('-0.01', [], () => {
-				scene.oceanConfig.waveMultiplier = Math.max(
-					0,
-					scene.oceanConfig.waveMultiplier - 0.01,
-				)
+				scene.oceanConfig.waveMultiplier -= 0.01
 			})
 
 			scene.key_triggered_button('-0.1', [''], () => {
-				scene.oceanConfig.waveMultiplier = Math.max(
-					0,
-					scene.oceanConfig.waveMultiplier - 0.1,
-				)
+				scene.oceanConfig.waveMultiplier -= 0.1
 			})
-
 			scene.new_line()
 
 			scene.key_triggered_button('randomize', ['r'], () => {

@@ -7,10 +7,10 @@ import {BackgroundRenderer} from './models/background.js'
 import {UIHandler} from './ui.js'
 import {Boat} from './models/boat.js'
 import {BigBoat} from './models/big_boat.js'
+import {lerp, smoothlerp, clamp, remap} from './util/common.js'
 // Pull these names into this module's scope for convenience:
 const {vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture} =
 	tiny
-
 export class Project_Scene extends Scene {
 	// **Minimal_Webgl_Demo** is an extremely simple example of a Scene class.
 	constructor(webgl_manager, control_panel) {
@@ -106,6 +106,12 @@ export class Project_Scene extends Scene {
 
 		// is the boat big
 		this.is_big_boat = false
+
+		this.boat_moving_force = 10
+		this.boat_maximum_velocity = 5
+
+		// fov
+		this.fov = Math.PI / 3
 	}
 
 	draw_boat(context, program_state, model_transform) {
@@ -121,6 +127,21 @@ export class Project_Scene extends Scene {
 					.times(Mat4.rotation(Math.PI / 2, 0, 1, 0)),
 			)
 		}
+	}
+
+	clamp_ocean_config() {
+		this.oceanConfig.amplitude = clamp(this.oceanConfig.amplitude, 0, 0.3)
+		this.oceanConfig.amplitudeMultiplier = clamp(
+			this.oceanConfig.amplitudeMultiplier,
+			0,
+			0.99,
+		)
+		this.oceanConfig.waveMut = clamp(this.oceanConfig.waveMut, 0, 2)
+		this.oceanConfig.waveMultiplier = clamp(
+			this.oceanConfig.waveMultiplier,
+			1.01,
+			2,
+		)
 	}
 
 	display(context, program_state) {
@@ -144,6 +165,11 @@ export class Project_Scene extends Scene {
 			this.boat_horizontal_angle -= 0.015
 		}
 
+		this.boat_velocity[1] = clamp(
+			this.boat_velocity[1],
+			-this.boat_maximum_velocity,
+			this.boat_maximum_velocity,
+		)
 		// move forward in the direction of the horizontal angle
 		this.boat_position = this.boat_position.plus(
 			Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1).times(
@@ -162,14 +188,15 @@ export class Project_Scene extends Scene {
 		// if the boat is below the water, move it up to the water level
 		if (this.boat_position[2] < nz) {
 			const threshold = 0.25
-			const maximum_threhold = 1.4
+			const maximum_threshold = 1.4
 			// if the boat is falling fast enough, make a splash when it hits the water
 			if (-this.boat_velocity[2] > threshold) {
-				// strength of the splash is proportional to the velocity of the boat
-				// strength indicates the size of the splash
-				const strength = Math.min(
+				const strength = remap(
+					-this.boat_velocity[2],
+					threshold,
+					maximum_threshold,
+					0,
 					1,
-					(-this.boat_velocity[2] - threshold) / (maximum_threhold - threshold),
 				)
 				this.splash_effect.set_start_time(t)
 				this.splash_effect.set_splash_position(x, y)
@@ -177,9 +204,11 @@ export class Project_Scene extends Scene {
 			}
 
 			// smoothly move the boat up to the water level
-			this.boat_position[2] =
-				(nz + boatHeight / 2) * heightLerpFactor +
-				this.boat_position[2] * (1 - heightLerpFactor)
+			this.boat_position[2] = lerp(
+				this.boat_position[2],
+				nz + boatHeight / 2,
+				heightLerpFactor,
+			)
 			this.boat_velocity[2] = 0
 		}
 		// if the boat is above water, make it fall
@@ -194,34 +223,27 @@ export class Project_Scene extends Scene {
 		// camera rotation
 		if (this.camera_rotate_left) {
 			this.camera_horizontal_angle += 0.02
-			this.camera_horizontal_angle = Math.min(
-				this.camera_horizontal_angle,
-				Math.PI / 4,
-			)
 		} else if (this.camera_rotate_right) {
 			this.camera_horizontal_angle -= 0.02
-			this.camera_horizontal_angle = Math.max(
-				this.camera_horizontal_angle,
-				-Math.PI / 4,
-			)
 		}
+		this.camera_horizontal_angle = clamp(
+			this.camera_horizontal_angle,
+			-Math.PI / 4,
+			Math.PI / 4,
+		)
 
 		// zooming in and out
 		if (this.is_zooming_in) {
 			this.camera_z_offset *= 0.97
-			this.camera_z_offset = Math.max(
-				this.camera_z_offset,
-				this.camera_z_min_offset,
-			)
+		} else if (this.is_zooming_out) {
+			this.camera_z_offset *= 1.03
 		}
 
-		if (this.is_zooming_out) {
-			this.camera_z_offset *= 1.03
-			this.camera_z_offset = Math.min(
-				this.camera_z_offset,
-				this.camera_z_max_offset,
-			)
-		}
+		this.camera_z_offset = clamp(
+			this.camera_z_offset,
+			this.camera_z_min_offset,
+			this.camera_z_max_offset,
+		)
 
 		program_state.set_camera(
 			Mat4.inverse(
@@ -238,8 +260,21 @@ export class Project_Scene extends Scene {
 			),
 		)
 
+		const normal_fov = Math.PI * 0.33
+		const fast_fov = Math.PI * 0.5
+
+		const fov = remap(
+			this.boat_velocity.norm(),
+			0,
+			this.boat_maximum_velocity * 1.141,
+			normal_fov,
+			fast_fov,
+		)
+
+		this.fov = smoothlerp(this.fov, fov, 0.07)
+
 		program_state.projection_transform = Mat4.perspective(
-			Math.PI / 3, // 60 degrees field of view //TODO: higher fov when going faster
+			this.fov, // 60 degrees field of view //TODO: higher fov when going faster
 			context.width / context.height,
 			0.5,
 			1000,
@@ -251,6 +286,7 @@ export class Project_Scene extends Scene {
 
 		const model_transform = Mat4.identity()
 
+		this.clamp_ocean_config()
 		this.ocean.draw(
 			context,
 			program_state,
