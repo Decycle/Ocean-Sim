@@ -221,6 +221,24 @@ export class UIHandler {
 			scene.key_triggered_button('big boat', ['b'], () => {
 				scene.is_big_boat = !scene.is_big_boat
 			})
+
+			scene.new_line()
+
+			scene.key_triggered_button('take damage', ['t'], () => {
+				if (scene.is_big_boat) {
+					scene.big_boat.take_damage(0.01)
+				} else {
+					scene.boat.take_damage(0.01)
+				}
+			})
+
+			scene.key_triggered_button('heal', ['h'], () => {
+				if (scene.is_big_boat) {
+					scene.big_boat.heal(0.01)
+				} else {
+					scene.boat.heal(0.01)
+				}
+			})
 		}
 	}
 }

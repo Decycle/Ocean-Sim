@@ -37,22 +37,22 @@ class BoatShader extends Shader {
 			Matrix.flatten_2D_to_1D(M.transposed()),
 		)
 
-    context.uniform1f(
-      gpu_addresses.animation_time,
-      material.time
-    )
+		context.uniform1f(gpu_addresses.animation_time, material.time)
 
-    //texture
-    if (material.texture && material.texture.ready) {
-      context.uniform1i(gpu_addresses.texture, 0)
-      material.texture.activate(context)
-    }
-  }
-  shared_glsl_code() {
-    // ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
-    return `precision mediump float;
+		context.uniform1f(gpu_addresses.health, material.health)
+
+		//texture
+		if (material.texture && material.texture.ready) {
+			context.uniform1i(gpu_addresses.texture, 0)
+			material.texture.activate(context)
+		}
+	}
+	shared_glsl_code() {
+		// ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
+		return `precision mediump float;
             varying vec2 uv;
             varying vec3 VERTEX_NORMAL;
+            varying vec3 VERTEX_POS;
       `
 	}
 
@@ -78,23 +78,41 @@ class BoatShader extends Shader {
 
           uv = texture_coord;
           VERTEX_NORMAL = normal;
+          VERTEX_POS = position;
         }
         `
 		)
 	}
 
-  fragment_glsl_code() {
-    // ********* FRAGMENT SHADER *********
-    return (
-      this.shared_glsl_code() +
-      `
+	fragment_glsl_code() {
+		// ********* FRAGMENT SHADER *********
+		return (
+			this.shared_glsl_code() +
+			`
       uniform sampler2D texture;
+      uniform float health;
+
+      float rand(vec2 n) {
+        return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+      }
+
+      float noise(vec2 p){
+        vec2 ip = floor(p);
+        vec2 u = fract(p);
+        u = u*u*(3.0-2.0*u);
+
+        float res = mix(
+          mix(rand(ip),rand(ip+vec2(1.0,0.0)),u.x),
+          mix(rand(ip+vec2(0.0,1.0)),rand(ip+vec2(1.0,1.0)),u.x),u.y);
+        return res*res;
+      }
 
       void main(){
 
         vec3 normal = VERTEX_NORMAL;
-        gl_FragColor = vec4(uv.x, uv.y, 1.0, 1.0);
         vec3 boat_color = texture2D(texture, vec2(uv.x, uv.y)).xyz;
+        float is_red = step(health, noise(VERTEX_POS.xy * 30.0));
+        boat_color += vec3(1.0, 0.0, 0.0) * is_red;
         vec3 ambient = vec3(0.2, 0.2, 0.2);
         vec3 light = normalize(vec3(1, 1, 1));
 

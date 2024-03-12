@@ -157,6 +157,9 @@ export class Project_Scene extends Scene {
 		const quaternionInterpolation = 0.05
 		const boatFallingAcceleration = 1
 
+		// small boat bounding box: 15.5 x 6.5 x 21.5
+		// big boat bounding box: 2.68 x 8.1 x 7.4
+
 		// rotate the boat if the user is pressing the keys
 		if (this.boat_rotate_left) {
 			this.boat_horizontal_angle += 0.015
