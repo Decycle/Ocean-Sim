@@ -136,12 +136,12 @@ class OceanShader extends Shader {
         void main(){
 
           vec3 normal;
-          vec3 new_position = gerstner_wave(position.xy, animation_time, normal);
+          vec4 world_pos = model_transform * vec4(position, 1.0);
+          vec3 new_position = gerstner_wave(world_pos.xy, animation_time, normal);
 
-          mat4 projection_camera_model_transform = projection_transform * camera_inverse * model_transform;
+          mat4 projection_camera_model_transform = projection_transform * camera_inverse;
           gl_Position = projection_camera_model_transform * vec4( new_position, 1.0 );
 
-          vec4 world_pos = model_transform * vec4(position, 1.0);
           vec4 camera_pos = camera_transform * vec4(0., 0., 0., 1.);
 
           VIEW_DIR = normalize((world_pos - camera_pos).xyz);

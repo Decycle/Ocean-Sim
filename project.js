@@ -57,7 +57,7 @@ export class Project_Scene extends Scene {
 			seaColor: hex_color('#3b59CC'),
 		}
 
-		this.ocean = new Ocean(100, 500, this.oceanConfig)
+		this.ocean = new Ocean(50, 500, this.oceanConfig)
 
 		// boat position and velocity
 		this.boat_position = vec3(0, 0, 0)
@@ -149,6 +149,15 @@ export class Project_Scene extends Scene {
 
 		const t = program_state.animation_time / 1000
 		const dt = program_state.animation_delta_time / 1000
+
+		// development camera
+		// if (!context.scratchpad.controls) {
+		// 	this.children.push(
+		// 		(context.scratchpad.controls = new defs.Movement_Controls()),
+		// 	)
+
+		// 	program_state.set_camera(Mat4.inverse(Mat4.translation(0, 0, 100)))
+		// }
 
 		const boatWidth = 1
 		const boatLength = 1
@@ -287,13 +296,17 @@ export class Project_Scene extends Scene {
 		this.backgroundRenderer.draw(context, program_state) // render the background
 		this.splash_effect.draw(context, program_state, nz) // render the splash effect (if any)
 
-		const model_transform = Mat4.identity()
+		const ocean_model_transform = Mat4.translation(
+			this.boat_position[0],
+			this.boat_position[1],
+			0,
+		)
 
 		this.clamp_ocean_config()
 		this.ocean.draw(
 			context,
 			program_state,
-			model_transform,
+			ocean_model_transform,
 			this.oceanConfig,
 			t,
 		) // render the ocean
