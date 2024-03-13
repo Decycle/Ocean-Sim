@@ -45,6 +45,8 @@ export class Project_Scene extends Scene {
 			}),
 		}
 
+		this.boat_texture_density = 2
+
 		this.uiHandler = new UIHandler()
 		this.skipped_first_frame = false
 
@@ -120,6 +122,7 @@ export class Project_Scene extends Scene {
 
 		// fov
 		this.fov = Math.PI / 3
+
 
 		// test
 		this.test_cube = new TestCube()
@@ -461,7 +464,7 @@ export class Project_Scene extends Scene {
 			.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)) // rotate the boat 180 degrees by z axis so it faces the right way
 			.times(Mat4.scale(boatScale, boatScale * bigFlip, boatScale)) // boat scale
 
-		boat.draw(context, program_state, boat_model_transform) // render the boat
+		boat.draw(context, program_state, boat_model_transform, this.boat_texture_density) // render the boat
 
 		// second pass
 		if (this.enable_post_processing) {

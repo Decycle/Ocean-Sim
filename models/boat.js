@@ -7,9 +7,17 @@ const {vec3, Material, hex_color, Texture} = tiny
 export class Boat {
 	constructor() {
 		this.model = new Shape_From_File('assets/minecraft-boat.obj')
-		this.material = new Material(new BoatShader(), {
-			texture: new Texture('assets/oak-wood.jpeg'),
-		})
+		this.materials = [
+			new Material(new BoatShader(), {
+				texture: new Texture('assets/oak-wood.jpeg'),
+			}),
+			new Material(new BoatShader(), {
+				texture: new Texture('assets/oak-wood-medium-dense.jpeg'),
+			}),
+			new Material(new BoatShader(), {
+				texture: new Texture('assets/oak-wood-densest.jpeg'),
+			}),
+		]
 
 		this.health = 1
 	}
@@ -24,12 +32,13 @@ export class Boat {
 		if (this.health > 1) this.health = 1
 	}
 
-	draw(context, program_state, model_transform) {
+	draw(context, program_state, model_transform, texture_density = 2) {
+		texture_density = texture_density % 3
 		this.model.draw(
 			context,
 			program_state,
 			model_transform,
-			this.material.override({
+			this.materials[texture_density].override({
 				health: this.health,
 			}),
 		)
