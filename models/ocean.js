@@ -8,30 +8,21 @@ export class OceanPlane extends tiny.Vertex_Buffer {
 	// vertices each holding a 3D position and a color.
 	constructor(boundary, subdivision) {
 		super('position')
-		const step = (2 * boundary) / subdivision
-		const position = []
+		const step = boundary / subdivision
 
 		for (let i = 0; i < subdivision; i++) {
 			for (let j = 0; j < subdivision; j++) {
-				const x = -boundary + step * i
-				const y = -boundary + step * j
-
-				const x2 = x + step
-				const y2 = y + step
-
-				const new_position = [
-					vec3(x, y, 0),
-					vec3(x, y2, 0),
-					vec3(x2, y, 0),
-					vec3(x2, y, 0),
-					vec3(x, y2, 0),
-					vec3(x2, y2, 0),
-				]
-				position.push(...new_position)
+				const x0 = step * i
+				const y0 = step * j
+				this.arrays.position.push(vec3(x0, 0, y0))
+				if (i == subdivision - 1 || j == subdivision - 1) continue
+				const x0y0 = i * subdivision + j
+				const x1y0 = (i + 1) * subdivision + j
+				const x0y1 = i * subdivision + j + 1
+				const x1y1 = (i + 1) * subdivision + j + 1
+				this.indices.push(x0y0, x1y0, x0y1, x1y0, x1y1, x0y1)
 			}
 		}
-
-		this.arrays.position = position
 	}
 }
 
