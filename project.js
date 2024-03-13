@@ -44,6 +44,8 @@ export class Project_Scene extends Scene {
 			}),
 		}
 
+		this.boat_texture_density = 2
+
 		this.uiHandler = new UIHandler()
 		this.skipped_first_frame = false
 
@@ -115,6 +117,7 @@ export class Project_Scene extends Scene {
 	}
 
 	draw_boat(context, program_state, model_transform) {
+		console.log('drawing boat:', this.boat_texture_density)
 		if (this.is_big_boat) {
 			this.big_boat.draw(context, program_state, model_transform)
 		} else {
@@ -125,6 +128,7 @@ export class Project_Scene extends Scene {
 					.times(Mat4.translation(0, 0.95, 0))
 					.times(Mat4.scale(0.7, -0.7, 0.7))
 					.times(Mat4.rotation(Math.PI / 2, 0, 1, 0)),
+				this.boat_texture_density,
 			)
 		}
 	}

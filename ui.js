@@ -104,6 +104,11 @@ export class UIHandler {
 		)
 
 		scene.new_line()
+		scene.key_triggered_button('Change boat texture density', ['c'], () => {
+			scene.boat_texture_density++
+		})
+
+		scene.new_line()
 		scene.new_line()
 
 		if (scene.show_advanced_controls) {
