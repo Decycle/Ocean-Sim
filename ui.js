@@ -38,10 +38,10 @@ export class UIHandler {
 		)
 
 		scene.key_triggered_button('Forward', ['w'], () => {
-			scene.boat_velocity[1] += scene.boat_moving_force
+			scene.boat_velocity[0] += scene.boat_moving_force
 		})
 		scene.key_triggered_button('Backward', ['s'], () => {
-			scene.boat_velocity[1] -= scene.boat_moving_force
+			scene.boat_velocity[0] -= scene.boat_moving_force
 		})
 		scene.new_line()
 		scene.key_triggered_button('full screen', ['f'], () => {
