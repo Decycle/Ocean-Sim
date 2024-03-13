@@ -9,6 +9,8 @@ import {Boat} from './models/boat.js'
 import {BigBoat} from './models/big_boat.js'
 import {lerp, smoothlerp, clamp, remap} from './util/common.js'
 import {TestCube} from './models/test_cube.js'
+import {PostProcessor} from './models/post_processor.js'
+import {BoatPhysics} from './boat_physics.js'
 // Pull these names into this module's scope for convenience:
 const {vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture} =
 	tiny
@@ -17,14 +19,7 @@ export class Project_Scene extends Scene {
 	constructor(webgl_manager, control_panel) {
 		super(webgl_manager, control_panel)
 
-		this.scratchpad = document.createElement('canvas')
-		// A hidden canvas for re-sizing the real canvas to be square:
-		this.scratchpad_context = this.scratchpad.getContext('2d')
-		this.scratchpad.width = 512
-		this.scratchpad.height = 512 // Initial image source: Blank gif file:
-		this.texture = new Texture(
-			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-		)
+		this.post_processor = new PostProcessor()
 
 		this.widget_options = {
 			make_controls: true,
@@ -33,22 +28,8 @@ export class Project_Scene extends Scene {
 		this.boat = new Boat()
 		this.big_boat = new BigBoat()
 
-		this.shapes = {
-			screen_quad: new defs.Square(),
-		}
-
 		this.backgroundRenderer = new BackgroundRenderer()
-
-		this.materials = {
-			postprocess: new Material(new PostProcessingShader(), {
-				texture: this.texture,
-			}),
-		}
-
-		this.boat_texture_density = 2
-
 		this.uiHandler = new UIHandler()
-		this.skipped_first_frame = false
 
 		this.oceanConfig = {
 			amplitude: 0.13,
@@ -69,15 +50,13 @@ export class Project_Scene extends Scene {
 			this.oceanConfig,
 		)
 
-		// boat position and velocity
-		this.boat_position = vec3(0, 0, 0)
-		this.boat_velocity = vec3(0, 0, 0)
-
-		// is the user rotating the boat
-		this.boat_rotate_left = false
-		this.boat_rotate_right = false
-		// current angle of the boat
-		this.boat_horizontal_angle = 0
+		this.boat_physics = new BoatPhysics(
+			this.oceanConfig,
+			(t, x, z, ny, strength) => {
+				this.splash_effect.splash(t, x, z, ny, strength)
+			},
+			vec3(1, 1, 1),
+		)
 
 		//is the user rotating the camera
 		this.camera_rotate_left = false
@@ -87,11 +66,6 @@ export class Project_Scene extends Scene {
 
 		// whether or not to show advanced controls
 		this.show_advanced_controls = true
-
-		// current boat quaternion
-		this.quaternion = Quaternion.identity()
-		// previous boat quaternion
-		this.last_quaternion = this.quaternion
 
 		// enable post processing
 		this.enable_post_processing = true
@@ -117,12 +91,8 @@ export class Project_Scene extends Scene {
 		// is the boat big
 		this.is_big_boat = false
 
-		this.boat_moving_force = 10
-		this.boat_maximum_velocity = 5
-
 		// fov
 		this.fov = Math.PI / 3
-
 
 		// test
 		this.test_cube = new TestCube()
@@ -175,83 +145,20 @@ export class Project_Scene extends Scene {
 		const boatScale = this.is_big_boat
 			? this.big_boat_scale
 			: this.small_boat_scale
+
 		const boatSize = this.is_big_boat
 			? this.big_boat_size
 			: this.small_boat_size
 
 		const boat = this.is_big_boat ? this.big_boat : this.boat
 
-		const boundingBox = boatSize.times(boatScale)
+		const scaledBoatSize = boatSize.times(boatScale)
 
-		const boatWidth = boundingBox[0]
-		const boatLength = boundingBox[2]
-		const boatHeight = boundingBox[1]
-		const heightLerpFactor = 0.05
-		const quaternionInterpolation = 0.05
-		const boatFallingAcceleration = 3
-		const boatDraftPercentage = 0.75
+		this.boat_physics.updateBoatSize(scaledBoatSize)
+		this.boat_physics.updateOceanConfig(this.oceanConfig)
 
-		// rotate the boat if the user is pressing the keys
-		if (this.boat_rotate_left) {
-			this.boat_horizontal_angle += 0.015
-		}
-		if (this.boat_rotate_right) {
-			this.boat_horizontal_angle -= 0.015
-		}
-
-		// clamp forward velocity
-		this.boat_velocity[0] = clamp(
-			this.boat_velocity[0],
-			-this.boat_maximum_velocity,
-			this.boat_maximum_velocity,
-		)
-
-		this.boat_position = this.boat_position.plus(
-			Mat4.rotation(this.boat_horizontal_angle, 0, 1, 0).times(
-				this.boat_velocity.times(dt),
-			),
-		)
-
-		const x = this.boat_position[0]
-		const z = this.boat_position[2]
-
-		// calculate the new position of the boat at this instant
-		const wave_pos = this.get_gerstner_wave(x, z, t)[0]
-		// get the new y position
-		const ny = wave_pos[1]
-
-		// if the boat is below the water, move it up to the water level
-		if (this.boat_position[1] < ny) {
-			const threshold = 0.25
-			const maximum_threshold = 1.4
-			// if the boat is falling fast enough, make a splash when it hits the water
-			if (-this.boat_velocity[1] > threshold) {
-				const strength = remap(
-					-this.boat_velocity[1],
-					threshold,
-					maximum_threshold,
-					0,
-					1,
-				)
-				this.splash_effect.splash(t, x, z, ny, strength)
-			}
-
-			// smoothly move the boat up to the water level
-			this.boat_position[1] = smoothlerp(
-				this.boat_position[1],
-				ny + boatHeight * boatDraftPercentage,
-				heightLerpFactor,
-			)
-			this.boat_velocity[1] = 0
-		}
-		// if the boat is above water, make it fall
-		else {
-			this.boat_velocity[1] -= boatFallingAcceleration * dt
-		}
-
-		// apply drag to the boat (velocity decays over time)
-		// boat only has forward/backward velocity (can't go sideways)
-		this.boat_velocity[0] *= 0.95
+		const [x, y, z] = this.boat_physics.boat_position
+		this.boat_physics.update(t, dt)
 
 		// camera rotation
 		if (this.camera_rotate_left) {
@@ -277,23 +184,10 @@ export class Project_Scene extends Scene {
 			this.camera_z_min_offset,
 			this.camera_z_max_offset,
 		)
-
 		// update the camera position
-		this.camera_position[0] = smoothlerp(
-			this.camera_position[0],
-			this.boat_position[0],
-			0.01,
-		)
-		this.camera_position[1] = smoothlerp(
-			this.camera_position[1],
-			this.boat_position[1],
-			0.01,
-		)
-		this.camera_position[2] = smoothlerp(
-			this.camera_position[2],
-			this.boat_position[2],
-			0.01,
-		)
+		this.camera_position[0] = smoothlerp(this.camera_position[0], x, 0.5)
+		this.camera_position[1] = smoothlerp(this.camera_position[1], y, 0.5)
+		this.camera_position[2] = smoothlerp(this.camera_position[2], z, 0.5)
 
 		const small_boat_captain_position = vec3(0, 0.5, 0)
 		const big_boat_captain_position = vec3(0.5, 0.5, 0)
@@ -302,7 +196,7 @@ export class Project_Scene extends Scene {
 			? big_boat_captain_position
 			: small_boat_captain_position
 
-		const camera_target = this.boat_position.plus(captain_position)
+		const camera_target = this.camera_position.plus(captain_position)
 
 		program_state.set_camera(
 			Mat4.inverse(
@@ -317,7 +211,9 @@ export class Project_Scene extends Scene {
 					)
 					// .times(Mat4.rotation(-this.mouse_camera_vertical_angle, 0, 0, 1)) // mouse camera rotation
 					.times(Mat4.rotation(-this.mouse_camera_horizontal_angle, 0, 1, 0)) // mouse camera rotation
-					.times(Mat4.rotation(this.boat_horizontal_angle, 0, 1, 0)) // align with boat's rotation
+					.times(
+						Mat4.rotation(this.boat_physics.boat_horizontal_angle, 0, 1, 0),
+					) // align with boat's rotation
 					.times(Mat4.rotation(-0.5, 0, 0, 1)) //look down a bit
 					.times(Mat4.rotation(-Math.PI / 2, 0, 1, 0)) // forward direction change to x from z
 					.times(Mat4.translation(0, 0, this.camera_z_offset)), // zoom,
@@ -328,9 +224,9 @@ export class Project_Scene extends Scene {
 		const fast_fov = Math.PI * 0.5
 
 		const fov = remap(
-			this.boat_velocity.norm(),
+			this.boat_physics.boat_velocity.norm(),
 			0,
-			this.boat_maximum_velocity * 1.141,
+			this.boat_physics.boat_maximum_velocity * 1.141,
 			normal_fov,
 			fast_fov,
 		)
@@ -340,7 +236,7 @@ export class Project_Scene extends Scene {
 		program_state.projection_transform = Mat4.perspective(
 			this.fov,
 			context.width / context.height,
-			0.01,
+			0.1,
 			1000,
 		)
 
@@ -348,11 +244,7 @@ export class Project_Scene extends Scene {
 		this.backgroundRenderer.draw(context, program_state) // render the background
 		this.splash_effect.draw(context, program_state) // render the splash effect (if any)
 
-		const ocean_model_transform = Mat4.translation(
-			this.boat_position[0],
-			0,
-			this.boat_position[2],
-		).times(
+		const ocean_model_transform = Mat4.translation(x, 0, z).times(
 			Mat4.translation(-this.oceanBoundary / 2, 0, -this.oceanBoundary / 2),
 		)
 
@@ -387,106 +279,29 @@ export class Project_Scene extends Scene {
 		// 	}
 		// }
 
-		let new_quaternion = this.quaternion //calculate the new rotation of the boat
-
-		// if boat is below water, rotate it to match the waves
-		if (this.boat_position[1] < ny + boatHeight * boatDraftPercentage) {
-			// calculate the four quadrants of the boat and average the normals
-			const x1 = x + boatWidth / 2
-			const x2 = x - boatWidth / 2
-			const z1 = z + boatLength / 2
-			const z2 = z - boatLength / 2
-
-			const wave_normal1 = this.get_gerstner_wave(x1, z1, t)[1]
-			const wave_normal2 = this.get_gerstner_wave(x1, z2, t)[1]
-			const wave_normal3 = this.get_gerstner_wave(x2, z1, t)[1]
-			const wave_normal4 = this.get_gerstner_wave(x2, z2, t)[1]
-
-			const wave_normal = wave_normal1
-				.plus(wave_normal2)
-				.plus(wave_normal3)
-				.plus(wave_normal4)
-				.times(0.25)
-
-			const forward = vec3(1, 0, 0)
-			const right = wave_normal.cross(forward).normalized()
-			if (isNaN(wave_normal[0])) {
-				console.error('normal is NaN')
-			}
-			const theta = Math.acos(forward.dot(wave_normal))
-
-			let q0 = Math.cos(theta / 2)
-			let q1 = right[0] * Math.sin(theta / 2)
-			let q2 = right[1] * Math.sin(theta / 2)
-			let q3 = right[2] * Math.sin(theta / 2)
-
-			new_quaternion = new Quaternion(q0, q1, q2, q3)
-			if (new_quaternion.isNan()) {
-				console.error('new_quaternion is NaN')
-			}
-			this.last_quaternion = this.quaternion
-			this.quaternion = this.quaternion.slerp(
-				new_quaternion,
-				quaternionInterpolation,
-			)
-			if (!this.last_quaternion.isNan() && this.quaternion.isNan()) {
-				console.error('slerp caused NaN')
-			}
-		} // otherwise, rotate the boat according to the angular velocity
-		else {
-			new_quaternion = this.quaternion.predictNext(this.last_quaternion)
-			if (
-				!this.last_quaternion.isNan() &&
-				!this.quaternion.isNan() &&
-				new_quaternion.isNan()
-			) {
-				console.error('predictNext caused NaN')
-			}
-			this.last_quaternion = this.quaternion
-			this.quaternion = new_quaternion
-		}
-
 		// convert the quaternion to a rotation matrix1
-		const rotation = this.quaternion.toMatrix()
+		const rotation = this.boat_physics.quaternion.toMatrix()
 
 		const bigFlip = this.is_big_boat ? -1 : 1 // flip the boat if it's big
 		const bigRotate = this.is_big_boat ? -Math.PI / 2 : 0 // rotate the boat if it's big
 		const bigRaise = this.is_big_boat ? 1 : 0 // raise the boat if it's big
 
 		const boat_model_transform = Mat4.translation(
-			this.boat_position[0],
-			this.boat_position[1] + bigRaise, // so that the bottom of the boat is at the water level
-			this.boat_position[2],
+			x,
+			y + bigRaise, // so that the bottom of the boat is at the water level
+			z,
 		) // boat position
-			.times(Mat4.rotation(this.boat_horizontal_angle, 0, 1, 0)) // boat horizontal angle
+			.times(Mat4.rotation(this.boat_physics.boat_horizontal_angle, 0, 1, 0)) // boat horizontal angle
 			.times(rotation) // boat quaternion rotation
 			.times(Mat4.rotation(bigRotate, 1, 0, 0)) // rotate the boat 90 degrees by y axis so it faces the right way
 			.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)) // rotate the boat 180 degrees by z axis so it faces the right way
 			.times(Mat4.scale(boatScale, boatScale * bigFlip, boatScale)) // boat scale
 
-		boat.draw(context, program_state, boat_model_transform, this.boat_texture_density) // render the boat
+		boat.draw(context, program_state, boat_model_transform) // render the boat
 
 		// second pass
 		if (this.enable_post_processing) {
-			this.scratchpad_context.drawImage(context.canvas, 0, 0, 512, 512)
-
-			this.texture.image.src = this.scratchpad.toDataURL('image/png')
-
-			if (this.skipped_first_frame)
-				// Update the texture with the current scene:
-				this.texture.copy_onto_graphics_card(context.context, false)
-			this.skipped_first_frame = true
-
-			context.context.clear(
-				context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT,
-			)
-
-			this.shapes.screen_quad.draw(
-				context,
-				program_state,
-				Mat4.identity(),
-				this.materials.postprocess,
-			)
+			this.post_processor.draw(context, program_state)
 		}
 
 		// if the user is pressing the splash key, splash
@@ -535,48 +350,5 @@ export class Project_Scene extends Scene {
 
 	make_control_panel() {
 		this.uiHandler.setup_ui(this)
-	}
-
-	// same calculation as in the shader to get the relative movement of the boat
-	get_gerstner_wave(x, z, t) {
-		let amplitude = this.oceanConfig.amplitude
-		let waveMut = this.oceanConfig.waveMut
-		let seed = this.oceanConfig.seed
-
-		let nx = x
-		let nz = z
-		let ny = 0
-
-		let vx = vec3(1, 0, 0)
-		let vz = vec3(0, 0, 1)
-
-		const g = 9.81
-		const ITERATIONS = 40
-
-		for (let i = 0; i < ITERATIONS; i++) {
-			const kx = Math.sin(seed)
-			const kz = Math.cos(seed)
-			const omega = Math.sqrt(g * waveMut)
-			const theta = kx * waveMut * nx + kz * waveMut * nz - omega * t - seed
-
-			nx -= kx * amplitude * Math.sin(theta)
-			nz -= kz * amplitude * Math.sin(theta)
-			ny += amplitude * Math.cos(theta)
-
-			const dv = vec3(
-				kx * Math.cos(theta),
-				Math.sin(theta),
-				kz * Math.cos(theta),
-			).times(amplitude)
-
-			vx = vx.minus(dv.times(kx))
-			vz = vz.minus(dv.times(kz))
-
-			amplitude *= this.oceanConfig.amplitudeMultiplier
-			waveMut *= this.oceanConfig.waveMultiplier
-			seed += this.oceanConfig.seedOffset
-		}
-
-		return [vec3(nx, ny, nz), vx.cross(vz).normalized()]
 	}
 }

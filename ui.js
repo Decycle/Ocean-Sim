@@ -17,11 +17,11 @@ export class UIHandler {
 			'Left Turn',
 			['a'],
 			() => {
-				scene.boat_rotate_left = true
+				scene.boat_physics.start_rotate_left()
 			},
 			undefined,
 			() => {
-				scene.boat_rotate_left = false
+				scene.boat_physics.stop_rotate()
 			},
 		)
 
@@ -29,19 +29,19 @@ export class UIHandler {
 			'Right Turn',
 			['d'],
 			() => {
-				scene.boat_rotate_right = true
+				scene.boat_physics.start_rotate_right()
 			},
 			undefined,
 			() => {
-				scene.boat_rotate_right = false
+				scene.boat_physics.stop_rotate()
 			},
 		)
 
 		scene.key_triggered_button('Forward', ['w'], () => {
-			scene.boat_velocity[0] += scene.boat_moving_force
+			scene.boat_physics.go_forward()
 		})
 		scene.key_triggered_button('Backward', ['s'], () => {
-			scene.boat_velocity[0] -= scene.boat_moving_force
+			scene.boat_physics.go_backward()
 		})
 		scene.new_line()
 		scene.key_triggered_button('full screen', ['f'], () => {
@@ -102,11 +102,6 @@ export class UIHandler {
 				scene.is_zooming_out = false
 			},
 		)
-
-		scene.new_line()
-		scene.key_triggered_button('Change boat texture density', ['c'], () => {
-			scene.boat_texture_density++
-		})
 
 		scene.new_line()
 		scene.new_line()
