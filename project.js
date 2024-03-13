@@ -117,7 +117,6 @@ export class Project_Scene extends Scene {
 	}
 
 	draw_boat(context, program_state, model_transform) {
-		console.log('drawing boat:', this.boat_texture_density)
 		if (this.is_big_boat) {
 			this.big_boat.draw(context, program_state, model_transform)
 		} else {
