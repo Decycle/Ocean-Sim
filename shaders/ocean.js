@@ -100,11 +100,11 @@ class OceanShader extends Shader {
           const int ITERATIONS = 40;
 
           float x = p.x;
-          float y = p.y;
-          float z = 0.;
+          float y = 0.;
+          float z = p.y;
 
           vec3 vx = vec3(1., 0., 0.);
-          vec3 vy = vec3(0., 1., 0.);
+          vec3 vz = vec3(0., 0., 1.);
 
           float amplitude = amplitude;
           float wave_mut = wave_mut;
@@ -116,20 +116,20 @@ class OceanShader extends Shader {
             float theta = k.x * wave_mut * p.x + k.y * wave_mut * p.y - omega * t - seed;
 
             x -= k.x * amplitude * sin(theta);
-            y -= k.y * amplitude * sin(theta);
-            z += amplitude * cos(theta);
+            z -= k.y * amplitude * sin(theta);
+            y += amplitude * cos(theta);
 
-            vec3 dv = amplitude * vec3(k.x * cos(theta), k.y * cos(theta), sin(theta));
+            vec3 dv = amplitude * vec3(k.x * cos(theta), sin(theta), k.y * cos(theta));
 
             vx -= k.x * dv;
-            vy -= k.y * dv;
+            vz -= k.y * dv;
 
             amplitude *= amplitude_multiplier;
             wave_mut *= wave_multiplier;
             seed += seed_offset;
           }
 
-          normal = normalize(cross(vx, vy));
+          normal = normalize(cross(vx, vz));
           return vec3(x, y, z);
         }
 
@@ -137,7 +137,7 @@ class OceanShader extends Shader {
 
           vec3 normal;
           vec4 world_pos = model_transform * vec4(position, 1.0);
-          vec3 new_position = gerstner_wave(world_pos.xy, animation_time, normal);
+          vec3 new_position = gerstner_wave(world_pos.xz, animation_time, normal);
 
           mat4 projection_camera_model_transform = projection_transform * camera_inverse;
           gl_Position = projection_camera_model_transform * vec4( new_position, 1.0 );
@@ -239,9 +239,9 @@ class OceanShader extends Shader {
         vec3 lightDir = normalize(vec3(1., 1., 1.));
         vec3 blue = vec3(.109,.109, .435) * 0.3;
         vec3 red = vec3(1.0, 0.0, 0.0);
-        vec3 oceanColor = mix(blue, red, VERTEX_POS.y / 100.);
+        vec3 oceanColor = mix(blue, red, VERTEX_POS.x / 100.);
         // VERTEX_POS
-        vec3 color = lighting(normal, lightDir, -VIEW_DIR, oceanColor);
+        vec3 color = lighting(normal, lightDir, VIEW_DIR, oceanColor);
 
         gl_FragColor = vec4( color, 1.0 );
       }
