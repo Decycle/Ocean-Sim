@@ -110,7 +110,7 @@ export class Project_Scene extends Scene {
 		this.is_zooming_out = false
 
 		// splash effect
-		this.splash_effect = new SplashEffect(0)
+		this.splash_effect = new SplashEffect()
 
 		// is the boat big
 		this.is_big_boat = false
@@ -230,9 +230,7 @@ export class Project_Scene extends Scene {
 					0,
 					1,
 				)
-				this.splash_effect.set_start_time(t)
-				this.splash_effect.set_splash_position(x, z)
-				this.splash_effect.set_splash_strength(strength)
+				this.splash_effect.splash(t, x, z, ny, strength)
 			}
 
 			// smoothly move the boat up to the water level
@@ -295,7 +293,7 @@ export class Project_Scene extends Scene {
 		)
 
 		const small_boat_captain_position = vec3(0, 0.5, 0)
-		const big_boat_captain_position = vec3(0, 0.5, 0)
+		const big_boat_captain_position = vec3(0.5, 0.5, 0)
 
 		const captain_position = this.is_big_boat
 			? big_boat_captain_position
@@ -345,7 +343,7 @@ export class Project_Scene extends Scene {
 
 		// first pass
 		this.backgroundRenderer.draw(context, program_state) // render the background
-		// this.splash_effect.draw(context, program_state, nz) // render the splash effect (if any)
+		this.splash_effect.draw(context, program_state) // render the splash effect (if any)
 
 		const ocean_model_transform = Mat4.translation(
 			this.boat_position[0],
@@ -448,50 +446,55 @@ export class Project_Scene extends Scene {
 		// convert the quaternion to a rotation matrix1
 		const rotation = this.quaternion.toMatrix()
 
-		const flip = this.is_big_boat ? -1 : 1 // flip the boat if it's big
+		const bigFlip = this.is_big_boat ? -1 : 1 // flip the boat if it's big
+		const bigRotate = this.is_big_boat ? -Math.PI / 2 : 0 // rotate the boat if it's big
+		const bigRaise = this.is_big_boat ? 1 : 0 // raise the boat if it's big
+
 		const boat_model_transform = Mat4.translation(
 			this.boat_position[0],
-			this.boat_position[1] + 1, // so that the bottom of the boat is at the water level
+			this.boat_position[1] + bigRaise, // so that the bottom of the boat is at the water level
 			this.boat_position[2],
 		) // boat position
 			.times(Mat4.rotation(this.boat_horizontal_angle, 0, 1, 0)) // boat horizontal angle
 			.times(rotation) // boat quaternion rotation
+			.times(Mat4.rotation(bigRotate, 1, 0, 0)) // rotate the boat 90 degrees by y axis so it faces the right way
 			.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)) // rotate the boat 180 degrees by z axis so it faces the right way
-			.times(Mat4.scale(boatScale, boatScale * flip, boatScale)) // boat scale
+			.times(Mat4.scale(boatScale, boatScale * bigFlip, boatScale)) // boat scale
 
 		boat.draw(context, program_state, boat_model_transform) // render the boat
 
-		// this.draw_boat(context, program_state, boat_model_transform) // render the boat
-
 		// second pass
-		// if (this.enable_post_processing) {
-		// 	this.scratchpad_context.drawImage(context.canvas, 0, 0, 512, 512)
+		if (this.enable_post_processing) {
+			this.scratchpad_context.drawImage(context.canvas, 0, 0, 512, 512)
 
-		// 	this.texture.image.src = this.scratchpad.toDataURL('image/png')
+			this.texture.image.src = this.scratchpad.toDataURL('image/png')
 
-		// 	if (this.skipped_first_frame)
-		// 		// Update the texture with the current scene:
-		// 		this.texture.copy_onto_graphics_card(context.context, false)
-		// 	this.skipped_first_frame = true
+			if (this.skipped_first_frame)
+				// Update the texture with the current scene:
+				this.texture.copy_onto_graphics_card(context.context, false)
+			this.skipped_first_frame = true
 
-		// 	context.context.clear(
-		// 		context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT,
-		// 	)
+			context.context.clear(
+				context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT,
+			)
 
-		// 	this.shapes.screen_quad.draw(
-		// 		context,
-		// 		program_state,
-		// 		Mat4.identity(),
-		// 		this.materials.postprocess,
-		// 	)
-		// }
+			this.shapes.screen_quad.draw(
+				context,
+				program_state,
+				Mat4.identity(),
+				this.materials.postprocess,
+			)
+		}
 
 		// if the user is pressing the splash key, splash
-		if (this.is_splashing && !this.splash_effect.is_alive(t)) {
-			this.splash_effect.set_start_time(t)
-			this.splash_effect.set_splash_position(x, y)
-			this.splash_effect.set_splash_strength(1)
+		if (this.is_splashing) {
+			this.splash_effect.splash(t, x, z, ny)
 			this.is_splashing = false
+		}
+
+		// every 10 seconds, clean up unused splash effect
+		if (t % 10 < 0.05) {
+			this.splash_effect.cleanup(t)
 		}
 	}
 
