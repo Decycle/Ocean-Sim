@@ -4,7 +4,7 @@ export class UIHandler {
 	setup_ui(scene) {
 		const canvas = document.getElementById('main-canvas').firstChild
 
-		// scene.add_camera_controls(canvas)
+		scene.add_camera_controls(canvas)
 
 		scene.control_panel.innerHTML += 'Controls:'
 
@@ -38,10 +38,10 @@ export class UIHandler {
 		)
 
 		scene.key_triggered_button('Forward', ['w'], () => {
-			scene.boat_velocity[2] += scene.boat_moving_force
+			scene.boat_velocity[0] += scene.boat_moving_force
 		})
 		scene.key_triggered_button('Backward', ['s'], () => {
-			scene.boat_velocity[2] -= scene.boat_moving_force
+			scene.boat_velocity[0] -= scene.boat_moving_force
 		})
 		scene.new_line()
 		scene.key_triggered_button('full screen', ['f'], () => {

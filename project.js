@@ -96,7 +96,7 @@ export class Project_Scene extends Scene {
 
 		// current camera z offset (zoom)
 		this.camera_z_offset = 4.3
-		this.camera_z_min_offset = 1.0
+		this.camera_z_min_offset = 0
 		this.camera_z_max_offset = 20
 
 		// camera rotation with mouse
@@ -130,24 +130,9 @@ export class Project_Scene extends Scene {
 		this.big_boat_size = vec3(2.68, 8.1, 7.4)
 
 		this.small_boat_scale = 0.42
-		this.big_boat_scale = 2.1
+		this.big_boat_scale = 1.0
 
 		this.camera_position = vec3(0, 0, 0)
-	}
-
-	draw_boat(context, program_state, model_transform) {
-		if (this.is_big_boat) {
-			this.big_boat.draw(context, program_state, model_transform)
-		} else {
-			this.boat.draw(
-				context,
-				program_state,
-				model_transform
-					.times(Mat4.translation(0, 0.95, 0))
-					.times(Mat4.scale(0.7, -0.7, 0.7))
-					.times(Mat4.rotation(Math.PI / 2, 0, 1, 0)),
-			)
-		}
 	}
 
 	clamp_ocean_config() {
@@ -184,14 +169,20 @@ export class Project_Scene extends Scene {
 		// )
 		// }
 
-		const boundingBox = this.is_big_boat
-			? this.big_boat_size.times(this.big_boat_scale)
-			: this.small_boat_size.times(this.small_boat_scale)
+		const boatScale = this.is_big_boat
+			? this.big_boat_scale
+			: this.small_boat_scale
+		const boatSize = this.is_big_boat
+			? this.big_boat_size
+			: this.small_boat_size
+
+		const boat = this.is_big_boat ? this.big_boat : this.boat
+
+		const boundingBox = boatSize.times(boatScale)
 
 		const boatWidth = boundingBox[0]
 		const boatLength = boundingBox[2]
 		const boatHeight = boundingBox[1]
-
 		const heightLerpFactor = 0.05
 		const quaternionInterpolation = 0.05
 		const boatFallingAcceleration = 3
@@ -206,8 +197,8 @@ export class Project_Scene extends Scene {
 		}
 
 		// clamp forward velocity
-		this.boat_velocity[2] = clamp(
-			this.boat_velocity[2],
+		this.boat_velocity[0] = clamp(
+			this.boat_velocity[0],
 			-this.boat_maximum_velocity,
 			this.boat_maximum_velocity,
 		)
@@ -217,10 +208,6 @@ export class Project_Scene extends Scene {
 				this.boat_velocity.times(dt),
 			),
 		)
-
-		// apply drag to the boat (velocity decays over time)
-		// boat only has forward/backward velocity (can't go sideways)
-		this.boat_velocity[2] *= 0.95
 
 		const x = this.boat_position[0]
 		const z = this.boat_position[2]
@@ -260,6 +247,10 @@ export class Project_Scene extends Scene {
 		else {
 			this.boat_velocity[1] -= boatFallingAcceleration * dt
 		}
+
+		// apply drag to the boat (velocity decays over time)
+		// boat only has forward/backward velocity (can't go sideways)
+		this.boat_velocity[0] *= 0.95
 
 		// camera rotation
 		if (this.camera_rotate_left) {
@@ -303,23 +294,32 @@ export class Project_Scene extends Scene {
 			0.01,
 		)
 
+		const small_boat_captain_position = vec3(0, 0.5, 0)
+		const big_boat_captain_position = vec3(0, 0.5, 0)
+
+		const captain_position = this.is_big_boat
+			? big_boat_captain_position
+			: small_boat_captain_position
+
+		const camera_target = this.boat_position.plus(captain_position)
+
 		program_state.set_camera(
 			Mat4.inverse(
-				//follow boat
-				// .times(Mat4.rotation(-this.mouse_camera_horizontal_angle, 0, 0, 1)) // mouse camera rotation
-				// .times(Mat4.rotation(-this.mouse_camera_vertical_angle, 1, 0, 0)) // mouse camera rotation
-				// .times(Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)) // align with boat
-				// .times(Mat4.translation(0, 0, this.camera_z_offset)), // zoom,
 				Mat4.identity()
-					.times(Mat4.translation(0, 0, -3))
+					//follow boat
 					.times(
 						Mat4.translation(
-							this.boat_position[0],
-							this.boat_position[1],
-							this.boat_position[2],
-						),
-					),
-				// .times(Mat4.rotation(-0.5, 1, 0, 0)),
+							camera_target[0],
+							camera_target[1],
+							camera_target[2],
+						), //look at where a human would be
+					)
+					// .times(Mat4.rotation(-this.mouse_camera_vertical_angle, 0, 0, 1)) // mouse camera rotation
+					.times(Mat4.rotation(-this.mouse_camera_horizontal_angle, 0, 1, 0)) // mouse camera rotation
+					.times(Mat4.rotation(this.boat_horizontal_angle, 0, 1, 0)) // align with boat's rotation
+					.times(Mat4.rotation(-0.5, 0, 0, 1)) //look down a bit
+					.times(Mat4.rotation(-Math.PI / 2, 0, 1, 0)) // forward direction change to x from z
+					.times(Mat4.translation(0, 0, this.camera_z_offset)), // zoom,
 			),
 		)
 
@@ -334,12 +334,12 @@ export class Project_Scene extends Scene {
 			fast_fov,
 		)
 
-		this.fov = smoothlerp(this.fov, fov, 0.07)
+		this.fov = smoothlerp(this.fov, fov, 0.07) // higher fov when moving faster
 
 		program_state.projection_transform = Mat4.perspective(
-			this.fov, // 60 degrees field of view //TODO: higher fov when going faster
+			this.fov,
 			context.width / context.height,
-			0.5,
+			0.01,
 			1000,
 		)
 
@@ -407,12 +407,12 @@ export class Project_Scene extends Scene {
 				.plus(wave_normal4)
 				.times(0.25)
 
-			const up = vec3(0, 0, 1)
-			const right = wave_normal.cross(up).normalized()
+			const forward = vec3(1, 0, 0)
+			const right = wave_normal.cross(forward).normalized()
 			if (isNaN(wave_normal[0])) {
 				console.error('normal is NaN')
 			}
-			const theta = Math.acos(up.dot(wave_normal))
+			const theta = Math.acos(forward.dot(wave_normal))
 
 			let q0 = Math.cos(theta / 2)
 			let q1 = right[0] * Math.sin(theta / 2)
@@ -448,28 +448,18 @@ export class Project_Scene extends Scene {
 		// convert the quaternion to a rotation matrix1
 		const rotation = this.quaternion.toMatrix()
 
-		this.test_cube.draw_model_transform(
-			context,
-			program_state,
-			Mat4.translation(x, ny, z).times(rotation),
-		)
+		const flip = this.is_big_boat ? -1 : 1 // flip the boat if it's big
 		const boat_model_transform = Mat4.translation(
 			this.boat_position[0],
-			this.boat_position[1],
+			this.boat_position[1] + 1, // so that the bottom of the boat is at the water level
 			this.boat_position[2],
 		) // boat position
-			// .times(Mat4.rotation(this.boat_horizontal_angle, 0, 0, 1)) // boat horizontal angle
-			// .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // rotate the boat 180 degrees by z axis so it faces the right way
-			// .times(rotation) // boat quaternion rotation
-			.times(
-				Mat4.scale(
-					this.small_boat_scale,
-					this.small_boat_scale,
-					this.small_boat_scale,
-				),
-			) // boat scale
+			.times(Mat4.rotation(this.boat_horizontal_angle, 0, 1, 0)) // boat horizontal angle
+			.times(rotation) // boat quaternion rotation
+			.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)) // rotate the boat 180 degrees by z axis so it faces the right way
+			.times(Mat4.scale(boatScale, boatScale * flip, boatScale)) // boat scale
 
-		this.boat.draw(context, program_state, boat_model_transform) // render the boat
+		boat.draw(context, program_state, boat_model_transform) // render the boat
 
 		// this.draw_boat(context, program_state, boat_model_transform) // render the boat
 
