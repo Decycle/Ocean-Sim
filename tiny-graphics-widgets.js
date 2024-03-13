@@ -127,7 +127,7 @@ const Controls_Widget = (widgets.Controls_Widget = class Controls_Widget {
 				'transition:.5s; overflow-y:scroll; background:white }',
 			'.controls-widget table.control-box:hover { max-height:500px }',
 			'.controls-widget table.control-box td { overflow:hidden; border:1px; background:Black; border-radius:10px; width: 540px;}',
-			'.controls-widget table.control-box td .control-div { background: White; height:338px; padding: 5px 5px 5px 30px; }',
+			'.controls-widget table.control-box td .control-div { background: White; height:500px; padding: 5px 5px 5px 30px; }',
 			'.controls-widget table.control-box td * { background:transparent }',
 			'.controls-widget table.control-box .control-div td { border-radius:unset }',
 			'.controls-widget table.control-box .control-title { padding:7px 40px; color:white; background:#252424;}',
@@ -442,7 +442,7 @@ const Editor_Widget = (widgets.Editor_Widget = class Editor_Widget {
 		)
 
 		const explanation = form.appendChild(document.createElement('p'))
-		explanation.innerHTML = `<i><b>What can I put here?</b></i>  
+		explanation.innerHTML = `<i><b>What can I put here?</b></i>
                 A JavaScript class, with any valid JavaScript inside.  Your code can use classes from this demo,
                 <br>or from ANY demo on Demopedia --  the dependencies will automatically be pulled in to run your demo!<br>`
 
