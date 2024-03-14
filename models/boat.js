@@ -6,7 +6,7 @@ const {vec3, Material, hex_color, Texture} = tiny
 
 export class Boat {
 	constructor() {
-		this.model = new Shape_From_File('assets/minecraft-boat.obj')
+		this.model = new Shape_From_File('assets/minecraft-boat-subdivided.obj')
 		this.materials = [
 			new Material(new BoatShader(), {
 				texture: new Texture('assets/oak-wood.jpeg'),
