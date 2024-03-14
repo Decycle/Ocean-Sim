@@ -11,6 +11,7 @@ import {lerp, smoothlerp, clamp, remap} from './util/common.js'
 import {TestCube} from './models/test_cube.js'
 import {PostProcessor} from './models/post_processor.js'
 import {BoatPhysics} from './boat_physics.js'
+import {OceanMap} from './models/ocean_map.js'
 // Pull these names into this module's scope for convenience:
 const {vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture} =
 	tiny
@@ -30,6 +31,8 @@ export class Project_Scene extends Scene {
 
 		this.backgroundRenderer = new BackgroundRenderer()
 		this.uiHandler = new UIHandler()
+
+		this.oceanMap = new OceanMap()
 
 		this.oceanConfig = {
 			amplitude: 0.13,
@@ -97,8 +100,6 @@ export class Project_Scene extends Scene {
 		// test
 		this.test_cube = new TestCube()
 
-		// small boat bounding box: 15.5 x 6.5 x 21.5
-		// big boat bounding box: 2.68 x 8.1 x 7.4
 		this.small_boat_size = vec3(15.5, 6.5, 21.5)
 		this.big_boat_size = vec3(2.68, 8.1, 7.4)
 
@@ -141,7 +142,6 @@ export class Project_Scene extends Scene {
 		// 	Mat4.look_at(vec3(0, 1, 3), vec3(0, 0, 0), vec3(0, 1, 0)),
 		// )
 		// }
-
 		const boatScale = this.is_big_boat
 			? this.big_boat_scale
 			: this.small_boat_scale
@@ -159,6 +159,8 @@ export class Project_Scene extends Scene {
 
 		const [x, y, z] = this.boat_physics.boat_position
 		this.boat_physics.update(t, dt)
+
+		this.oceanMap.init_map(context, program_state, x, z, 10)
 
 		// camera rotation
 		if (this.camera_rotate_left) {
@@ -255,6 +257,7 @@ export class Project_Scene extends Scene {
 			ocean_model_transform,
 			this.oceanConfig,
 			t,
+			this.oceanMap.get_map(),
 		) // render the ocean
 
 		//test normals
@@ -299,6 +302,11 @@ export class Project_Scene extends Scene {
 
 		boat.draw(context, program_state, boat_model_transform) // render the boat
 
+		this.oceanMap.draw_map(
+			context,
+			program_state,
+			this.boat_physics.boat_horizontal_angle,
+		)
 		// second pass
 		if (this.enable_post_processing) {
 			this.post_processor.draw(context, program_state)

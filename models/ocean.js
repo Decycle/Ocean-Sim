@@ -32,7 +32,10 @@ export class Ocean {
 		this.subdivision = subdivision
 
 		this.ocean_plane = new OceanPlane(boundary, subdivision)
-		this.material = new Material(new OceanShader(), configs)
+		this.material = new Material(new OceanShader(), {
+			...configs,
+			boundary,
+		})
 		// const {
 		// 	amplitude,
 		// 	waveMut,
@@ -53,7 +56,7 @@ export class Ocean {
 		// })
 	}
 
-	draw(context, program_state, model_transform, configs, t) {
+	draw(context, program_state, model_transform, configs, t, map) {
 		this.ocean_plane.draw(
 			context,
 			program_state,
@@ -61,6 +64,7 @@ export class Ocean {
 			this.material.override({
 				...configs,
 				time: t,
+				map: map,
 			}),
 		)
 	}

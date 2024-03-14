@@ -42,7 +42,6 @@ export class BoatPhysics {
 	}
 
 	update(t, dt) {
-		console.log(dt)
 		this.boat_horizontal_angle += 0.9 * dt * this.horizontal_rotation
 
 		this.boat_position = this.boat_position.plus(

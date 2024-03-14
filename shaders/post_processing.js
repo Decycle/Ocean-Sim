@@ -66,9 +66,9 @@ class PostProcessingShader extends Shader {
         float d = length(uv - vec2(0.5));
         float vignette = 1.0 - smoothstep(0.1, 1.1, d);
 
-        float redOffset = 0.005;
-        float greenOffset = 0.003;
-        float blueOffset = -0.003;
+        float redOffset = 0.0025;
+        float greenOffset = 0.0015;
+        float blueOffset = -0.0015;
 
         float r = texture2D(texture, uv + vec2(redOffset)).r;
         float g = texture2D(texture, uv + vec2(greenOffset)).g;

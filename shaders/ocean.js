@@ -57,6 +57,13 @@ class OceanShader extends Shader {
 		context.uniform1f(gpu_addresses.seed_offset, material.seedOffset)
 
 		context.uniform4fv(gpu_addresses.sea_color, material.seaColor)
+
+		context.uniform1f(gpu_addresses.size, material.boundary)
+
+		if (material.map && material.map.ready) {
+			context.uniform1i(gpu_addresses.map, 0)
+			material.map.activate(context, 0)
+		}
 	}
 	shared_glsl_code() {
 		// ********* SHARED CODE, INCLUDED IN BOTH SHADERS *********
@@ -161,6 +168,8 @@ class OceanShader extends Shader {
 			`
       uniform float animation_time;
       uniform vec4 sea_color;
+      uniform sampler2D map;
+      uniform float size;
 
       float random (vec2 st) {
         return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
@@ -239,10 +248,8 @@ class OceanShader extends Shader {
         vec3 lightDir = normalize(vec3(1., 1., 1.));
         vec3 blue = vec3(.109,.109, .435) * 0.3;
         vec3 red = vec3(1.0, 0.0, 0.0);
-        vec3 oceanColor = mix(blue, red, VERTEX_POS.x / 100.);
-        // VERTEX_POS
+        vec3 oceanColor = texture2D(map, OLD_VERTEX_POS.zx / size).xyz;
         vec3 color = lighting(normal, lightDir, VIEW_DIR, oceanColor);
-
         gl_FragColor = vec4( color, 1.0 );
       }
       `
