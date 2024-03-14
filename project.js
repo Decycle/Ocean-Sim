@@ -32,7 +32,7 @@ export class Project_Scene extends Scene {
 		this.backgroundRenderer = new BackgroundRenderer()
 		this.uiHandler = new UIHandler()
 
-		this.oceanMap = new OceanMap(hex_color('#000055'), hex_color('#000000'))
+		this.oceanMap = new OceanMap(hex_color('#000055'), hex_color('#ff0000'))
 
 		this.oceanConfig = {
 			amplitude: 0.13,
@@ -262,31 +262,6 @@ export class Project_Scene extends Scene {
 			this.oceanMap.get_map(),
 		) // render the ocean
 
-		//test normals
-		// const target_x = 10
-		// const target_z = 20
-		// for (let i = -3; i <= 3; i++) {
-		// 	for (let j = -3; j <= 3; j++) {
-		// 		const nx = target_x + 2 * i
-		// 		const nz = target_z + 2 * j
-		// 		// const output = this.get_gerstner_wave(nx, nz, t)
-		// 		const output = this.boat_physics.get_gerstner_wave(nx, nz, t)
-		// 		const pos = output[0]
-		// 		const normal = output[1]
-		// 		this.test_cube.draw_line(
-		// 			context,
-		// 			program_state,
-		// 			pos[0],
-		// 			pos[1],
-		// 			pos[2],
-		// 			normal[0],
-		// 			normal[1],
-		// 			normal[2],
-		// 			0.1,
-		// 		)
-		// 	}
-		// }
-
 		// convert the quaternion to a rotation matrix1
 		const rotation = this.boat_physics.quaternion.toMatrix()
 
@@ -307,10 +282,39 @@ export class Project_Scene extends Scene {
 
 		boat.draw(context, program_state, boat_model_transform) // render the boat
 
+		const targetX = 100
+		const targetZ = 200
+
+		console.log((targetX - x) / this.oceanBoundary)
+		console.log((targetZ - z) / this.oceanBoundary)
+
+		for (let i = -3; i <= 3; i++) {
+			for (let j = -3; j <= 3; j++) {
+				const nx = targetX + 2 * i
+				const nz = targetZ + 2 * j
+				// const output = this.get_gerstner_wave(nx, nz, t)
+				const output = this.boat_physics.get_gerstner_wave(nx, nz, t)
+				const pos = output[0]
+				const normal = output[1]
+				this.test_cube.draw_line(
+					context,
+					program_state,
+					pos[0],
+					pos[1],
+					pos[2],
+					normal[0],
+					normal[1],
+					normal[2],
+					0.1,
+				)
+			}
+		}
 		this.oceanMap.draw_map(
 			context,
 			program_state,
 			this.boat_physics.boat_horizontal_angle,
+			(targetX - x) / this.oceanBoundary,
+			(targetZ - z) / this.oceanBoundary,
 		)
 		// second pass
 		if (this.enable_post_processing) {
@@ -331,7 +335,7 @@ export class Project_Scene extends Scene {
 		const [r, g, b, a] = this.oceanMap.get_center_color()
 
 		// console.log(r)
-		if (b <= 64) {
+		if (r >= 64) {
 			//take damage
 			if (this.is_big_boat) {
 				this.big_boat.take_damage(0.003)

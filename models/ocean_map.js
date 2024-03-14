@@ -62,13 +62,15 @@ export class OceanMap {
 		return this.texture
 	}
 
-	draw_map(context, program_state, theta) {
+	draw_map(context, program_state, theta, target_x, target_z) {
 		this.screen_quad.draw(
 			context,
 			program_state,
 			Mat4.identity(),
 			this.ocean_map_display_material.override({
 				theta: theta,
+				target_x: target_x,
+				target_z: target_z,
 			}),
 		)
 	}

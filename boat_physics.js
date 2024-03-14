@@ -6,8 +6,8 @@ const {vec3, Mat4, Material, Texture} = tiny
 
 export class BoatPhysics {
 	constructor(oceanConfig, on_splash, boat_size) {
-		this.boat_moving_force = 10
-		this.boat_maximum_velocity = 5
+		this.boat_moving_force = 0.5
+		this.boat_maximum_velocity = 3
 
 		this.boat_position = vec3(0, 0, 0)
 		this.boat_velocity = vec3(0, 0, 0)
@@ -21,6 +21,9 @@ export class BoatPhysics {
 		this.last_quaternion = this.quaternion
 
 		this.horizontal_rotation = 0
+
+		this.is_moving_forward = false
+		this.is_moving_backward = false
 
 		this.boatFallingAcceleration = 3
 		this.boatDraftPercentage = 0.75
@@ -43,6 +46,12 @@ export class BoatPhysics {
 
 	update(t, dt) {
 		this.boat_horizontal_angle += 0.9 * dt * this.horizontal_rotation
+		if (this.is_moving_forward) {
+			this.go_forward()
+		}
+		if (this.is_moving_backward) {
+			this.go_backward()
+		}
 
 		this.boat_position = this.boat_position.plus(
 			Mat4.rotation(this.boat_horizontal_angle, 0, 1, 0).times(

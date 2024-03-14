@@ -89,36 +89,37 @@ class BoatShader extends Shader {
 		return (
 			this.shared_glsl_code() +
 			`
-      uniform sampler2D texture;
-      uniform float health;
+		uniform sampler2D texture;
+		uniform float health;
 
-      float rand(vec2 n) {
-        return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
-      }
+		float rand(vec2 n) {
+			return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+		}
 
-      float noise(vec2 p){
-        vec2 ip = floor(p);
-        vec2 u = fract(p);
-        u = u*u*(3.0-2.0*u);
+		float noise(vec2 p){
+			vec2 ip = floor(p);
+			vec2 u = fract(p);
+			u = u*u*(3.0-2.0*u);
 
-        float res = mix(
-          mix(rand(ip),rand(ip+vec2(1.0,0.0)),u.x),
-          mix(rand(ip+vec2(0.0,1.0)),rand(ip+vec2(1.0,1.0)),u.x),u.y);
-        return res*res;
-      }
+			float res = mix(
+			mix(rand(ip),rand(ip+vec2(1.0,0.0)),u.x),
+			mix(rand(ip+vec2(0.0,1.0)),rand(ip+vec2(1.0,1.0)),u.x),u.y);
+			return res*res;
+		}
 
       void main(){
 
         vec3 normal = VERTEX_NORMAL;
         vec3 boat_color = texture2D(texture, vec2(uv.x, uv.y)).xyz;
-        float is_black = step(health, noise(VERTEX_POS.xy * 30.0));
-        boat_color = mix(boat_color, vec3(0.0, 0.0, 0.0), is_black);
+        float is_red_outline = step(health + 0.2, noise(VERTEX_POS.xy * 30.0));
+        float is_red = step(health, noise(VERTEX_POS.xy * 30.0));
+        boat_color = mix(boat_color, vec3(1.0, 0.0, 0.0), is_red);
         vec3 ambient = vec3(0.2, 0.2, 0.2);
         vec3 light = normalize(vec3(1, 1, 1));
 
         float diffuse = max( 0.0, dot( normalize( normal ), light));
 
-        gl_FragColor = vec4( boat_color * (ambient + diffuse), 1.0 );
+        gl_FragColor = vec4( boat_color * (ambient + diffuse), 1.0 - is_red_outline);
       }
       `
 		)

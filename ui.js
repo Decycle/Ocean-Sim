@@ -37,12 +37,28 @@ export class UIHandler {
 			},
 		)
 
-		scene.key_triggered_button('Forward', ['w'], () => {
-			scene.boat_physics.go_forward()
-		})
-		scene.key_triggered_button('Backward', ['s'], () => {
-			scene.boat_physics.go_backward()
-		})
+		scene.key_triggered_button(
+			'Forward',
+			['w'],
+			() => {
+				scene.boat_physics.is_moving_forward = true
+			},
+			undefined,
+			() => {
+				scene.boat_physics.is_moving_forward = false
+			},
+		)
+		scene.key_triggered_button(
+			'Backward',
+			['s'],
+			() => {
+				scene.boat_physics.is_moving_backward = true
+			},
+			undefined,
+			() => {
+				scene.boat_physics.is_moving_backward = false
+			},
+		)
 		scene.new_line()
 		scene.key_triggered_button('full screen', ['f'], () => {
 			if (document.fullscreenElement) {
