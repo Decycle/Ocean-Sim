@@ -56,7 +56,7 @@ export class OceanMapShader extends Shader {
 			vec2 uv = f_tex_coord * 2. - 1.;
 			vec2 pos = uv * scale;
 			pos += vec2(z, x);
-			vec4 color = mix(seaColor, badSeaColor, sin(pos.x * 0.5) * sin(pos.y * 0.5));
+			vec4 color = mix(seaColor, badSeaColor, sin(pos.x * 0.15) * sin(pos.y * 0.15));
 			gl_FragColor = color;
       	}
       `

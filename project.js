@@ -32,8 +32,6 @@ export class Project_Scene extends Scene {
 		this.backgroundRenderer = new BackgroundRenderer()
 		this.uiHandler = new UIHandler()
 
-		this.oceanMap = new OceanMap(hex_color('#000055'), hex_color('#ff0000'))
-
 		this.oceanConfig = {
 			amplitude: 0.13,
 			waveMut: 0.22,
@@ -50,6 +48,12 @@ export class Project_Scene extends Scene {
 			this.oceanBoundary,
 			this.oceanSubdivision,
 			this.oceanConfig,
+		)
+
+		this.oceanMap = new OceanMap(
+			hex_color('#000055'),
+			hex_color('#ff0000'),
+			this.oceanBoundary,
 		)
 
 		this.boat_physics = new BoatPhysics(
@@ -134,6 +138,8 @@ export class Project_Scene extends Scene {
 		const t = program_state.animation_time / 1000
 		const dt = program_state.animation_delta_time / 1000
 
+		console.log(1 / dt)
+
 		// development camera
 		// if (!context.scratchpad.controls) {
 		// 	this.children.push(
@@ -164,7 +170,7 @@ export class Project_Scene extends Scene {
 		const [x, y, z] = this.boat_physics.boat_position
 		this.boat_physics.update(t, dt)
 
-		this.oceanMap.init_map(context, program_state, x, z, 10)
+		this.oceanMap.init_map(context, program_state, x, z)
 
 		// camera rotation
 		if (this.camera_rotate_left) {
@@ -245,7 +251,6 @@ export class Project_Scene extends Scene {
 			0.1,
 			100,
 		)
-
 		// first pass
 		this.backgroundRenderer.draw(context, program_state) // render the background
 		this.splash_effect.draw(context, program_state) // render the splash effect (if any)
@@ -316,9 +321,9 @@ export class Project_Scene extends Scene {
 			(targetZ - z) / this.oceanBoundary,
 		)
 		// second pass
-		if (this.enable_post_processing) {
-			this.post_processor.draw(context, program_state)
-		}
+		// if (this.enable_post_processing) {
+		// 	this.post_processor.draw(context, program_state)
+		// }
 
 		// if the user is pressing the splash key, splash
 		if (this.is_splashing) {

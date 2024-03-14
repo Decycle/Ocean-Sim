@@ -4,7 +4,7 @@ import {OceanMapDisplay} from '../shaders/ocean_map_display.js'
 const {vec3, Mat4, Material, Texture, hex_color} = tiny
 
 export class OceanMap {
-	constructor(seaColor, badSeaColor) {
+	constructor(seaColor, badSeaColor, oceanSize) {
 		this.scratchpad = document.createElement('canvas', {
 			willReadFrequently: true,
 		})
@@ -25,9 +25,11 @@ export class OceanMap {
 
 		this.skipped_first_frame = false
 		this.screen_quad = new defs.Square()
+
+		this.oceanSize = oceanSize
 	}
 
-	init_map(context, program_state, x, z, scale) {
+	init_map(context, program_state, x, z) {
 		this.screen_quad.draw(
 			context,
 			program_state,
@@ -35,7 +37,7 @@ export class OceanMap {
 			this.ocean_map_material.override({
 				x: x,
 				z: z,
-				scale: scale,
+				scale: this.oceanSize / 2,
 			}),
 		)
 		this.scratchpad_context.drawImage(
@@ -81,6 +83,5 @@ export class OceanMap {
 
 		const pixel = this.scratchpad_context.getImageData(x, y, 1, 1).data
 		return pixel
-		return [1, 1, 1, 1]
 	}
 }
