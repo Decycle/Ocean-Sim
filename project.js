@@ -32,7 +32,7 @@ export class Project_Scene extends Scene {
 		this.backgroundRenderer = new BackgroundRenderer()
 		this.uiHandler = new UIHandler()
 
-		this.oceanMap = new OceanMap()
+		this.oceanMap = new OceanMap(hex_color('#000055'), hex_color('#000000'))
 
 		this.oceanConfig = {
 			amplitude: 0.13,
@@ -41,7 +41,6 @@ export class Project_Scene extends Scene {
 			amplitudeMultiplier: 0.94,
 			waveMultiplier: 1.1,
 			seedOffset: 8780.3143875966,
-			seaColor: hex_color('#3b59CC'),
 		}
 
 		this.oceanBoundary = 50
@@ -107,6 +106,9 @@ export class Project_Scene extends Scene {
 		this.big_boat_scale = 1.0
 
 		this.camera_position = vec3(0, 0, 0)
+
+		this.money = 0
+		this.upgrades = []
 	}
 
 	clamp_ocean_config() {
@@ -261,11 +263,14 @@ export class Project_Scene extends Scene {
 		) // render the ocean
 
 		//test normals
-		// for (let i = -5; i <= 5; i++) {
-		// 	for (let j = -5; j <= 5; j++) {
-		// 		const nx = x + (boatWidth / 2 / 5) * i
-		// 		const nz = z + (boatLength / 2 / 5) * j
-		// 		const output = this.get_gerstner_wave(nx, nz, t)
+		// const target_x = 10
+		// const target_z = 20
+		// for (let i = -3; i <= 3; i++) {
+		// 	for (let j = -3; j <= 3; j++) {
+		// 		const nx = target_x + 2 * i
+		// 		const nz = target_z + 2 * j
+		// 		// const output = this.get_gerstner_wave(nx, nz, t)
+		// 		const output = this.boat_physics.get_gerstner_wave(nx, nz, t)
 		// 		const pos = output[0]
 		// 		const normal = output[1]
 		// 		this.test_cube.draw_line(
@@ -322,6 +327,32 @@ export class Project_Scene extends Scene {
 		if (t % 10 < 0.05) {
 			this.splash_effect.cleanup(t)
 		}
+
+		const [r, g, b, a] = this.oceanMap.get_center_color()
+
+		// console.log(r)
+		if (b <= 64) {
+			//take damage
+			if (this.is_big_boat) {
+				this.big_boat.take_damage(0.003)
+				if (this.big_boat.health <= 0) {
+					this.respawn()
+				}
+			} else {
+				this.boat.take_damage(0.003)
+				if (this.boat.health <= 0) {
+					this.respawn()
+				}
+			}
+		}
+	}
+
+	respawn() {
+		this.boat_physics.boat_position = vec3(0, 0, 0)
+		this.big_boat.health = 1
+		this.boat.health = 1
+		this.money = 0
+		this.upgrades = []
 	}
 
 	add_camera_controls(canvas) {

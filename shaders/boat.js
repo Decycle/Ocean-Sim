@@ -111,8 +111,8 @@ class BoatShader extends Shader {
 
         vec3 normal = VERTEX_NORMAL;
         vec3 boat_color = texture2D(texture, vec2(uv.x, uv.y)).xyz;
-        float is_red = step(health, noise(VERTEX_POS.xy * 30.0));
-        boat_color += vec3(1.0, 0.0, 0.0) * is_red;
+        float is_black = step(health, noise(VERTEX_POS.xy * 30.0));
+        boat_color = mix(boat_color, vec3(0.0, 0.0, 0.0), is_black);
         vec3 ambient = vec3(0.2, 0.2, 0.2);
         vec3 light = normalize(vec3(1, 1, 1));
 

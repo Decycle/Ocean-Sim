@@ -4,18 +4,20 @@ import {OceanMapDisplay} from '../shaders/ocean_map_display.js'
 const {vec3, Mat4, Material, Texture, hex_color} = tiny
 
 export class OceanMap {
-	constructor() {
-		this.scratchpad = document.createElement('canvas')
+	constructor(seaColor, badSeaColor) {
+		this.scratchpad = document.createElement('canvas', {
+			willReadFrequently: true,
+		})
 		// A hidden canvas for re-sizing the real canvas to be square:
 		this.scratchpad_context = this.scratchpad.getContext('2d')
-		this.scratchpad.width = 128
-		this.scratchpad.height = 128 // Initial image source: Blank gif file:
+		this.scratchpad.width = 64
+		this.scratchpad.height = 64 // Initial image source: Blank gif file:
 		this.texture = new Texture(
 			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
 		)
 		this.ocean_map_material = new Material(new OceanMapShader(), {
-			seaColor: hex_color('#0000FF'),
-			badSeaColor: hex_color('#FF0000'),
+			seaColor,
+			badSeaColor,
 		})
 		this.ocean_map_display_material = new Material(new OceanMapDisplay(), {
 			texture: this.texture,
@@ -69,5 +71,14 @@ export class OceanMap {
 				theta: theta,
 			}),
 		)
+	}
+
+	get_center_color() {
+		const x = this.scratchpad.width / 2
+		const y = this.scratchpad.height / 2
+
+		const pixel = this.scratchpad_context.getImageData(x, y, 1, 1).data
+		return pixel
+		return [1, 1, 1, 1]
 	}
 }
