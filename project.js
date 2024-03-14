@@ -43,8 +43,8 @@ export class Project_Scene extends Scene {
 			seedOffset: 8780.3143875966,
 		}
 
-		this.oceanBoundary = 50
-		this.oceanSubdivision = 500
+		this.oceanBoundary = 200
+		this.oceanSubdivision = 200
 
 		this.ocean = new Ocean(
 			this.oceanBoundary,
@@ -109,6 +109,8 @@ export class Project_Scene extends Scene {
 
 		this.money = 0
 		this.upgrades = []
+
+		this.mouse_down = false
 	}
 
 	clamp_ocean_config() {
@@ -241,7 +243,7 @@ export class Project_Scene extends Scene {
 			this.fov,
 			context.width / context.height,
 			0.1,
-			1000,
+			100,
 		)
 
 		// first pass
@@ -284,9 +286,6 @@ export class Project_Scene extends Scene {
 
 		const targetX = 100
 		const targetZ = 200
-
-		console.log((targetX - x) / this.oceanBoundary)
-		console.log((targetZ - z) / this.oceanBoundary)
 
 		for (let i = -3; i <= 3; i++) {
 			for (let j = -3; j <= 3; j++) {
@@ -360,14 +359,11 @@ export class Project_Scene extends Scene {
 	}
 
 	add_camera_controls(canvas) {
-		canvas.addEventListener('mousedown', (e) => {
+		canvas.addEventListener('click', (e) => {
 			this.mouse_down = true
 			this.last_mouse_x = e.clientX
 			this.last_mouse_y = e.clientY
-		})
-
-		canvas.addEventListener('mouseup', (e) => {
-			this.mouse_down = false
+			console.log(this.mouse_down)
 		})
 
 		canvas.addEventListener('mousemove', (e) => {

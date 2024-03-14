@@ -3,6 +3,7 @@ import {clamp} from './util/common.js'
 export class UIHandler {
 	setup_ui(scene) {
 		const canvas = document.getElementById('main-canvas').firstChild
+		canvas.style.cursor = 'none'
 
 		scene.add_camera_controls(canvas)
 

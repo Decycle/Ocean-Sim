@@ -32,28 +32,11 @@ export class Ocean {
 		this.subdivision = subdivision
 
 		this.ocean_plane = new OceanPlane(boundary, subdivision)
+
 		this.material = new Material(new OceanShader(), {
 			...configs,
 			boundary,
 		})
-		// const {
-		// 	amplitude,
-		// 	waveMut,
-		// 	seed,
-		// 	amplitudeMultiplier,
-		// 	waveMultiplier,
-		// 	seedOffset,
-		// 	color,
-		// } = configs
-		// this.material = new Material(new OceanShader(), {
-		// 	amplitude,
-		// 	waveMut,
-		// 	seed,
-		// 	amplitudeMultiplier,
-		// 	waveMultiplier,
-		// 	seedOffset,
-		// 	sea_color: hex_color('#3b59CC'),
-		// })
 	}
 
 	draw(context, program_state, model_transform, configs, t, map) {
