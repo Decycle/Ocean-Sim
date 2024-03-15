@@ -13,7 +13,7 @@ export class Config {
 			seed: 4551.671312417933,
 			amplitudeMultiplier: 0.94,
 			waveMultiplier: 1.1,
-			seedOffset: 8780.3143875966,
+			seedOffset: 8780.3143875966
 		}
 
 		this.physicsConfig = {
@@ -22,20 +22,20 @@ export class Config {
 			boatFallingAcceleration: 3,
 			boatDraftPercentage: 0.75,
 			heightLerpFactor: 3, // times dt
-			quaternionInterpolation: 3, // times dt
+			quaternionInterpolation: 3 // times dt
 		}
 
 		this.shopConfig = {
 			boat_max_health_upgrade: 0.5,
 			boat_max_speed_upgrade: 5,
-			boat_health_heal: 100,
+			boat_health_heal: 100
 		}
 
 		this.boatConfig = {
 			small_boat_size: vec3(15.5, 6.5, 21.5),
 			big_boat_size: vec3(2.68, 8.1, 7.4),
 			small_boat_scale: 0.42,
-			big_boat_scale: 1.0,
+			big_boat_scale: 1.0
 		}
 
 		// whether or not to show advanced controls

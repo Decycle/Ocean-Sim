@@ -11,7 +11,7 @@ const {
 	Material,
 	Shader,
 	Texture,
-	Scene,
+	Scene
 } = tiny
 
 export class Shape_From_File extends Shape {
@@ -87,21 +87,21 @@ export class Shape_From_File extends Shape {
 
 						if (textures.length) {
 							unpacked.textures.push(
-								+textures[(vertex[1] - 1 || vertex[0]) * 2 + 0],
+								+textures[(vertex[1] - 1 || vertex[0]) * 2 + 0]
 							)
 							unpacked.textures.push(
-								+textures[(vertex[1] - 1 || vertex[0]) * 2 + 1],
+								+textures[(vertex[1] - 1 || vertex[0]) * 2 + 1]
 							)
 						}
 
 						unpacked.norms.push(
-							+vertNormals[(vertex[2] - 1 || vertex[0]) * 3 + 0],
+							+vertNormals[(vertex[2] - 1 || vertex[0]) * 3 + 0]
 						)
 						unpacked.norms.push(
-							+vertNormals[(vertex[2] - 1 || vertex[0]) * 3 + 1],
+							+vertNormals[(vertex[2] - 1 || vertex[0]) * 3 + 1]
 						)
 						unpacked.norms.push(
-							+vertNormals[(vertex[2] - 1 || vertex[0]) * 3 + 2],
+							+vertNormals[(vertex[2] - 1 || vertex[0]) * 3 + 2]
 						)
 
 						unpacked.hashindices[elements[j]] = unpacked.index
@@ -125,13 +125,13 @@ export class Shape_From_File extends Shape {
 				// if (verts[3 * j + 1] > upper_bound[1]) upper_bound[1] = verts[3 * j + 1]
 				// if (verts[3 * j + 2] > upper_bound[2]) upper_bound[2] = verts[3 * j + 2]
 				this.arrays.position.push(
-					vec3(verts[3 * j], verts[3 * j + 1], verts[3 * j + 2]),
+					vec3(verts[3 * j], verts[3 * j + 1], verts[3 * j + 2])
 				)
 				this.arrays.normal.push(
-					vec3(norms[3 * j], norms[3 * j + 1], norms[3 * j + 2]),
+					vec3(norms[3 * j], norms[3 * j + 1], norms[3 * j + 2])
 				)
 				this.arrays.texture_coord.push(
-					vec(textures[2 * j], textures[2 * j + 1]),
+					vec(textures[2 * j], textures[2 * j + 1])
 				)
 			}
 			this.indices = unpacked.indices
@@ -164,7 +164,7 @@ export class Obj_File_Demo extends Scene {
 		super()
 		// Load the model file:
 		this.shapes = {
-			teapot: new Shape_From_File('assets/teapot.obj'),
+			teapot: new Shape_From_File('assets/teapot.obj')
 		}
 
 		// Don't create any DOM elements to control this scene:
@@ -175,7 +175,7 @@ export class Obj_File_Demo extends Scene {
 			ambient: 0.3,
 			diffusivity: 0.5,
 			specularity: 0.5,
-			texture: new Texture('assets/stars.png'),
+			texture: new Texture('assets/stars.png')
 		})
 		// Bump mapped:
 		this.bumps = new Material(new defs.Fake_Bump_Map(1), {
@@ -183,7 +183,7 @@ export class Obj_File_Demo extends Scene {
 			ambient: 0.3,
 			diffusivity: 0.5,
 			specularity: 0.5,
-			texture: new Texture('assets/stars.png'),
+			texture: new Texture('assets/stars.png')
 		})
 	}
 
@@ -195,15 +195,15 @@ export class Obj_File_Demo extends Scene {
 			Math.PI / 4,
 			context.width / context.height,
 			1,
-			500,
+			500
 		)
 		// A spinning light to show off the bump map:
 		program_state.lights = [
 			new Light(
 				Mat4.rotation(t / 300, 1, 0, 0).times(vec4(3, 2, 10, 1)),
 				color(1, 0.7, 0.7, 1),
-				100000,
-			),
+				100000
+			)
 		]
 
 		for (let i of [-1, 1]) {
@@ -216,7 +216,7 @@ export class Obj_File_Demo extends Scene {
 				context,
 				program_state,
 				model_transform,
-				i == 1 ? this.stars : this.bumps,
+				i == 1 ? this.stars : this.bumps
 			)
 		}
 	}

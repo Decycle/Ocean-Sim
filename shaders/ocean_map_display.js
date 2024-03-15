@@ -7,7 +7,7 @@ export class OceanMapDisplay extends Shader {
 		gpu_addresses,
 		graphics_state,
 		model_transform,
-		material,
+		material
 	) {
 		context.uniform1f(gpu_addresses.theta, material.theta)
 		context.uniform2fv(gpu_addresses.targets, material.targets)

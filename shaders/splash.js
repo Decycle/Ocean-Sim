@@ -10,31 +10,31 @@ export class SplashShader extends Shader {
 		gpu_addresses,
 		graphics_state,
 		model_transform,
-		material,
+		material
 	) {
 		// update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
 		const [P, C, M] = [
 			graphics_state.projection_transform,
 			graphics_state.camera_inverse,
-			model_transform,
+			model_transform
 		]
 
 		context.uniformMatrix4fv(
 			gpu_addresses.projection_transform,
 			false,
-			Matrix.flatten_2D_to_1D(P.transposed()),
+			Matrix.flatten_2D_to_1D(P.transposed())
 		)
 
 		context.uniformMatrix4fv(
 			gpu_addresses.camera_inverse,
 			false,
-			Matrix.flatten_2D_to_1D(C.transposed()),
+			Matrix.flatten_2D_to_1D(C.transposed())
 		)
 
 		context.uniformMatrix4fv(
 			gpu_addresses.model_transform,
 			false,
-			Matrix.flatten_2D_to_1D(M.transposed()),
+			Matrix.flatten_2D_to_1D(M.transposed())
 		)
 
 		context.uniform4fv(gpu_addresses.water_color, material.water_color)

@@ -18,7 +18,7 @@ export class UIHandler {
 			undefined,
 			() => {
 				scene.boat_physics.stop_rotate()
-			},
+			}
 		)
 
 		scene.key_triggered_button(
@@ -30,7 +30,7 @@ export class UIHandler {
 			undefined,
 			() => {
 				scene.boat_physics.stop_rotate()
-			},
+			}
 		)
 
 		scene.key_triggered_button(
@@ -42,7 +42,7 @@ export class UIHandler {
 			undefined,
 			() => {
 				scene.boat_physics.is_moving_forward = false
-			},
+			}
 		)
 		scene.key_triggered_button(
 			'Backward',
@@ -53,7 +53,7 @@ export class UIHandler {
 			undefined,
 			() => {
 				scene.boat_physics.is_moving_backward = false
-			},
+			}
 		)
 		scene.new_line()
 		// scene.key_triggered_button('full screen', ['f'], () => {
@@ -75,7 +75,7 @@ export class UIHandler {
 			undefined,
 			() => {
 				scene.states.camera_rotate_left = false
-			},
+			}
 		)
 
 		scene.key_triggered_button(
@@ -87,7 +87,7 @@ export class UIHandler {
 			undefined,
 			() => {
 				scene.states.camera_rotate_right = false
-			},
+			}
 		)
 		scene.new_line()
 
@@ -100,7 +100,7 @@ export class UIHandler {
 			undefined,
 			() => {
 				scene.states.is_zooming_in = false
-			},
+			}
 		)
 
 		scene.key_triggered_button(
@@ -112,7 +112,7 @@ export class UIHandler {
 			undefined,
 			() => {
 				scene.states.is_zooming_out = false
-			},
+			}
 		)
 
 		scene.new_line()
@@ -190,7 +190,7 @@ export class UIHandler {
 			})
 			scene.live_string((box) => {
 				box.textContent = `Wave Amplitude Multiplier: ${scene.config.oceanConfig.amplitudeMultiplier.toFixed(
-					2,
+					2
 				)}`
 			})
 			scene.key_triggered_button('-0.01', [], () => {
@@ -224,7 +224,7 @@ export class UIHandler {
 			})
 			scene.live_string((box) => {
 				box.textContent = `Wave Number Multiplier: ${scene.config.oceanConfig.waveMultiplier.toFixed(
-					2,
+					2
 				)}`
 			})
 			scene.key_triggered_button('-0.01', [], () => {

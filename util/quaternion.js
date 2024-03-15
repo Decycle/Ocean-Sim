@@ -19,7 +19,7 @@ class Quaternion {
 			this.w * q.w - this.x * q.x - this.y * q.y - this.z * q.z,
 			this.w * q.x + this.x * q.w + this.y * q.z - this.z * q.y,
 			this.w * q.y - this.x * q.z + this.y * q.w + this.z * q.x,
-			this.w * q.z + this.x * q.y - this.y * q.x + this.z * q.w,
+			this.w * q.z + this.x * q.y - this.y * q.x + this.z * q.w
 		)
 	}
 
@@ -28,7 +28,7 @@ class Quaternion {
 			this.w + t * (q.w - this.w),
 			this.x + t * (q.x - this.x),
 			this.y + t * (q.y - this.y),
-			this.z + t * (q.z - this.z),
+			this.z + t * (q.z - this.z)
 		)
 	}
 
@@ -47,7 +47,7 @@ class Quaternion {
 			this.w / length,
 			this.x / length,
 			this.y / length,
-			this.z / length,
+			this.z / length
 		)
 	}
 
@@ -74,7 +74,7 @@ class Quaternion {
 			this.w * ratioA + q.w * ratioB,
 			this.x * ratioA + q.x * ratioB,
 			this.y * ratioA + q.y * ratioB,
-			this.z * ratioA + q.z * ratioB,
+			this.z * ratioA + q.z * ratioB
 		)
 	}
 
@@ -88,7 +88,7 @@ class Quaternion {
 			[2 * (w * w + x * x) - 1, 2 * (x * y - w * z), 2 * (x * z + w * y), 0],
 			[2 * (x * y + w * z), 2 * (w * w + y * y) - 1, 2 * (y * z - w * x), 0],
 			[2 * (x * z - w * y), 2 * (y * z + w * x), 2 * (w * w + z * z) - 1, 0],
-			[0, 0, 0, 1],
+			[0, 0, 0, 1]
 		)
 	}
 

@@ -26,7 +26,7 @@ export class Project_Scene extends Scene {
 
 		this.widget_options = {
 			make_controls: true,
-			show_explanation: false,
+			show_explanation: false
 		}
 
 		this.config = new Config()
@@ -38,19 +38,19 @@ export class Project_Scene extends Scene {
 		this.ocean = new Ocean(
 			this.config.oceanBoundary,
 			this.config.oceanSubdivision,
-			this.config.oceanConfig,
+			this.config.oceanConfig
 		)
 
 		this.oceanMap = new OceanMap(
 			hex_color('#05133d'),
 			hex_color('#ff0000'),
-			this.config.oceanBoundary,
+			this.config.oceanBoundary
 		)
 
 		this.splash_effect = new SplashEffect()
 		this.targetManager = new TargetManager(
 			this.config.oceanBoundary,
-			this.config.targets_per_chunk,
+			this.config.targets_per_chunk
 		)
 		this.test_cube = new TestCube()
 
@@ -60,12 +60,12 @@ export class Project_Scene extends Scene {
 				this.splash_effect.splash(t, x, z, ny, water_color, strength)
 			},
 			vec3(1, 1, 1),
-			this.config.physicsConfig,
+			this.config.physicsConfig
 		)
 
 		this.boatManager = new BoatManager(
 			this.config.boatConfig,
-			this.boat_physics,
+			this.boat_physics
 		)
 
 		this.shop = new Shop(this.config.shopConfig)
@@ -78,22 +78,22 @@ export class Project_Scene extends Scene {
 		this.config.oceanConfig.amplitude = clamp(
 			this.config.oceanConfig.amplitude,
 			0,
-			0.3,
+			0.3
 		)
 		this.config.oceanConfig.amplitudeMultiplier = clamp(
 			this.config.oceanConfig.amplitudeMultiplier,
 			0,
-			0.99,
+			0.99
 		)
 		this.config.oceanConfig.waveMut = clamp(
 			this.config.oceanConfig.waveMut,
 			0,
-			2,
+			2
 		)
 		this.config.oceanConfig.waveMultiplier = clamp(
 			this.config.oceanConfig.waveMultiplier,
 			1.01,
-			2,
+			2
 		)
 	}
 
@@ -173,7 +173,7 @@ export class Project_Scene extends Scene {
 		this.states.camera_horizontal_angle = clamp(
 			this.states.camera_horizontal_angle,
 			-Math.PI / 4,
-			Math.PI / 4,
+			Math.PI / 4
 		)
 
 		// zooming in and out
@@ -186,24 +186,24 @@ export class Project_Scene extends Scene {
 		this.states.camera_z_offset = clamp(
 			this.states.camera_z_offset,
 			this.config.camera_z_min_offset,
-			this.config.camera_z_max_offset,
+			this.config.camera_z_max_offset
 		)
 
 		// update the camera position
 		this.states.camera_position[0] = smoothlerp(
 			this.states.camera_position[0],
 			x,
-			30 * dt,
+			30 * dt
 		)
 		this.states.camera_position[1] = smoothlerp(
 			this.states.camera_position[1],
 			y,
-			30 * dt,
+			30 * dt
 		)
 		this.states.camera_position[2] = smoothlerp(
 			this.states.camera_position[2],
 			z,
-			30 * dt,
+			30 * dt
 		)
 
 		const captain_position = this.boatManager.captainPosition()
@@ -217,20 +217,20 @@ export class Project_Scene extends Scene {
 						Mat4.translation(
 							camera_target[0],
 							camera_target[1],
-							camera_target[2],
-						), //look at where a human would be
+							camera_target[2]
+						) //look at where a human would be
 					)
 					// .times(Mat4.rotation(-use_camera_vertical_angle, 0, 0, 1)) // mouse camera rotation
 					.times(
-						Mat4.rotation(-this.states.mouse_camera_horizontal_angle, 0, 1, 0),
+						Mat4.rotation(-this.states.mouse_camera_horizontal_angle, 0, 1, 0)
 					) // mouse camera rotation
 					.times(
-						Mat4.rotation(this.boat_physics.boat_horizontal_angle, 0, 1, 0),
+						Mat4.rotation(this.boat_physics.boat_horizontal_angle, 0, 1, 0)
 					) // align with boat's rotation
 					.times(Mat4.rotation(-0.5, 0, 0, 1)) //look down a bit
 					.times(Mat4.rotation(-Math.PI / 2, 0, 1, 0)) // forward direction change to x from z
-					.times(Mat4.translation(0, 0, this.states.camera_z_offset)), // zoom,
-			),
+					.times(Mat4.translation(0, 0, this.states.camera_z_offset)) // zoom,
+			)
 		)
 
 		const normal_fov = Math.PI * 0.33
@@ -241,7 +241,7 @@ export class Project_Scene extends Scene {
 			0,
 			this.boat_physics.boat_maximum_velocity,
 			normal_fov,
-			fast_fov,
+			fast_fov
 		)
 
 		this.states.fov = smoothlerp(this.states.fov, fov, 4.2 * dt) // higher fov when moving faster
@@ -250,7 +250,7 @@ export class Project_Scene extends Scene {
 			this.states.fov,
 			context.width / context.height,
 			0.1,
-			100,
+			100
 		)
 
 		this.targetManager.explore(x, z)
@@ -266,8 +266,8 @@ export class Project_Scene extends Scene {
 			Mat4.translation(
 				-this.config.oceanBoundary / 2,
 				0,
-				-this.config.oceanBoundary / 2,
-			),
+				-this.config.oceanBoundary / 2
+			)
 		)
 
 		this.clamp_ocean_config()
@@ -278,7 +278,7 @@ export class Project_Scene extends Scene {
 			this.oceanConfig,
 			t,
 			this.oceanMap.get_map(),
-			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary),
+			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary)
 		) // render the ocean
 
 		if (this.states.render_steps === 2) {
@@ -295,7 +295,7 @@ export class Project_Scene extends Scene {
 		const boat_model_transform = Mat4.translation(
 			x,
 			y + bigRaise, // so that the bottom of the boat is at the water level
-			z,
+			z
 		) // boat position
 			.times(Mat4.rotation(this.boat_physics.boat_horizontal_angle, 0, 1, 0)) // boat horizontal angle
 			.times(rotation) // boat quaternion rotation
@@ -348,7 +348,7 @@ export class Project_Scene extends Scene {
 				normal[0],
 				normal[1],
 				normal[2],
-				0.1,
+				0.1
 			)
 		}
 		// second pass
@@ -361,7 +361,7 @@ export class Project_Scene extends Scene {
 			context,
 			program_state,
 			this.boat_physics.boat_horizontal_angle,
-			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary),
+			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary)
 		)
 		this.shop.draw_menu(context, program_state)
 
@@ -428,7 +428,7 @@ export class Project_Scene extends Scene {
 				// cap dy
 				this.states.mouse_camera_vertical_angle = Math.min(
 					Math.PI / 4,
-					Math.max(0, this.states.mouse_camera_vertical_angle),
+					Math.max(0, this.states.mouse_camera_vertical_angle)
 				)
 
 				this.states.last_mouse_x = e.clientX

@@ -11,17 +11,17 @@ class CylinderStrip extends tiny.Shape {
 				vec3(
 					Math.cos((i / columns) * 2 * Math.PI),
 					0,
-					Math.sin((i / columns) * 2 * Math.PI),
+					Math.sin((i / columns) * 2 * Math.PI)
 				),
 				vec3(
 					Math.cos((i / columns) * 2 * Math.PI),
 					1,
-					Math.sin((i / columns) * 2 * Math.PI),
-				),
+					Math.sin((i / columns) * 2 * Math.PI)
+				)
 			)
 			this.arrays.texture_coord.push(
 				vec3(i / columns, 0, 0),
-				vec3(i / columns, 1, 0),
+				vec3(i / columns, 1, 0)
 			)
 		}
 	}
@@ -35,7 +35,7 @@ class Splash {
 		water_height,
 		water_color,
 		strength = 1,
-		life_time = 5,
+		life_time = 5
 	) {
 		this.start_time = start_time
 		this.x = x
@@ -60,7 +60,7 @@ class Splash {
 			program_state,
 			model_transform,
 			material.override({water_color: this.water_color}),
-			'TRIANGLE_STRIP',
+			'TRIANGLE_STRIP'
 		)
 	}
 
@@ -72,14 +72,14 @@ export class SplashEffect {
 	constructor() {
 		this.cylinder = new CylinderStrip(100)
 		this.material = new Material(new SplashShader(), {
-			texture: new Texture('assets/texture.png'),
+			texture: new Texture('assets/texture.png')
 		})
 		this.splashes = []
 	}
 
 	cleanup(current_time) {
 		this.splashes = this.splashes.filter((splash) =>
-			splash.is_alive(current_time),
+			splash.is_alive(current_time)
 		)
 	}
 
@@ -90,7 +90,7 @@ export class SplashEffect {
 		water_height,
 		water_color,
 		strength = 1,
-		life_time = 0.5,
+		life_time = 0.5
 	) {
 		const splash = new Splash(
 			start_time,
@@ -99,7 +99,7 @@ export class SplashEffect {
 			water_height,
 			water_color,
 			strength,
-			life_time,
+			life_time
 		)
 		this.splashes.push(splash)
 	}
@@ -113,7 +113,7 @@ export class SplashEffect {
 				program_state,
 				current_time,
 				this.cylinder,
-				this.material,
+				this.material
 			)
 		}
 	}

@@ -15,7 +15,7 @@ const {
 	Material,
 	Shader,
 	Texture,
-	Scene,
+	Scene
 } = tiny
 
 Object.assign(tiny, widgets)
@@ -40,7 +40,7 @@ const Triangle = (defs.Triangle = class Triangle extends Shape {
 		this.arrays.texture_coord = [
 			Vector.of(0, 0),
 			Vector.of(1, 0),
-			Vector.of(0, 1),
+			Vector.of(0, 1)
 		]
 		// Index into our vertices to connect them into a whole triangle:
 		this.indices = [0, 1, 2]
@@ -63,13 +63,13 @@ const Square = (defs.Square = class Square extends Shape {
 			[-1, -1, 0],
 			[1, -1, 0],
 			[-1, 1, 0],
-			[1, 1, 0],
+			[1, 1, 0]
 		)
 		this.arrays.normal = Vector3.cast(
 			[0, 0, 1],
 			[0, 0, 1],
 			[0, 0, 1],
-			[0, 0, 1],
+			[0, 0, 1]
 		)
 		// Arrange the vertices into a square shape in texture space too:
 		this.arrays.texture_coord = Vector.cast([0, 0], [1, 0], [0, 1], [1, 1])
@@ -94,13 +94,13 @@ const Tetrahedron = (defs.Tetrahedron = class Tetrahedron extends Shape {
 				[0, 0, 0],
 				[1, 0, 0],
 				[0, 1, 0],
-				[0, 0, 1],
+				[0, 0, 1]
 			)
 			this.arrays.normal = Vec.cast(
 				[-a, -a, -a],
 				[1, 0, 0],
 				[0, 1, 0],
-				[0, 0, 1],
+				[0, 0, 1]
 			)
 			this.arrays.texture_coord = Vec.cast([0, 0], [1, 0], [0, 1], [1, 1])
 			// Notice the repeats in the index list.  Vertices are shared
@@ -120,7 +120,7 @@ const Tetrahedron = (defs.Tetrahedron = class Tetrahedron extends Shape {
 				[0, 0, 1],
 				[0, 0, 1],
 				[1, 0, 0],
-				[0, 1, 0],
+				[0, 1, 0]
 			)
 
 			// The essence of flat shading:  This time, values of normal vectors can
@@ -137,7 +137,7 @@ const Tetrahedron = (defs.Tetrahedron = class Tetrahedron extends Shape {
 				[-1, 0, 0],
 				[a, a, a],
 				[a, a, a],
-				[a, a, a],
+				[a, a, a]
 			)
 
 			// Each face in Method 2 also gets its own set of texture coords (half the
@@ -156,7 +156,7 @@ const Tetrahedron = (defs.Tetrahedron = class Tetrahedron extends Shape {
 				[1, 1],
 				[0, 0],
 				[1, 0],
-				[1, 1],
+				[1, 1]
 			)
 			// Notice all vertices are unique this time.
 			this.indices.push(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
@@ -178,7 +178,7 @@ const Windmill = (defs.Windmill = class Windmill extends Shape {
 			const triangle = [
 				newPoint, // Store that XZ position as point 1.
 				newPoint.plus([0, 1, 0]), // Store it again but with higher y coord as point 2.
-				vec3(0, 0, 0),
+				vec3(0, 0, 0)
 			] // All triangles touch this location -- point 3.
 
 			this.arrays.position.push(...triangle)
@@ -209,10 +209,10 @@ const Cube = (defs.Cube = class Cube extends Shape {
 					i == 0 ? Math.PI / 2 : 0,
 					1,
 					0,
-					0,
+					0
 				)
 					.times(
-						Mat4.rotation(Math.PI * j - (i == 1 ? Math.PI / 2 : 0), 0, 1, 0),
+						Mat4.rotation(Math.PI * j - (i == 1 ? Math.PI / 2 : 0), 0, 1, 0)
 					)
 					.times(Mat4.translation(0, 0, 1))
 				// Calling this function of a Square (or any Shape) copies it into the specified
@@ -239,7 +239,7 @@ const Subdivision_Sphere =
 				[0, 0, -1],
 				[0, 0.9428, 0.3333],
 				[-0.8165, -0.4714, 0.3333],
-				[0.8165, -0.4714, 0.3333],
+				[0.8165, -0.4714, 0.3333]
 			]
 			this.arrays.position = Vector3.cast(...tetrahedron)
 			// Begin recursion:
@@ -260,8 +260,8 @@ const Subdivision_Sphere =
 				this.arrays.texture_coord.push(
 					Vector.of(
 						0.5 - Math.atan2(p[2], p[0]) / (2 * Math.PI),
-						0.5 + Math.asin(p[1]) / Math.PI,
-					),
+						0.5 + Math.asin(p[1]) / Math.PI
+					)
 				)
 			}
 
@@ -275,14 +275,14 @@ const Subdivision_Sphere =
 					[
 						[a, b],
 						[a, c],
-						[b, c],
+						[b, c]
 					].some((x) => Math.abs(tex[x[0]][0] - tex[x[1]][0]) > 0.5) &&
 					[a, b, c].some((x) => tex[x][0] < 0.5)
 				) {
 					for (let q of [
 						[a, i],
 						[b, i + 1],
-						[c, i + 2],
+						[c, i + 2]
 					]) {
 						if (tex[q[0]][0] < 0.5) {
 							this.indices[q[1]] = this.arrays.position.length
@@ -338,8 +338,8 @@ const Grid_Patch = (defs.Grid_Patch = class Grid_Patch extends Shape {
 		next_column_function,
 		texture_coord_range = [
 			[0, rows],
-			[0, columns],
-		],
+			[0, columns]
+		]
 	) {
 		super('position', 'normal', 'texture_coord')
 		let points = []
@@ -350,7 +350,7 @@ const Grid_Patch = (defs.Grid_Patch = class Grid_Patch extends Shape {
 			// and the previous point if it existed.
 			points[r][0] = next_row_function(
 				r / rows,
-				points[r - 1] && points[r - 1][0],
+				points[r - 1] && points[r - 1][0]
 			)
 		}
 		for (let r = 0; r <= rows; r++) {
@@ -360,7 +360,7 @@ const Grid_Patch = (defs.Grid_Patch = class Grid_Patch extends Shape {
 					points[r][c] = next_column_function(
 						c / columns,
 						points[r][c - 1],
-						r / rows,
+						r / rows
 					)
 
 				this.arrays.position.push(points[r][c])
@@ -372,8 +372,8 @@ const Grid_Patch = (defs.Grid_Patch = class Grid_Patch extends Shape {
 				this.arrays.texture_coord.push(
 					vec(
 						a1 * x_range[1] + (1 - a1) * x_range[0],
-						a2 * y_range[1] + (1 - a2) * y_range[0],
-					),
+						a2 * y_range[1] + (1 - a2) * y_range[0]
+					)
 				)
 			}
 		}
@@ -389,7 +389,7 @@ const Grid_Patch = (defs.Grid_Patch = class Grid_Patch extends Shape {
 					[-1, 0],
 					[0, 1],
 					[1, 0],
-					[0, -1],
+					[0, -1]
 				].entries())
 					neighbors[i] = points[r + dir[1]] && points[r + dir[1]][c + dir[0]]
 				// Leave "undefined" in the array wherever
@@ -399,9 +399,7 @@ const Grid_Patch = (defs.Grid_Patch = class Grid_Patch extends Shape {
 				for (let i = 0; i < 4; i++)
 					if (neighbors[i] && neighbors[(i + 1) % 4])
 						normal = normal.plus(
-							neighbors[i]
-								.minus(curr)
-								.cross(neighbors[(i + 1) % 4].minus(curr)),
+							neighbors[i].minus(curr).cross(neighbors[(i + 1) % 4].minus(curr))
 						)
 				normal.normalize()
 				// Normalize the sum to get the average vector.
@@ -423,7 +421,7 @@ const Grid_Patch = (defs.Grid_Patch = class Grid_Patch extends Shape {
 					this.indices.push(
 						h * (columns + 1) +
 							columns * ((i + (j % 2)) % 2) +
-							(~~((j % 3) / 2) ? ~~(i / 2) + 2 * (i % 2) : ~~(i / 2) + 1),
+							(~~((j % 3) / 2) ? ~~(i / 2) + 2 * (i % 2) : ~~(i / 2) + 1)
 					)
 		}
 	}
@@ -449,7 +447,7 @@ const Surface_Of_Revolution =
 			columns,
 			points,
 			texture_coord_range,
-			total_curvature_angle = 2 * Math.PI,
+			total_curvature_angle = 2 * Math.PI
 		) {
 			const row_operation = (i) => Grid_Patch.sample_array(points, i),
 				column_operation = (j, p) =>
@@ -471,7 +469,7 @@ const Regular_2D_Polygon =
 			this.arrays.normal = this.arrays.normal.map((x) => vec3(0, 0, 1))
 			this.arrays.texture_coord.forEach(
 				(x, i, a) =>
-					(a[i] = this.arrays.position[i].map((x) => x / 2 + 0.5).slice(0, 2)),
+					(a[i] = this.arrays.position[i].map((x) => x / 2 + 0.5).slice(0, 2))
 			)
 		}
 	})
@@ -486,7 +484,7 @@ const Cylindrical_Tube =
 				rows,
 				columns,
 				Vector3.cast([1, 0, 0.5], [1, 0, -0.5]),
-				texture_range,
+				texture_range
 			)
 		}
 	})
@@ -509,13 +507,13 @@ const Torus = (defs.Torus = class Torus extends Shape {
 					.times(Mat4.rotation((i / (a.length - 1)) * 2 * Math.PI, 0, -1, 0))
 					.times(Mat4.scale(1, 1, 3))
 					.times(p.to4(1))
-					.to3(),
+					.to3()
 			)
 		Surface_Of_Revolution.insert_transformed_copy_into(this, [
 			rows,
 			columns,
 			circle_points,
-			texture_range,
+			texture_range
 		])
 	}
 })
@@ -530,14 +528,14 @@ const Grid_Sphere = (defs.Grid_Sphere = class Grid_Sphere extends Shape {
 			.map((x, i, a) =>
 				Mat4.rotation((i / (a.length - 1)) * Math.PI, 0, 1, 0)
 					.times(x.to4(1))
-					.to3(),
+					.to3()
 			)
 
 		Surface_Of_Revolution.insert_transformed_copy_into(this, [
 			rows,
 			columns,
 			semi_circle_points,
-			texture_range,
+			texture_range
 		])
 	}
 })
@@ -550,7 +548,7 @@ const Closed_Cone = (defs.Closed_Cone = class Closed_Cone extends Shape {
 		Regular_2D_Polygon.insert_transformed_copy_into(
 			this,
 			[1, columns],
-			Mat4.rotation(Math.PI, 0, 1, 0).times(Mat4.translation(0, 0, 1)),
+			Mat4.rotation(Math.PI, 0, 1, 0).times(Mat4.translation(0, 0, 1))
 		)
 	}
 })
@@ -565,7 +563,7 @@ const Rounded_Closed_Cone =
 				rows,
 				columns,
 				[vec3(0, 0, 1), vec3(1, 0, -1), vec3(0, 0, -1)],
-				texture_range,
+				texture_range
 			)
 		}
 	})
@@ -580,17 +578,17 @@ const Capped_Cylinder = (defs.Capped_Cylinder = class Capped_Cylinder extends (
 		Cylindrical_Tube.insert_transformed_copy_into(this, [
 			rows,
 			columns,
-			texture_range,
+			texture_range
 		])
 		Regular_2D_Polygon.insert_transformed_copy_into(
 			this,
 			[1, columns],
-			Mat4.translation(0, 0, 0.5),
+			Mat4.translation(0, 0, 0.5)
 		)
 		Regular_2D_Polygon.insert_transformed_copy_into(
 			this,
 			[1, columns],
-			Mat4.rotation(Math.PI, 0, 1, 0).times(Mat4.translation(0, 0, 0.5)),
+			Mat4.rotation(Math.PI, 0, 1, 0).times(Mat4.translation(0, 0, 0.5))
 		)
 	}
 })
@@ -605,7 +603,7 @@ const Rounded_Capped_Cylinder =
 				rows,
 				columns,
 				[vec3(0, 0, 0.5), vec3(1, 0, 0.5), vec3(1, 0, -0.5), vec3(0, 0, -0.5)],
-				texture_range,
+				texture_range
 			)
 		}
 	})
@@ -618,25 +616,25 @@ const Axis_Arrows = (defs.Axis_Arrows = class Axis_Arrows extends Shape {
 		Subdivision_Sphere.insert_transformed_copy_into(
 			this,
 			[3],
-			Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.scale(0.25, 0.25, 0.25)),
+			Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.scale(0.25, 0.25, 0.25))
 		)
 		this.drawOneAxis(Mat4.identity(), [
 			[0.67, 1],
-			[0, 1],
+			[0, 1]
 		])
 		this.drawOneAxis(
 			Mat4.rotation(-Math.PI / 2, 1, 0, 0).times(Mat4.scale(1, -1, 1)),
 			[
 				[0.34, 0.66],
-				[0, 1],
-			],
+				[0, 1]
+			]
 		)
 		this.drawOneAxis(
 			Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.scale(-1, 1, 1)),
 			[
 				[0, 0.33],
-				[0, 1],
-			],
+				[0, 1]
+			]
 		)
 	}
 
@@ -647,33 +645,33 @@ const Axis_Arrows = (defs.Axis_Arrows = class Axis_Arrows extends Shape {
 			[4, 10, tex],
 			transform
 				.times(Mat4.translation(0, 0, 2))
-				.times(Mat4.scale(0.25, 0.25, 0.25)),
+				.times(Mat4.scale(0.25, 0.25, 0.25))
 		)
 		Cube.insert_transformed_copy_into(
 			this,
 			[],
 			transform
 				.times(Mat4.translation(0.95, 0.95, 0.45))
-				.times(Mat4.scale(0.05, 0.05, 0.45)),
+				.times(Mat4.scale(0.05, 0.05, 0.45))
 		)
 		Cube.insert_transformed_copy_into(
 			this,
 			[],
 			transform
 				.times(Mat4.translation(0.95, 0, 0.5))
-				.times(Mat4.scale(0.05, 0.05, 0.4)),
+				.times(Mat4.scale(0.05, 0.05, 0.4))
 		)
 		Cube.insert_transformed_copy_into(
 			this,
 			[],
 			transform
 				.times(Mat4.translation(0, 0.95, 0.5))
-				.times(Mat4.scale(0.05, 0.05, 0.4)),
+				.times(Mat4.scale(0.05, 0.05, 0.4))
 		)
 		Cylindrical_Tube.insert_transformed_copy_into(
 			this,
 			[7, 7, tex],
-			transform.times(Mat4.translation(0, 0, 1)).times(Mat4.scale(0.1, 0.1, 2)),
+			transform.times(Mat4.translation(0, 0, 1)).times(Mat4.scale(0.1, 0.1, 2))
 		)
 	}
 })
@@ -690,7 +688,7 @@ const Minimal_Shape = (defs.Minimal_Shape = class Minimal_Shape extends (
 		this.arrays.color = [
 			color(1, 0, 0, 1),
 			color(0, 1, 0, 1),
-			color(0, 0, 1, 1),
+			color(0, 0, 1, 1)
 		]
 	}
 })
@@ -703,7 +701,7 @@ const Minimal_Webgl_Demo =
 			// Don't create any DOM elements to control this scene:
 			this.widget_options = {
 				make_controls: false,
-				show_explanation: false,
+				show_explanation: false
 			}
 			// Send a Triangle's vertices to the GPU's buffers:
 			this.shapes = {triangle: new Minimal_Shape()}
@@ -716,7 +714,7 @@ const Minimal_Webgl_Demo =
 				context,
 				graphics_state,
 				Mat4.identity(),
-				new Material(this.shader),
+				new Material(this.shader)
 			)
 		}
 	})
@@ -729,19 +727,19 @@ const Basic_Shader = (defs.Basic_Shader = class Basic_Shader extends Shader {
 		gpu_addresses,
 		graphics_state,
 		model_transform,
-		material,
+		material
 	) {
 		// update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
 		const [P, C, M] = [
 				graphics_state.projection_transform,
 				graphics_state.camera_inverse,
-				model_transform,
+				model_transform
 			],
 			PCM = P.times(C).times(M)
 		context.uniformMatrix4fv(
 			gpu_addresses.projection_camera_model_transform,
 			false,
-			Matrix.flatten_2D_to_1D(PCM.transposed()),
+			Matrix.flatten_2D_to_1D(PCM.transposed())
 		)
 	}
 	shared_glsl_code() {
@@ -791,17 +789,17 @@ const Funny_Shader = (defs.Funny_Shader = class Funny_Shader extends Shader {
 		const [P, C, M] = [
 				program_state.projection_transform,
 				program_state.camera_inverse,
-				model_transform,
+				model_transform
 			],
 			PCM = P.times(C).times(M)
 		context.uniformMatrix4fv(
 			gpu_addresses.projection_camera_model_transform,
 			false,
-			Mat.flatten_2D_to_1D(PCM.transposed()),
+			Mat.flatten_2D_to_1D(PCM.transposed())
 		)
 		context.uniform1f(
 			gpu_addresses.animation_time,
-			program_state.animation_time / 1000,
+			program_state.animation_time / 1000
 		)
 	}
 
@@ -977,7 +975,7 @@ const Phong_Shader = (defs.Phong_Shader = class Phong_Shader extends Shader {
 				(acc, r) => {
 					return acc.plus(vec4(...r).times_pairwise(r))
 				},
-				vec4(0, 0, 0, 0),
+				vec4(0, 0, 0, 0)
 			)
 			.to3()
 		gl.uniform3fv(gpu.squared_scale, squared_scale)
@@ -992,12 +990,12 @@ const Phong_Shader = (defs.Phong_Shader = class Phong_Shader extends Shader {
 		gl.uniformMatrix4fv(
 			gpu.model_transform,
 			false,
-			Matrix.flatten_2D_to_1D(model_transform.transposed()),
+			Matrix.flatten_2D_to_1D(model_transform.transposed())
 		)
 		gl.uniformMatrix4fv(
 			gpu.projection_camera_model_transform,
 			false,
-			Matrix.flatten_2D_to_1D(PCM.transposed()),
+			Matrix.flatten_2D_to_1D(PCM.transposed())
 		)
 
 		// Omitting lights will show only the material color, scaled by the ambient term:
@@ -1007,17 +1005,17 @@ const Phong_Shader = (defs.Phong_Shader = class Phong_Shader extends Shader {
 			light_colors_flattened = []
 		for (let i = 0; i < 4 * gpu_state.lights.length; i++) {
 			light_positions_flattened.push(
-				gpu_state.lights[Math.floor(i / 4)].position[i % 4],
+				gpu_state.lights[Math.floor(i / 4)].position[i % 4]
 			)
 			light_colors_flattened.push(
-				gpu_state.lights[Math.floor(i / 4)].color[i % 4],
+				gpu_state.lights[Math.floor(i / 4)].color[i % 4]
 			)
 		}
 		gl.uniform4fv(gpu.light_positions_or_vectors, light_positions_flattened)
 		gl.uniform4fv(gpu.light_colors, light_colors_flattened)
 		gl.uniform1fv(
 			gpu.light_attenuation_factors,
-			gpu_state.lights.map((l) => l.attenuation),
+			gpu_state.lights.map((l) => l.attenuation)
 		)
 	}
 
@@ -1034,7 +1032,7 @@ const Phong_Shader = (defs.Phong_Shader = class Phong_Shader extends Shader {
 			ambient: 0,
 			diffusivity: 1,
 			specularity: 1,
-			smoothness: 40,
+			smoothness: 40
 		}
 		material = Object.assign({}, defaults, material)
 
@@ -1103,7 +1101,7 @@ const Textured_Phong = (defs.Textured_Phong = class Textured_Phong extends (
 			gpu_addresses,
 			gpu_state,
 			model_transform,
-			material,
+			material
 		)
 
 		if (material.texture && material.texture.ready) {
@@ -1161,7 +1159,7 @@ const Movement_Controls =
 				z_axis: vec3(0, 0, 0),
 				radians_per_frame: 1 / 200,
 				meters_per_frame: 20,
-				speed_multiplier: 0.2,
+				speed_multiplier: 0.2
 			}
 			Object.assign(this, data_members)
 
@@ -1182,7 +1180,7 @@ const Movement_Controls =
 			// encountered program_state object.  Targets must be pointer references made using closures.
 			this.set_recipient(
 				() => graphics_state.camera_transform,
-				() => graphics_state.camera_inverse,
+				() => graphics_state.camera_inverse
 			)
 		}
 
@@ -1193,7 +1191,7 @@ const Movement_Controls =
 			const mouse_position = (e, rect = canvas.getBoundingClientRect()) =>
 				vec(
 					e.clientX - (rect.left + rect.right) / 2,
-					e.clientY - (rect.bottom + rect.top) / 2,
+					e.clientY - (rect.bottom + rect.top) / 2
 				)
 			// Set up mouse response.  The last one stops us from reacting if the mouse leaves the canvas:
 			document.addEventListener('mouseup', (e) => {
@@ -1246,28 +1244,28 @@ const Movement_Controls =
 				['w'],
 				() => (this.thrust[2] = 1),
 				undefined,
-				() => (this.thrust[2] = 0),
+				() => (this.thrust[2] = 0)
 			)
 			this.key_triggered_button(
 				'Left',
 				['a'],
 				() => (this.thrust[0] = 1),
 				undefined,
-				() => (this.thrust[0] = 0),
+				() => (this.thrust[0] = 0)
 			)
 			this.key_triggered_button(
 				'Back',
 				['s'],
 				() => (this.thrust[2] = -1),
 				undefined,
-				() => (this.thrust[2] = 0),
+				() => (this.thrust[2] = 0)
 			)
 			this.key_triggered_button(
 				'Right',
 				['d'],
 				() => (this.thrust[0] = -1),
 				undefined,
-				() => (this.thrust[0] = 0),
+				() => (this.thrust[0] = 0)
 			)
 			this.new_line()
 			this.new_line()
@@ -1277,14 +1275,14 @@ const Movement_Controls =
 				['ArrowUp'],
 				() => (this.thrust[1] = -1),
 				undefined,
-				() => (this.thrust[1] = 0),
+				() => (this.thrust[1] = 0)
 			)
 			this.key_triggered_button(
 				'Down',
 				['ArrowDown'],
 				() => (this.thrust[1] = 1),
 				undefined,
-				() => (this.thrust[1] = 0),
+				() => (this.thrust[1] = 0)
 			)
 			this.new_line()
 			this.new_line()
@@ -1320,14 +1318,14 @@ const Movement_Controls =
 				['Control', 'a'],
 				() => (this.roll = -0.2),
 				undefined,
-				() => (this.roll = 0),
+				() => (this.roll = 0)
 			)
 			this.key_triggered_button(
 				'Turn right',
 				['Control', 'd'],
 				() => (this.roll = 0.2),
 				undefined,
-				() => (this.roll = 0),
+				() => (this.roll = 0)
 			)
 			this.new_line()
 			this.new_line()
@@ -1339,7 +1337,7 @@ const Movement_Controls =
 					this.matrix().set_identity(4, 4)
 					this.inverse().set_identity(4, 4)
 				},
-				'#8B8885',
+				'#8B8885'
 			)
 
 			//   this.new_line()
@@ -1440,12 +1438,12 @@ const Movement_Controls =
 			const offsets_from_dead_box = {
 				plus: [
 					this.mouse.from_center[0] + leeway,
-					this.mouse.from_center[1] + leeway,
+					this.mouse.from_center[1] + leeway
 				],
 				minus: [
 					this.mouse.from_center[0] - leeway,
-					this.mouse.from_center[1] - leeway,
-				],
+					this.mouse.from_center[1] - leeway
+				]
 			}
 			// Apply a camera rotation movement, but only when the mouse is
 			// past a minimum distance (leeway) from the canvas's center:
@@ -1466,10 +1464,10 @@ const Movement_Controls =
 			this.inverse().pre_multiply(Mat4.rotation(+0.1 * this.roll, 0, 1, 0))
 			// Now apply translation movement of the camera, in the newest local coordinate frame.
 			this.matrix().post_multiply(
-				Mat4.translation(...this.thrust.times(-meters_per_frame)),
+				Mat4.translation(...this.thrust.times(-meters_per_frame))
 			)
 			this.inverse().pre_multiply(
-				Mat4.translation(...this.thrust.times(+meters_per_frame)),
+				Mat4.translation(...this.thrust.times(+meters_per_frame))
 			)
 		}
 
@@ -1485,7 +1483,7 @@ const Movement_Controls =
 				radians_per_frame * dragging_vector.norm(),
 				dragging_vector[1],
 				dragging_vector[0],
-				0,
+				0
 			)
 			this.matrix().post_multiply(rotation)
 			this.inverse().pre_multiply(rotation)
@@ -1497,7 +1495,7 @@ const Movement_Controls =
 		display(
 			context,
 			graphics_state,
-			dt = graphics_state.animation_delta_time / 1000,
+			dt = graphics_state.animation_delta_time / 1000
 		) {
 			// The whole process of acting upon controls begins here.
 			const m = this.speed_multiplier * this.meters_per_frame,
@@ -1532,7 +1530,7 @@ const Program_State_Viewer =
 			this.key_triggered_button(
 				'(Un)pause animation',
 				['Alt', 'a'],
-				() => (this.program_state.animate ^= 1),
+				() => (this.program_state.animate ^= 1)
 			)
 		}
 

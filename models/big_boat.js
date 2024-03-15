@@ -8,7 +8,7 @@ export class BigBoat {
 	constructor() {
 		this.model = new Shape_From_File('assets/big_boat.obj')
 		this.material = new Material(new BoatShader(), {
-			texture: new Texture('assets/big_boat_texture.png'),
+			texture: new Texture('assets/big_boat_texture.png')
 		})
 	}
 
@@ -18,8 +18,8 @@ export class BigBoat {
 			program_state,
 			model_transform,
 			this.material.override({
-				health: healthPercentage,
-			}),
+				health: healthPercentage
+			})
 		)
 	}
 }

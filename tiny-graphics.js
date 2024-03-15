@@ -141,7 +141,7 @@ const Vector = (tiny.Vector = class Vector extends Float32Array {
 		return vec3(
 			this[1] * b[2] - this[2] * b[1],
 			this[2] * b[0] - this[0] * b[2],
-			this[0] * b[1] - this[1] * b[0],
+			this[0] * b[1] - this[1] * b[0]
 		)
 	}
 
@@ -233,7 +233,7 @@ const Vector3 = (tiny.Vector3 = class Vector3 extends Float32Array {
 		return vec3(
 			this[0] + s * (Math.random() - 0.5),
 			this[1] + s * (Math.random() - 0.5),
-			this[2] + s * (Math.random() - 0.5),
+			this[2] + s * (Math.random() - 0.5)
 		)
 	}
 
@@ -241,7 +241,7 @@ const Vector3 = (tiny.Vector3 = class Vector3 extends Float32Array {
 		return vec3(
 			(1 - s) * this[0] + s * b[0],
 			(1 - s) * this[1] + s * b[1],
-			(1 - s) * this[2] + s * b[2],
+			(1 - s) * this[2] + s * b[2]
 		)
 	}
 
@@ -269,12 +269,12 @@ const Vector3 = (tiny.Vector3 = class Vector3 extends Float32Array {
 		return vec3(
 			this[1] * b[2] - this[2] * b[1],
 			this[2] * b[0] - this[0] * b[2],
-			this[0] * b[1] - this[1] * b[0],
+			this[0] * b[1] - this[1] * b[0]
 		)
 	}
 
 	to4(
-		is_a_point, // to4():  Convert to a homogeneous vector of 4 values.
+		is_a_point // to4():  Convert to a homogeneous vector of 4 values.
 	) {
 		return vec4(this[0], this[1], this[2], +is_a_point)
 	}
@@ -370,7 +370,7 @@ const Vector4 = (tiny.Vector4 = class Vector4 extends Float32Array {
 			this[0] + s * (Math.random() - 0.5),
 			this[1] + s * (Math.random() - 0.5),
 			this[2] + s * (Math.random() - 0.5),
-			this[3] + s * (Math.random() - 0.5),
+			this[3] + s * (Math.random() - 0.5)
 		)
 	}
 
@@ -379,7 +379,7 @@ const Vector4 = (tiny.Vector4 = class Vector4 extends Float32Array {
 			(1 - s) * this[0] + s * b[0],
 			(1 - s) * this[1] + s * b[1],
 			(1 - s) * this[2] + s * b[2],
-			(1 - s) * this[3] + s * b[3],
+			(1 - s) * this[3] + s * b[3]
 		)
 	}
 
@@ -496,7 +496,7 @@ const Matrix = (tiny.Matrix = class Matrix extends Array {
 
 	sub_block(start, end) {
 		return Matrix.from(
-			this.slice(start[0], end[0]).map((r) => r.slice(start[1], end[1])),
+			this.slice(start[0], end[0]).map((r) => r.slice(start[1], end[1]))
 		)
 	}
 
@@ -583,7 +583,7 @@ const Mat4 = (tiny.Mat4 = class Mat4 extends Matrix {
 			[i * i * omc + c, i * j * omc - k * s, i * k * omc + j * s, 0],
 			[i * j * omc + k * s, j * j * omc + c, j * k * omc - i * s, 0],
 			[i * k * omc - j * s, j * k * omc + i * s, k * k * omc + c, 0],
-			[0, 0, 0, 1],
+			[0, 0, 0, 1]
 		)
 	}
 
@@ -615,14 +615,14 @@ const Mat4 = (tiny.Mat4 = class Mat4 extends Matrix {
 		if (!x.every((i) => i == i)) throw 'Two parallel vectors were given'
 		z.scale_by(-1) // Enforce right-handed coordinate system.
 		return Mat4.translation(-x.dot(eye), -y.dot(eye), -z.dot(eye)).times(
-			Matrix.of(x.to4(0), y.to4(0), z.to4(0), vec4(0, 0, 0, 1)),
+			Matrix.of(x.to4(0), y.to4(0), z.to4(0), vec4(0, 0, 0, 1))
 		)
 	}
 
 	static orthographic(left, right, bottom, top, near, far) {
 		// orthographic(): Box-shaped view volume for projection.
 		return Mat4.scale(
-			vec3(1 / (right - left), 1 / (top - bottom), 1 / (far - near)),
+			vec3(1 / (right - left), 1 / (top - bottom), 1 / (far - near))
 		)
 			.times(Mat4.translation(vec3(-left - right, -top - bottom, -near - far)))
 			.times(Mat4.scale(vec3(2, 2, -2)))
@@ -636,7 +636,7 @@ const Mat4 = (tiny.Mat4 = class Mat4 extends Matrix {
 			[f / aspect, 0, 0, 0],
 			[0, f, 0, 0],
 			[0, 0, -(near + far) / d, (-2 * near * far) / d],
-			[0, 0, -1, 0],
+			[0, 0, -1, 0]
 		)
 	}
 
@@ -778,7 +778,7 @@ const Mat4 = (tiny.Mat4 = class Mat4 extends Matrix {
 				(m00 * result[0][0] +
 					m10 * result[0][1] +
 					m20 * result[0][2] +
-					m30 * result[0][3]),
+					m30 * result[0][3])
 		)
 	}
 })
@@ -793,7 +793,7 @@ const Keyboard_Manager = (tiny.Keyboard_Manager = class Keyboard_Manager {
 	// additional behavior besides the callback itself on each assigned key action.
 	constructor(
 		target = document,
-		callback_behavior = (callback, event) => callback(event),
+		callback_behavior = (callback, event) => callback(event)
 	) {
 		this.saved_controls = {}
 		this.actively_pressed_keys = new Set()
@@ -813,7 +813,7 @@ const Keyboard_Manager = (tiny.Keyboard_Manager = class Keyboard_Manager {
 			// Re-check all the keydown handlers.
 			if (
 				saved.shortcut_combination.every((s) =>
-					this.actively_pressed_keys.has(s),
+					this.actively_pressed_keys.has(s)
 				) &&
 				event.ctrlKey == saved.shortcut_combination.includes('Control') &&
 				event.shiftKey == saved.shortcut_combination.includes('Shift') &&
@@ -833,7 +833,7 @@ const Keyboard_Manager = (tiny.Keyboard_Manager = class Keyboard_Manager {
 		const lifted_key_symbols = [
 			event.key,
 			upper_symbols[lower_symbols.indexOf(event.key)],
-			lower_symbols[upper_symbols.indexOf(event.key)],
+			lower_symbols[upper_symbols.indexOf(event.key)]
 		]
 		// Call keyup for any shortcuts
 		for (let saved of Object.values(this.saved_controls)) // that depended on the released
@@ -852,7 +852,7 @@ const Keyboard_Manager = (tiny.Keyboard_Manager = class Keyboard_Manager {
 		this.saved_controls[shortcut_combination.join('+')] = {
 			shortcut_combination,
 			callback,
-			keyup_callback,
+			keyup_callback
 		}
 	}
 })
@@ -933,7 +933,7 @@ const Vertex_Buffer = (tiny.Vertex_Buffer = class Vertex_Buffer extends (
 	copy_onto_graphics_card(
 		context,
 		selection_of_arrays = Object.keys(this.arrays),
-		write_to_indices = true,
+		write_to_indices = true
 	) {
 		// copy_onto_graphics_card():  Called automatically as needed to load this vertex array set onto
 		// one of your GPU contexts for its first time.  Send the completed vertex and index lists to
@@ -943,7 +943,7 @@ const Vertex_Buffer = (tiny.Vertex_Buffer = class Vertex_Buffer extends (
 
 		// Define what this object should store in each new WebGL Context:
 		const initial_gpu_representation = {
-			webGL_buffer_pointers: {},
+			webGL_buffer_pointers: {}
 		}
 		// Our object might need to register to multiple GPU contexts in the case of
 		// multiple drawing areas.  If this is a new GPU context for this object,
@@ -952,7 +952,7 @@ const Vertex_Buffer = (tiny.Vertex_Buffer = class Vertex_Buffer extends (
 		const did_exist = this.gpu_instances.get(context)
 		const gpu_instance = super.copy_onto_graphics_card(
 			context,
-			initial_gpu_representation,
+			initial_gpu_representation
 		)
 
 		const gl = context
@@ -978,7 +978,7 @@ const Vertex_Buffer = (tiny.Vertex_Buffer = class Vertex_Buffer extends (
 	execute_shaders(
 		gl,
 		gpu_instance,
-		type, // execute_shaders(): Draws this shape's entire vertex buffer.
+		type // execute_shaders(): Draws this shape's entire vertex buffer.
 	) {
 		// Draw shapes using indices if they exist.  Otherwise, assume the vertices are arranged as triples.
 		if (this.indices.length) {
@@ -992,7 +992,7 @@ const Vertex_Buffer = (tiny.Vertex_Buffer = class Vertex_Buffer extends (
 		program_state,
 		model_transform,
 		material,
-		type = 'TRIANGLES',
+		type = 'TRIANGLES'
 	) {
 		// draw():  To appear onscreen, a shape of any variety goes through this function,
 		// which executes the shader programs.  The shaders draw the right shape due to
@@ -1003,7 +1003,7 @@ const Vertex_Buffer = (tiny.Vertex_Buffer = class Vertex_Buffer extends (
 			gpu_instance.webGL_buffer_pointers,
 			program_state,
 			model_transform,
-			material,
+			material
 		)
 		// Run the shaders to draw every triangle now:
 		this.execute_shaders(webgl_manager.context, gpu_instance, type)
@@ -1040,7 +1040,7 @@ const Shape = (tiny.Shape = class Shape extends Vertex_Buffer {
 	static insert_transformed_copy_into(
 		recipient,
 		args,
-		points_transform = Mat4.identity(),
+		points_transform = Mat4.identity()
 	) {
 		// insert_transformed_copy_into():  For building compound shapes.  A copy of this shape is made
 		// and inserted into any recipient shape you pass in.  Compound shapes help reduce draw calls
@@ -1050,7 +1050,7 @@ const Shape = (tiny.Shape = class Shape extends Vertex_Buffer {
 		// the recipient, you'll run into trouble when the recursion tree stops at different depths.
 		const temp_shape = new this(...args)
 		recipient.indices.push(
-			...temp_shape.indices.map((i) => i + recipient.arrays.position.length),
+			...temp_shape.indices.map((i) => i + recipient.arrays.position.length)
 		)
 		// Copy each array from temp_shape into the recipient shape:
 		for (let a in temp_shape.arrays) {
@@ -1058,15 +1058,15 @@ const Shape = (tiny.Shape = class Shape extends Vertex_Buffer {
 			if (a == 'position' || a == 'tangents')
 				recipient.arrays[a].push(
 					...temp_shape.arrays[a].map((p) =>
-						points_transform.times(p.to4(1)).to3(),
-					),
+						points_transform.times(p.to4(1)).to3()
+					)
 				)
 			// Do the same for normals, but use the inverse transpose matrix as math requires:
 			else if (a == 'normal')
 				recipient.arrays[a].push(
 					...temp_shape.arrays[a].map((n) =>
-						Mat4.inverse(points_transform.transposed()).times(n.to4(1)).to3(),
-					),
+						Mat4.inverse(points_transform.transposed()).times(n.to4(1)).to3()
+					)
 				)
 			// All other arrays get copied in unmodified:
 			else recipient.arrays[a].push(...temp_shape.arrays[a])
@@ -1117,7 +1117,7 @@ const Shape = (tiny.Shape = class Shape extends Vertex_Buffer {
 				? [
 						this.indices[counter],
 						this.indices[counter + 1],
-						this.indices[counter + 2],
+						this.indices[counter + 2]
 					]
 				: [counter, counter + 1, counter + 2]
 			const [p1, p2, p3] = indices.map((i) => this.arrays.position[i])
@@ -1134,21 +1134,21 @@ const Shape = (tiny.Shape = class Shape extends Vertex_Buffer {
 		let p_arr = this.arrays.position
 		const average_position = p_arr.reduce(
 			(acc, p) => acc.plus(p.times(1 / p_arr.length)),
-			vec3(0, 0, 0),
+			vec3(0, 0, 0)
 		)
 		p_arr = p_arr.map((p) => p.minus(average_position)) // Center the point cloud on the origin.
 		const average_lengths = p_arr.reduce(
 			(acc, p) => acc.plus(p.map((x) => Math.abs(x)).times(1 / p_arr.length)),
-			vec3(0, 0, 0),
+			vec3(0, 0, 0)
 		)
 		if (keep_aspect_ratios) {
 			// Divide each axis by its average distance from the origin.
 			this.arrays.position = p_arr.map((p) =>
-				p.map((x, i) => x / average_lengths[i]),
+				p.map((x, i) => x / average_lengths[i])
 			)
 		} else
 			this.arrays.position = p_arr.map((p) =>
-				p.times(1 / average_lengths.norm()),
+				p.times(1 / average_lengths.norm())
 			)
 	}
 })
@@ -1164,7 +1164,7 @@ const Light = (tiny.Light = class Light {
 		Object.assign(this, {
 			position,
 			color,
-			attenuation: 1 / size,
+			attenuation: 1 / size
 		})
 	}
 })
@@ -1189,7 +1189,7 @@ const Graphics_Addresses = (tiny.Graphics_Addresses = class Graphics_Addresses {
 			0x1406: 1,
 			0x8b50: 2,
 			0x8b51: 3,
-			0x8b52: 4,
+			0x8b52: 4
 		}
 		const numAttribs = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES)
 		for (let i = 0; i < numAttribs; i++) {
@@ -1203,7 +1203,7 @@ const Graphics_Addresses = (tiny.Graphics_Addresses = class Graphics_Addresses {
 				type: gl.FLOAT,
 				normalized: false,
 				stride: 0,
-				pointer: 0,
+				pointer: 0
 			}
 		}
 	}
@@ -1216,7 +1216,7 @@ const Container = (tiny.Container = class Container {
 	// a new object.  For shorthand you can leave off the key and only provide a value (pass in directly as
 	// "replacement") and a guess will be used for which member you want overridden based on type.
 	override(
-		replacement, // override(): Generate a copy by value, replacing certain properties.
+		replacement // override(): Generate a copy by value, replacing certain properties.
 	) {
 		return this.helper(replacement, Object.create(this.constructor.prototype))
 	}
@@ -1234,12 +1234,12 @@ const Container = (tiny.Container = class Container {
 			return Object.assign(target, replacement)
 		// Otherwise we'll try to guess the key to override by type:
 		const matching_keys_by_type = Object.entries(this).filter(
-			([key, value]) => replacement instanceof value.constructor,
+			([key, value]) => replacement instanceof value.constructor
 		)
 		if (!matching_keys_by_type[0])
 			throw "Container: Can't figure out which value you're trying to replace; nothing matched by type."
 		return Object.assign(target, {
-			[matching_keys_by_type[0][0]]: replacement,
+			[matching_keys_by_type[0][0]]: replacement
 		})
 	}
 })
@@ -1275,7 +1275,7 @@ const Shader = (tiny.Shader = class Shader extends Graphics_Card_Object {
 			program: undefined,
 			gpu_addresses: undefined,
 			vertShdr: undefined,
-			fragShdr: undefined,
+			fragShdr: undefined
 		}
 		// Our object might need to register to multiple GPU contexts in the case of
 		// multiple drawing areas.  If this is a new GPU context for this object,
@@ -1283,7 +1283,7 @@ const Shader = (tiny.Shader = class Shader extends Graphics_Card_Object {
 		// copied over, so get a pointer to the existing instance.
 		const gpu_instance = super.copy_onto_graphics_card(
 			context,
-			initial_gpu_representation,
+			initial_gpu_representation
 		)
 
 		const gl = context
@@ -1315,7 +1315,7 @@ const Shader = (tiny.Shader = class Shader extends Graphics_Card_Object {
 			program,
 			vertShdr,
 			fragShdr,
-			gpu_addresses: new Graphics_Addresses(program, gl),
+			gpu_addresses: new Graphics_Addresses(program, gl)
 		})
 		return gpu_instance
 	}
@@ -1332,12 +1332,12 @@ const Shader = (tiny.Shader = class Shader extends Graphics_Card_Object {
 			gpu_instance.gpu_addresses,
 			program_state,
 			model_transform,
-			material,
+			material
 		)
 
 		// --- Turn on all the correct attributes and make sure they're pointing to the correct ranges in GPU memory. ---
 		for (let [attr_name, attribute] of Object.entries(
-			gpu_instance.gpu_addresses.shader_attributes,
+			gpu_instance.gpu_addresses.shader_attributes
 		)) {
 			if (!attribute.enabled) {
 				if (attribute.index >= 0)
@@ -1353,7 +1353,7 @@ const Shader = (tiny.Shader = class Shader extends Graphics_Card_Object {
 				attribute.type,
 				attribute.normalized,
 				attribute.stride,
-				attribute.pointer,
+				attribute.pointer
 			)
 			// Populate each attribute
 			// from the active buffer.
@@ -1431,7 +1431,7 @@ const Texture = (tiny.Texture = class Texture extends Graphics_Card_Object {
 
 		// Define what this object should store in each new WebGL Context:
 		const initial_gpu_representation = {
-			texture_buffer_pointer: undefined,
+			texture_buffer_pointer: undefined
 		}
 		// Our object might need to register to multiple GPU contexts in the case of
 		// multiple drawing areas.  If this is a new GPU context for this object,
@@ -1439,7 +1439,7 @@ const Texture = (tiny.Texture = class Texture extends Graphics_Card_Object {
 		// copied over, so get a pointer to the existing instance.
 		const gpu_instance = super.copy_onto_graphics_card(
 			context,
-			initial_gpu_representation,
+			initial_gpu_representation
 		)
 
 		if (!gpu_instance.texture_buffer_pointer)
@@ -1455,7 +1455,7 @@ const Texture = (tiny.Texture = class Texture extends Graphics_Card_Object {
 			gl.texParameteri(
 				gl.TEXTURE_2D,
 				gl.TEXTURE_MIN_FILTER,
-				gl[this.min_filter],
+				gl[this.min_filter]
 			)
 			// Let the user to set the sampling method
 			// when zoomed in.
@@ -1467,7 +1467,7 @@ const Texture = (tiny.Texture = class Texture extends Graphics_Card_Object {
 			gl.RGBA,
 			gl.RGBA,
 			gl.UNSIGNED_BYTE,
-			this.image,
+			this.image
 		)
 		if (this.min_filter == 'LINEAR_MIPMAP_LINEAR')
 			gl.generateMipmap(gl.TEXTURE_2D)
@@ -1497,7 +1497,7 @@ const Program_State = (tiny.Program_State = class Program_State extends (
 	// Program_State's particular values over to your custom shader program.
 	constructor(
 		camera_transform = Mat4.identity(),
-		projection_transform = Mat4.identity(),
+		projection_transform = Mat4.identity()
 	) {
 		super()
 		this.set_camera(camera_transform)
@@ -1505,7 +1505,7 @@ const Program_State = (tiny.Program_State = class Program_State extends (
 			projection_transform,
 			animate: true,
 			animation_time: 0,
-			animation_delta_time: 0,
+			animation_delta_time: 0
 		}
 		Object.assign(this, defaults)
 	}
@@ -1518,7 +1518,7 @@ const Program_State = (tiny.Program_State = class Program_State extends (
 		// so that's the one this function expects to receive; it automatically sets the other.
 		Object.assign(this, {
 			camera_transform: Mat4.inverse(matrix),
-			camera_inverse: matrix,
+			camera_inverse: matrix
 		})
 	}
 })
@@ -1533,7 +1533,7 @@ const Webgl_Manager = (tiny.Webgl_Manager = class Webgl_Manager {
 			prev_time: 0,
 			canvas,
 			scratchpad: {},
-			program_state: new Program_State(),
+			program_state: new Program_State()
 		}
 		Object.assign(this, members)
 		// Get the GPU ready, creating a new WebGL context for this canvas:
@@ -1541,7 +1541,7 @@ const Webgl_Manager = (tiny.Webgl_Manager = class Webgl_Manager {
 			'webgl',
 			'experimental-webgl',
 			'webkit-3d',
-			'moz-webgl',
+			'moz-webgl'
 		]) {
 			this.context = this.canvas.getContext(name)
 			if (this.context) break
@@ -1568,7 +1568,7 @@ const Webgl_Manager = (tiny.Webgl_Manager = class Webgl_Manager {
 			0,
 			gl.RGBA,
 			gl.UNSIGNED_BYTE,
-			new Uint8Array([255, 0, 0, 255]),
+			new Uint8Array([255, 0, 0, 255])
 		)
 
 		// Find the correct browser's version of requestAnimationFrame() needed for queue-ing up re-display events:
@@ -1653,8 +1653,8 @@ const Scene = (tiny.Scene = class Scene {
 		parent.appendChild(
 			Object.assign(document.createElement('div'), {
 				className: 'live_string',
-				onload: callback,
-			}),
+				onload: callback
+			})
 		)
 	}
 
@@ -1665,7 +1665,7 @@ const Scene = (tiny.Scene = class Scene {
 		color = '#6E6460',
 		release_event,
 		recipient = this,
-		parent = this.control_panel,
+		parent = this.control_panel
 	) {
 		// key_triggered_button():  Trigger any scene behavior by assigning
 		// a key shortcut and a labelled HTML button to fire any callback
@@ -1676,7 +1676,7 @@ const Scene = (tiny.Scene = class Scene {
 				Object.assign(button.style, {
 					'background-color': color,
 					'z-index': '1',
-					transform: 'scale(1.5)',
+					transform: 'scale(1.5)'
 				})
 				callback.call(recipient)
 			},
@@ -1684,7 +1684,7 @@ const Scene = (tiny.Scene = class Scene {
 				Object.assign(button.style, {
 					'background-color': button.default_color,
 					'z-index': '0',
-					transform: 'scale(1)',
+					transform: 'scale(1)'
 				})
 				if (!release_event) return
 				release_event.call(recipient)
@@ -1694,10 +1694,10 @@ const Scene = (tiny.Scene = class Scene {
 		button.addEventListener('mousedown', press)
 		button.addEventListener('mouseup', release)
 		button.addEventListener('touchstart', press, {
-			passive: true,
+			passive: true
 		})
 		button.addEventListener('touchend', release, {
-			passive: true,
+			passive: true
 		})
 		if (!shortcut_combination) return
 		this.key_controls.add(shortcut_combination, press, release)

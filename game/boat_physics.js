@@ -59,8 +59,8 @@ export class BoatPhysics {
 
 		this.boat_position = this.boat_position.plus(
 			Mat4.rotation(this.boat_horizontal_angle, 0, 1, 0).times(
-				this.boat_velocity.times(dt),
-			),
+				this.boat_velocity.times(dt)
+			)
 		)
 
 		const [x, y, z] = this.boat_position
@@ -82,7 +82,7 @@ export class BoatPhysics {
 					threshold,
 					maximum_threshold,
 					0,
-					1,
+					1
 				)
 				this.on_splash(t, x, z, ny, water_color, strength)
 			}
@@ -91,7 +91,7 @@ export class BoatPhysics {
 			this.boat_position[1] = smoothlerp(
 				this.boat_position[1],
 				ny + boatHeight * this.boatDraftPercentage,
-				this.heightLerpFactor * dt,
+				this.heightLerpFactor * dt
 			)
 			this.boat_velocity[1] = 0
 		}
@@ -145,7 +145,7 @@ export class BoatPhysics {
 			this.last_quaternion = this.quaternion
 			this.quaternion = this.quaternion.slerp(
 				new_quaternion,
-				this.quaternionInterpolation * dt,
+				this.quaternionInterpolation * dt
 			)
 		} // otherwise, rotate the boat according to the angular velocity
 		else {
@@ -168,7 +168,7 @@ export class BoatPhysics {
 		this.boat_velocity[0] = clamp(
 			this.boat_velocity[0],
 			-this.boat_maximum_velocity,
-			this.boat_maximum_velocity,
+			this.boat_maximum_velocity
 		)
 	}
 
@@ -177,7 +177,7 @@ export class BoatPhysics {
 		this.boat_velocity[0] = clamp(
 			this.boat_velocity[0],
 			-this.boat_maximum_velocity,
-			this.boat_maximum_velocity,
+			this.boat_maximum_velocity
 		)
 	}
 
@@ -224,7 +224,7 @@ export class BoatPhysics {
 			const dv = vec3(
 				kx * Math.cos(theta),
 				Math.sin(theta),
-				kz * Math.cos(theta),
+				kz * Math.cos(theta)
 			).times(amplitude)
 
 			vx = vx.minus(dv.times(kx))
