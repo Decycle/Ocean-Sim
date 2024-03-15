@@ -73,7 +73,7 @@ export class BoatPhysics {
 
 		if (y < ny) {
 			const threshold = 0.25
-			const maximum_threshold = 1.4
+			const maximum_threshold = 2.8
 			// console.log(this.boat_velocity[1])
 			// if the boat is falling fast enough, make a splash when it hits the water
 			if (-this.boat_velocity[1] > threshold) {
@@ -82,7 +82,7 @@ export class BoatPhysics {
 					threshold,
 					maximum_threshold,
 					0,
-					1
+					2
 				)
 				this.on_splash(t, x, z, ny, water_color, strength)
 			}

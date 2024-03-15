@@ -243,7 +243,8 @@ export class UIHandler {
 			})
 			scene.new_line()
 			scene.key_triggered_button('splash!', ['l'], () => {
-				scene.states.is_splashing = true
+				// scene.states.is_splashing = true
+				scene.boat_physics.boat_position[1] += 0.5
 			})
 			scene.new_line()
 			scene.key_triggered_button('give money', ['g'], () => {
