@@ -82,7 +82,6 @@ export class ShopPage {
 		const balanceTokenContainer = document.querySelector(
 			'.balance-token-container'
 		)
-		console.log(balanceTokenContainer)
 		balanceTokenContainer.innerHTML = ''
 		for (let i = 0; i < balance; i++) {
 			const token = document.createElement('img')

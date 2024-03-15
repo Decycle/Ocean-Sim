@@ -118,6 +118,8 @@ export class Project_Scene extends Scene {
 		let t = program_state.animation_time / 1000
 		let dt = 1 / 60 // fixed time step for physics to work properly
 
+		console.log('framerate:', 1000 / program_state.animation_delta_time)
+
 		this.t = t
 
 		if (this.states.is_paused) {

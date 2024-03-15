@@ -59,7 +59,7 @@ export class OceanMapShader extends Shader {
 
 				// source: https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
 				float rand(vec2 c){
-					return fract(sin(dot(c.xy + seed * 100. ,vec2(12.9898,78.233))) * 43758.5453);
+					return fract(sin(dot(c.xy + floor(seed * 100.) ,vec2(12.9898,78.233))) * 43758.5453);
 				}
 
 				float noise(vec2 p, float freq ){
