@@ -36,7 +36,9 @@ export class BoatManager {
 		this.max_health = 1
 
 		this.is_big_boat = false
-		this.can_teleport = false
+
+		this.has_teleporter = false
+		this.can_teleport = true
 
 		this.max_speed = 10
 		this.physics = boatPhysics

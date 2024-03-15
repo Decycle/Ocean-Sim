@@ -100,6 +100,11 @@ export class Project_Scene extends Scene {
 	display(context, program_state) {
 		super.display(context, program_state)
 
+		if (this.won) {
+			console.log('display winning screen')
+			return
+		}
+
 		const t = program_state.animation_time / 1000
 		// const dt = program_state.animation_delta_time / 1000
 		const dt = 1 / 60 // fixed time step for physics to work properly
@@ -201,12 +206,12 @@ export class Project_Scene extends Scene {
 		)
 
 		const normal_fov = Math.PI * 0.33
-		const fast_fov = Math.PI * 0.5
+		const fast_fov = Math.PI * 0.4
 
 		const fov = remap(
 			this.boat_physics.boat_velocity[0],
 			0,
-			this.boat_physics.boat_maximum_velocity * 1.141,
+			this.boat_physics.boat_maximum_velocity,
 			normal_fov,
 			fast_fov,
 		)
@@ -261,31 +266,6 @@ export class Project_Scene extends Scene {
 
 		this.boatManager.draw(context, program_state, boat_model_transform) // render the boat
 
-		// const targetX = 10
-		// const targetZ = 20
-
-		// for (let i = -3; i <= 3; i++) {
-		// 	for (let j = -3; j <= 3; j++) {
-		// 		const nx = targetX + 2 * i
-		// 		const nz = targetZ + 2 * j
-		// 		// const output = this.get_gerstner_wave(nx, nz, t)
-		// 		const output = this.boat_physics.get_gerstner_wave(nx, nz, t)
-		// 		const pos = output[0]
-		// 		const normal = output[1]
-		// 		this.test_cube.draw_line(
-		// 			context,
-		// 			program_state,
-		// 			pos[0],
-		// 			pos[1],
-		// 			pos[2],
-		// 			normal[0],
-		// 			normal[1],
-		// 			normal[2],
-		// 			0.1,
-		// 		)
-		// 	}
-		// }
-
 		this.targetManager.explore(x, z)
 		for (const target of this.targetManager.targets) {
 			const tx = target.x
@@ -298,7 +278,12 @@ export class Project_Scene extends Scene {
 			) {
 				target.active = false
 				this.shop.money += 1
+				this.boatManager.can_teleport = true
 				console.log('Money:', this.shop.money)
+				if (this.shop.money >= this.config.win_money) {
+					this.won = true
+					console.log('You won!')
+				}
 			}
 
 			if (

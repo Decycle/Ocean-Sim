@@ -24,18 +24,18 @@ export class Shop {
 				key: 'o',
 				description: 'Increase the maximum speed of your boat',
 				effect: (boat) => {
-					boat.max_speed += shop_config.boat_max_speed_upgrade
+					boat.increase_speed(shop_config.boat_max_speed_upgrade)
 					return true
 				},
 			},
 			{
-				name: 'Teleport',
+				name: 'Teleporter',
 				cost: 5,
 				key: 'k',
-				description: 'Teleport to a random location',
+				description: 'Buy a teleporter that can teleport to a random location',
 				effect: (boat) => {
-					if (boat.can_teleport) return false
-					boat.can_teleport = true
+					if (boat.has_teleporter) return false
+					boat.has_teleporter = true
 					return true
 				},
 			},

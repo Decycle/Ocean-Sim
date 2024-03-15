@@ -129,6 +129,14 @@ export class UIHandler {
 		}
 
 		scene.new_line()
+
+		scene.key_triggered_button('Teleport', ['j'], () => {
+			if (scene.boatManager.has_teleporter && scene.boatManager.can_teleport) {
+				scene.boatManager.can_teleport = false
+				scene.boat_physics.teleport()
+			}
+		})
+
 		scene.new_line()
 
 		if (scene.config.show_advanced_controls) {
@@ -245,6 +253,10 @@ export class UIHandler {
 
 			scene.key_triggered_button('give money', ['g'], () => {
 				scene.shop.money += 1
+				if (scene.shop.money > scene.config.win_money) {
+					console.log('you win!')
+					scene.won = true
+				}
 			})
 		}
 	}

@@ -102,7 +102,7 @@ export class BoatPhysics {
 
 		// apply drag to the boat (velocity decays over time)
 		// boat only has forward/backward velocity (can't go sideways)
-		this.boat_velocity[0] *= 0.95
+		this.boat_velocity[0] *= 0.99
 
 		//calculate the new rotation of the boat
 		let new_quaternion = this.quaternion
@@ -153,6 +153,14 @@ export class BoatPhysics {
 			this.last_quaternion = this.quaternion
 			this.quaternion = new_quaternion
 		}
+	}
+
+	teleport(distance = 50) {
+		const dx = Math.cos(this.boat_horizontal_angle) * distance
+		const dz = Math.sin(-this.boat_horizontal_angle) * distance
+
+		this.boat_position[0] += dx
+		this.boat_position[2] += dz
 	}
 
 	go_forward() {
