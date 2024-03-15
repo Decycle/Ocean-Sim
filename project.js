@@ -124,9 +124,9 @@ export class Project_Scene extends Scene {
 			t -= this.states.missed_time
 		}
 
-		console.log('t:', t, 'dt:', dt)
-		console.log('last paused time:', this.states.last_paused_time)
-		console.log('missed time:', this.states.missed_time)
+		// console.log('t:', t, 'dt:', dt)
+		// console.log('last paused time:', this.states.last_paused_time)
+		// console.log('missed time:', this.states.missed_time)
 
 		// console.log(1 / dt)
 
