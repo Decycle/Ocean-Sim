@@ -7,7 +7,7 @@ export class OceanMapShader extends Shader {
 		gpu_addresses,
 		graphics_state,
 		model_transform,
-		material,
+		material
 	) {
 		context.uniform4fv(gpu_addresses.seaColor, material.seaColor)
 		context.uniform4fv(gpu_addresses.badSeaColor, material.badSeaColor)

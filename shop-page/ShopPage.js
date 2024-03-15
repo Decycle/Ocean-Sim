@@ -80,7 +80,7 @@ export class ShopPage {
 
 	updateBalance(balance) {
 		const balanceTokenContainer = document.querySelector(
-			'.balance-token-container',
+			'.balance-token-container'
 		)
 		console.log(balanceTokenContainer)
 		balanceTokenContainer.innerHTML = ''

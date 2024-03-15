@@ -16,7 +16,7 @@ export class OceanPlane extends tiny.Vertex_Buffer {
 				const y0 = step * j
 				this.arrays.position.push(vec3(x0, 0, y0))
 				this.arrays.texture_coord.push(
-					vec3(i / subdivision, j / subdivision, 0),
+					vec3(i / subdivision, j / subdivision, 0)
 				)
 				if (i == subdivision - 1 || j == subdivision - 1) continue
 				const x0y0 = i * subdivision + j
@@ -38,7 +38,7 @@ export class Ocean {
 
 		this.material = new Material(new OceanShader(), {
 			...configs,
-			boundary,
+			boundary
 		})
 	}
 
@@ -51,8 +51,8 @@ export class Ocean {
 				...configs,
 				time: t,
 				map: map,
-				targets: targets,
-			}),
+				targets: targets
+			})
 		)
 	}
 }

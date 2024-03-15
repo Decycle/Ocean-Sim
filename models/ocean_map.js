@@ -6,21 +6,21 @@ const {vec3, Mat4, Material, Texture, hex_color} = tiny
 export class OceanMap {
 	constructor(seaColor, badSeaColor, oceanSize) {
 		this.scratchpad = document.createElement('canvas', {
-			willReadFrequently: true,
+			willReadFrequently: true
 		})
 		// A hidden canvas for re-sizing the real canvas to be square:
 		this.scratchpad_context = this.scratchpad.getContext('2d')
 		this.scratchpad.width = 64
 		this.scratchpad.height = 64 // Initial image source: Blank gif file:
 		this.texture = new Texture(
-			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 		)
 		this.ocean_map_material = new Material(new OceanMapShader(), {
 			seaColor,
-			badSeaColor,
+			badSeaColor
 		})
 		this.ocean_map_display_material = new Material(new OceanMapDisplay(), {
-			texture: this.texture,
+			texture: this.texture
 		})
 
 		this.skipped_first_frame = false
@@ -40,15 +40,15 @@ export class OceanMap {
 				x: x,
 				z: z,
 				scale: this.oceanSize,
-				seed: this.seed,
-			}),
+				seed: this.seed
+			})
 		)
 		this.scratchpad_context.drawImage(
 			context.canvas,
 			0,
 			0,
 			this.scratchpad.width,
-			this.scratchpad.height,
+			this.scratchpad.height
 		)
 
 		this.texture.image.src = this.scratchpad.toDataURL('image/png')
@@ -61,7 +61,7 @@ export class OceanMap {
 
 	clear_screen(context) {
 		context.context.clear(
-			context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT,
+			context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT
 		)
 	}
 
@@ -76,8 +76,8 @@ export class OceanMap {
 			Mat4.identity(),
 			this.ocean_map_display_material.override({
 				theta: theta,
-				targets: targets,
-			}),
+				targets: targets
+			})
 		)
 	}
 

@@ -37,7 +37,7 @@ export class TargetManager {
 			x,
 			z,
 			y: 0,
-			active: true,
+			active: true
 		})
 	}
 

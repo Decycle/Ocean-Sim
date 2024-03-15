@@ -10,10 +10,10 @@ export class PostProcessor {
 		this.scratchpad.width = 512
 		this.scratchpad.height = 512 // Initial image source: Blank gif file:
 		this.texture = new Texture(
-			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 		)
 		this.material = new Material(new PostProcessingShader(), {
-			texture: this.texture,
+			texture: this.texture
 		})
 
 		this.skipped_first_frame = false
@@ -26,7 +26,7 @@ export class PostProcessor {
 			0,
 			0,
 			this.scratchpad.width,
-			this.scratchpad.height,
+			this.scratchpad.height
 		)
 
 		this.texture.image.src = this.scratchpad.toDataURL('image/png')
@@ -37,14 +37,14 @@ export class PostProcessor {
 		this.skipped_first_frame = true
 
 		context.context.clear(
-			context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT,
+			context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT
 		)
 
 		this.screen_quad.draw(
 			context,
 			program_state,
 			Mat4.identity(),
-			this.material,
+			this.material
 		)
 		context.context.clear(context.context.DEPTH_BUFFER_BIT)
 	}

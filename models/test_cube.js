@@ -15,7 +15,7 @@ export class TestCube {
 			context,
 			program_state,
 			Mat4.translation(x, y, z).times(Mat4.scale(scale, scale, scale)),
-			this.material,
+			this.material
 		)
 	}
 
@@ -29,7 +29,7 @@ export class TestCube {
 		dy,
 		dz,
 		scale = 1,
-		yScale = 5,
+		yScale = 5
 	) {
 		const model_scale = Mat4.scale(scale, scale * yScale, scale)
 		const direction = vec3(dx, dy, dz).normalized()
@@ -40,13 +40,13 @@ export class TestCube {
 			angle,
 			rotationAxis[0],
 			rotationAxis[1],
-			rotationAxis[2],
+			rotationAxis[2]
 		)
 		this.model.draw(
 			context,
 			program_state,
 			Mat4.translation(x, y, z).times(rotation).times(model_scale),
-			this.material,
+			this.material
 		)
 	}
 

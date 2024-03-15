@@ -12,7 +12,7 @@ const {
 	Material,
 	Shader,
 	Texture,
-	Scene,
+	Scene
 } = tiny
 
 export class Body {
@@ -36,16 +36,16 @@ export class Body {
 		location_matrix,
 		linear_velocity,
 		angular_velocity,
-		spin_axis = vec3(0, 0, 0).randomized(1).normalized(),
+		spin_axis = vec3(0, 0, 0).randomized(1).normalized()
 	) {
 		// emplace(): assign the body's initial values, or overwrite them.
 		this.center = location_matrix.times(vec4(0, 0, 0, 1)).to3()
 		this.rotation = Mat4.translation(...this.center.times(-1)).times(
-			location_matrix,
+			location_matrix
 		)
 		this.previous = {
 			center: this.center.copy(),
-			rotation: this.rotation.copy(),
+			rotation: this.rotation.copy()
 		}
 		// drawn_location gets replaced with an interpolated quantity:
 		this.drawn_location = location_matrix
@@ -58,13 +58,13 @@ export class Body {
 		// advance all the linear and angular velocities one time-step forward.
 		this.previous = {
 			center: this.center.copy(),
-			rotation: this.rotation.copy(),
+			rotation: this.rotation.copy()
 		}
 		// Apply the velocities scaled proportionally to real time (time_amount):
 		// Linear velocity first, then angular:
 		this.center = this.center.plus(this.linear_velocity.times(time_amount))
 		this.rotation.pre_multiply(
-			Mat4.rotation(time_amount * this.angular_velocity, ...this.spin_axis),
+			Mat4.rotation(time_amount * this.angular_velocity, ...this.spin_axis)
 		)
 	}
 
@@ -78,7 +78,7 @@ export class Body {
 		// TODO:  Replace this function with proper quaternion blending, and perhaps
 		// store this.rotation in quaternion form instead for compactness.
 		return this.rotation.map((x, i) =>
-			vec4(...this.previous.rotation[i]).mix(x, alpha),
+			vec4(...this.previous.rotation[i]).mix(x, alpha)
 		)
 	}
 
@@ -87,7 +87,7 @@ export class Body {
 		// locations the object occupied.  We'll interpolate between these two states as
 		// described at the end of the "Fix Your Timestep!" blog post.
 		this.drawn_location = Mat4.translation(
-			...this.previous.center.mix(this.center, alpha),
+			...this.previous.center.mix(this.center, alpha)
 		)
 			.times(this.blend_rotation(alpha))
 			.times(Mat4.scale(...this.size))
@@ -110,7 +110,7 @@ export class Body {
 		// a_inv*b.  Check if in that coordinate frame it penetrates
 		// the unit sphere at the origin.  Leave some leeway.
 		return points.arrays.position.some((p) =>
-			intersect_test(T.times(p.to4(1)).to3(), leeway),
+			intersect_test(T.times(p.to4(1)).to3(), leeway)
 		)
 	}
 }
@@ -127,7 +127,7 @@ export class Simulation extends Scene {
 			t: 0,
 			dt: 1 / 20,
 			bodies: [],
-			steps_taken: 0,
+			steps_taken: 0
 		})
 	}
 
@@ -164,12 +164,12 @@ export class Simulation extends Scene {
 		this.key_triggered_button(
 			'Speed up time',
 			['Shift', 'T'],
-			() => (this.time_scale *= 5),
+			() => (this.time_scale *= 5)
 		)
 		this.key_triggered_button(
 			'Slow down time',
 			['t'],
-			() => (this.time_scale /= 5),
+			() => (this.time_scale /= 5)
 		)
 		this.new_line()
 		this.live_string((box) => {
@@ -194,7 +194,7 @@ export class Simulation extends Scene {
 	}
 
 	update_state(
-		dt, // update_state(): Your subclass of Simulation has to override this abstract function.
+		dt // update_state(): Your subclass of Simulation has to override this abstract function.
 	) {
 		throw 'Override this'
 	}
@@ -208,24 +208,24 @@ export class Test_Data {
 			earth: new Texture('assets/earth.gif'),
 			grid: new Texture('assets/grid.png'),
 			stars: new Texture('assets/stars.png'),
-			text: new Texture('assets/text.png'),
+			text: new Texture('assets/text.png')
 		}
 		this.shapes = {
 			donut: new defs.Torus(15, 15, [
 				[0, 2],
-				[0, 1],
+				[0, 1]
 			]),
 			cone: new defs.Closed_Cone(4, 10, [
 				[0, 2],
-				[0, 1],
+				[0, 1]
 			]),
 			capped: new defs.Capped_Cylinder(4, 12, [
 				[0, 2],
-				[0, 1],
+				[0, 1]
 			]),
 			ball: new defs.Subdivision_Sphere(3, [
 				[0, 1],
-				[0, 1],
+				[0, 1]
 			]),
 			cube: new defs.Cube(),
 			prism: new (defs.Capped_Cylinder.prototype.make_flat_shaded_version())(
@@ -233,16 +233,16 @@ export class Test_Data {
 				10,
 				[
 					[0, 2],
-					[0, 1],
-				],
+					[0, 1]
+				]
 			),
 			gem: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(
-				2,
+				2
 			),
 			donut2: new (defs.Torus.prototype.make_flat_shaded_version())(20, 20, [
 				[0, 2],
-				[0, 1],
-			]),
+				[0, 1]
+			])
 		}
 	}
 
@@ -265,13 +265,13 @@ export class Inertia_Demo extends Simulation {
 		this.material = new Material(shader, {
 			color: color(0.4, 0.8, 0.4, 1),
 			ambient: 0.4,
-			texture: this.data.textures.stars,
+			texture: this.data.textures.stars
 		})
 	}
 
 	random_color() {
 		return this.material.override(
-			color(0.6, 0.6 * Math.random(), 0.6 * Math.random(), 1),
+			color(0.6, 0.6 * Math.random(), 0.6 * Math.random(), 1)
 		)
 	}
 
@@ -284,12 +284,12 @@ export class Inertia_Demo extends Simulation {
 				new Body(
 					this.data.random_shape(),
 					this.random_color(),
-					vec3(1, 1 + Math.random(), 1),
+					vec3(1, 1 + Math.random(), 1)
 				).emplace(
 					Mat4.translation(...vec3(0, 15, 0).randomized(10)),
 					vec3(0, -1, 0).randomized(2).normalized().times(3),
-					Math.random(),
-				),
+					Math.random()
+				)
 			)
 
 		for (let b of this.bodies) {
@@ -301,7 +301,7 @@ export class Inertia_Demo extends Simulation {
 		}
 		// Delete bodies that stop or stray too far away:
 		this.bodies = this.bodies.filter(
-			(b) => b.center.norm() < 50 && b.linear_velocity.norm() > 2,
+			(b) => b.center.norm() < 50 && b.linear_velocity.norm() > 2
 		)
 	}
 
@@ -311,7 +311,7 @@ export class Inertia_Demo extends Simulation {
 
 		if (!context.scratchpad.controls) {
 			this.children.push(
-				(context.scratchpad.controls = new defs.Movement_Controls()),
+				(context.scratchpad.controls = new defs.Movement_Controls())
 			)
 			this.children.push(new defs.Program_State_Viewer())
 			program_state.set_camera(Mat4.translation(0, 0, -50)) // Locate the camera here (inverted matrix).
@@ -320,10 +320,10 @@ export class Inertia_Demo extends Simulation {
 			Math.PI / 4,
 			context.width / context.height,
 			1,
-			500,
+			500
 		)
 		program_state.lights = [
-			new Light(vec4(0, -5, -10, 1), color(1, 1, 1, 1), 100000),
+			new Light(vec4(0, -5, -10, 1), color(1, 1, 1, 1), 100000)
 		]
 		// Draw the ground:
 		this.shapes.square.draw(
@@ -332,7 +332,7 @@ export class Inertia_Demo extends Simulation {
 			Mat4.translation(0, -10, 0)
 				.times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
 				.times(Mat4.scale(50, 50, 1)),
-			this.material.override(this.data.textures.earth),
+			this.material.override(this.data.textures.earth)
 		)
 	}
 
@@ -356,18 +356,18 @@ export class Collision_Demo extends Simulation {
 			{
 				intersect_test: Body.intersect_sphere,
 				points: new defs.Subdivision_Sphere(1),
-				leeway: 0.5,
+				leeway: 0.5
 			},
 			{
 				intersect_test: Body.intersect_sphere,
 				points: new defs.Subdivision_Sphere(2),
-				leeway: 0.3,
+				leeway: 0.3
 			},
 			{
 				intersect_test: Body.intersect_cube,
 				points: new defs.Cube(),
-				leeway: 0.1,
-			},
+				leeway: 0.1
+			}
 		]
 		this.collider_selection = 0
 		// Materials:
@@ -376,15 +376,15 @@ export class Collision_Demo extends Simulation {
 		this.inactive_color = new Material(bump, {
 			color: color(0.5, 0.5, 0.5, 1),
 			ambient: 0.2,
-			texture: this.data.textures.rgb,
+			texture: this.data.textures.rgb
 		})
 		this.active_color = this.inactive_color.override({
 			color: color(0.5, 0, 0, 1),
-			ambient: 0.5,
+			ambient: 0.5
 		})
 		this.bright = new Material(phong, {
 			color: color(0, 1, 0, 0.5),
-			ambient: 1,
+			ambient: 1
 		})
 	}
 
@@ -398,7 +398,7 @@ export class Collision_Demo extends Simulation {
 	increase() {
 		this.collider_selection = Math.min(
 			this.collider_selection + 1,
-			this.colliders.length - 1,
+			this.colliders.length - 1
 		)
 	}
 
@@ -416,16 +416,16 @@ export class Collision_Demo extends Simulation {
 					Mat4.translation(...unsafe3(0, 0, 0).randomized(30)).times(
 						Mat4.rotation(
 							Math.PI,
-							...unsafe3(0, 0, 0).randomized(1).normalized(),
-						),
+							...unsafe3(0, 0, 0).randomized(1).normalized()
+						)
 					),
 					unsafe3(0, 0, 0).randomized(20),
-					Math.random(),
-				),
+					Math.random()
+				)
 			)
 		// Sometimes we delete some so they can re-generate as new ones:
 		this.bodies = this.bodies.filter(
-			(b) => Math.random() > 0.01 || b.linear_velocity.norm() > 1,
+			(b) => Math.random() > 0.01 || b.linear_velocity.norm() > 1
 		)
 
 		const collider = this.colliders[this.collider_selection]
@@ -459,7 +459,7 @@ export class Collision_Demo extends Simulation {
 		super.display(context, program_state)
 		if (!context.scratchpad.controls) {
 			this.children.push(
-				(context.scratchpad.controls = new defs.Movement_Controls()),
+				(context.scratchpad.controls = new defs.Movement_Controls())
 			)
 			this.children.push(new defs.Program_State_Viewer())
 			program_state.set_camera(Mat4.translation(0, 0, -50))
@@ -469,10 +469,10 @@ export class Collision_Demo extends Simulation {
 			Math.PI / 4,
 			context.width / context.height,
 			1,
-			500,
+			500
 		)
 		program_state.lights = [
-			new Light(vec4(0.7, 1.5, 2, 0), color(1, 1, 1, 1), 100000),
+			new Light(vec4(0.7, 1.5, 2, 0), color(1, 1, 1, 1), 100000)
 		]
 
 		// Draw an extra bounding sphere around each drawn shape to show
@@ -485,7 +485,7 @@ export class Collision_Demo extends Simulation {
 				program_state,
 				b.drawn_location.times(Mat4.scale(...size)),
 				this.bright,
-				'LINE_STRIP',
+				'LINE_STRIP'
 			)
 	}
 

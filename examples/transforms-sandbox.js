@@ -11,7 +11,7 @@ const {
 	Material,
 	Shader,
 	Texture,
-	Scene,
+	Scene
 } = tiny
 const {Triangle, Square, Tetrahedron, Windmill, Cube, Subdivision_Sphere} = defs
 
@@ -47,7 +47,7 @@ export class Transforms_Sandbox_Base extends Scene {
 		// one called "box" more than once in display() to draw multiple cubes.
 		// Don't define more than one blueprint for the same thing here.
 		this.shapes = {
-			box: new Minimal_Shape(),
+			box: new Minimal_Shape()
 		}
 
 		// *** Materials: *** Define a shader, and then define materials that use
@@ -61,14 +61,14 @@ export class Transforms_Sandbox_Base extends Scene {
 				ambient: 0.2,
 				diffusivity: 0.8,
 				specularity: 0.5,
-				color: color(0.9, 0.5, 0.9, 1),
+				color: color(0.9, 0.5, 0.9, 1)
 			}),
 			metal: new Material(phong, {
 				ambient: 0.2,
 				diffusivity: 0.8,
 				specularity: 0.8,
-				color: color(0.9, 0.5, 0.9, 1),
-			}),
+				color: color(0.9, 0.5, 0.9, 1)
+			})
 		}
 	}
 
@@ -102,7 +102,7 @@ export class Transforms_Sandbox_Base extends Scene {
 		// Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
 		if (!context.scratchpad.controls) {
 			this.children.push(
-				(context.scratchpad.controls = new defs.Movement_Controls()),
+				(context.scratchpad.controls = new defs.Movement_Controls())
 			)
 
 			// Define the global camera and projection matrices, which are stored in program_state.  The camera
@@ -117,7 +117,7 @@ export class Transforms_Sandbox_Base extends Scene {
 			Math.PI / 4,
 			context.width / context.height,
 			1,
-			100,
+			100
 		)
 
 		// *** Lights: *** Values of vector or point lights.  They'll be consulted by
@@ -125,7 +125,7 @@ export class Transforms_Sandbox_Base extends Scene {
 		const t = (this.t = program_state.animation_time / 1000)
 		const angle = Math.sin(t)
 		const light_position = Mat4.rotation(angle, 1, 0, 0).times(
-			vec4(0, -1, 1, 0),
+			vec4(0, -1, 1, 0)
 		)
 		program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)]
 	}
@@ -206,7 +206,7 @@ export class Transforms_Sandbox extends Transforms_Sandbox_Base {
 			context,
 			program_state,
 			model_transform,
-			this.materials.plastic.override(yellow),
+			this.materials.plastic.override(yellow)
 		)
 
 		// Note that our coordinate system stored in model_transform still has non-uniform scaling

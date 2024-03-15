@@ -25,11 +25,11 @@ export class BoatManager {
 	constructor(boatConfig, boatPhysics) {
 		this.small_boat = new SmallBoatObject(
 			boatConfig.small_boat_size,
-			boatConfig.small_boat_scale,
+			boatConfig.small_boat_scale
 		)
 		this.big_boat = new BigBoatObject(
 			boatConfig.big_boat_size,
-			boatConfig.big_boat_scale,
+			boatConfig.big_boat_scale
 		)
 
 		this.health = 1
@@ -74,7 +74,7 @@ export class BoatManager {
 			context,
 			program_state,
 			model_transform,
-			this.health / this.max_health,
+			this.health / this.max_health
 		)
 	}
 

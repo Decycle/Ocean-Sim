@@ -10,37 +10,37 @@ class OceanShader extends Shader {
 		gpu_addresses,
 		graphics_state,
 		model_transform,
-		material,
+		material
 	) {
 		// update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
 		const [P, C, M] = [
 			graphics_state.projection_transform,
 			graphics_state.camera_inverse,
-			model_transform,
+			model_transform
 		]
 
 		context.uniformMatrix4fv(
 			gpu_addresses.projection_transform,
 			false,
-			Matrix.flatten_2D_to_1D(P.transposed()),
+			Matrix.flatten_2D_to_1D(P.transposed())
 		)
 
 		context.uniformMatrix4fv(
 			gpu_addresses.camera_inverse,
 			false,
-			Matrix.flatten_2D_to_1D(C.transposed()),
+			Matrix.flatten_2D_to_1D(C.transposed())
 		)
 
 		context.uniformMatrix4fv(
 			gpu_addresses.camera_transform,
 			false,
-			Matrix.flatten_2D_to_1D(graphics_state.camera_transform.transposed()),
+			Matrix.flatten_2D_to_1D(graphics_state.camera_transform.transposed())
 		)
 
 		context.uniformMatrix4fv(
 			gpu_addresses.model_transform,
 			false,
-			Matrix.flatten_2D_to_1D(model_transform.transposed()),
+			Matrix.flatten_2D_to_1D(model_transform.transposed())
 		)
 
 		context.uniform1f(gpu_addresses.animation_time, material.time)
@@ -51,7 +51,7 @@ class OceanShader extends Shader {
 
 		context.uniform1f(
 			gpu_addresses.amplitude_multiplier,
-			material.amplitudeMultiplier,
+			material.amplitudeMultiplier
 		)
 		context.uniform1f(gpu_addresses.wave_multiplier, material.waveMultiplier)
 		context.uniform1f(gpu_addresses.seed_offset, material.seedOffset)

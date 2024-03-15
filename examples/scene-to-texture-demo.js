@@ -10,7 +10,7 @@ const {
 	Material,
 	Shader,
 	Texture,
-	Scene,
+	Scene
 } = tiny
 
 export class Scene_To_Texture_Demo extends Scene {
@@ -30,7 +30,7 @@ export class Scene_To_Texture_Demo extends Scene {
 		this.shapes = {
 			box: new defs.Cube(),
 			box_2: new defs.Cube(),
-			axis: new defs.Axis_Arrows(),
+			axis: new defs.Axis_Arrows()
 		}
 		// Scale the texture coordinates:
 		this.shapes.box_2.arrays.texture_coord.forEach((p) => p.scale_by(2))
@@ -41,23 +41,23 @@ export class Scene_To_Texture_Demo extends Scene {
 		this.scratchpad.width = 256
 		this.scratchpad.height = 256 // Initial image source: Blank gif file:
 		this.texture = new Texture(
-			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 		)
 
 		const bump = new defs.Fake_Bump_Map(1)
 		this.materials = {
 			a: new Material(bump, {
 				ambient: 0.5,
-				texture: new Texture('assets/rgb.jpg'),
+				texture: new Texture('assets/rgb.jpg')
 			}),
 			b: new Material(bump, {
 				ambient: 0.5,
-				texture: new Texture('assets/earth.gif'),
+				texture: new Texture('assets/earth.gif')
 			}),
 			c: new Material(bump, {
 				ambient: 1,
-				texture: this.texture,
-			}),
+				texture: this.texture
+			})
 		}
 
 		this.spin = 0
@@ -75,35 +75,35 @@ export class Scene_To_Texture_Demo extends Scene {
 
 		this.result_img = this.control_panel.appendChild(
 			Object.assign(document.createElement('img'), {
-				style: 'width:200px; height:' + 200 * this.aspect_ratio + 'px',
-			}),
+				style: 'width:200px; height:' + 200 * this.aspect_ratio + 'px'
+			})
 		)
 	}
 
 	display(context, program_state) {
 		// display():  Draw both scenes, clearing the buffer in between.
 		program_state.lights = [
-			new Light(vec4(-5, 5, 5, 1), color(0, 1, 1, 1), 100000),
+			new Light(vec4(-5, 5, 5, 1), color(0, 1, 1, 1), 100000)
 		]
 		const t = program_state.animation_time / 1000,
 			dt = program_state.animation_delta_time / 1000
 
 		program_state.set_camera(
-			Mat4.look_at(vec3(0, 0, 5), vec3(0, 0, 0), vec3(0, 1, 0)),
+			Mat4.look_at(vec3(0, 0, 5), vec3(0, 0, 0), vec3(0, 1, 0))
 		)
 		program_state.projection_transform = Mat4.perspective(
 			Math.PI / 4,
 			context.width / context.height,
 			0.5,
-			500,
+			500
 		)
 
 		// Update persistent matrix state:
 		this.cube_1.post_multiply(
-			Mat4.rotation(((this.spin * dt * 30) / 60) * 2 * Math.PI, 1, 0, 0),
+			Mat4.rotation(((this.spin * dt * 30) / 60) * 2 * Math.PI, 1, 0, 0)
 		)
 		this.cube_2.post_multiply(
-			Mat4.rotation(((this.spin * dt * 20) / 60) * 2 * Math.PI, 0, 1, 0),
+			Mat4.rotation(((this.spin * dt * 20) / 60) * 2 * Math.PI, 0, 1, 0)
 		)
 
 		// Perform two rendering passes.  The first one we erase and
@@ -124,7 +124,7 @@ export class Scene_To_Texture_Demo extends Scene {
 
 		// Start over on a new drawing, never displaying the prior one:
 		context.context.clear(
-			context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT,
+			context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT
 		)
 
 		// Draw Scene 2:
@@ -133,7 +133,7 @@ export class Scene_To_Texture_Demo extends Scene {
 			context,
 			program_state,
 			this.cube_2,
-			this.materials.c,
+			this.materials.c
 		)
 	}
 }

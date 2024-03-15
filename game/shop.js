@@ -16,7 +16,7 @@ export class Shop {
 					boat.health = boat.max_health
 
 					return true
-				},
+				}
 			},
 			{
 				name: 'Max Speed',
@@ -26,7 +26,7 @@ export class Shop {
 				effect: (boat) => {
 					boat.increase_speed(shop_config.boat_max_speed_upgrade)
 					return true
-				},
+				}
 			},
 			{
 				name: 'Teleporter',
@@ -37,7 +37,7 @@ export class Shop {
 					if (boat.has_teleporter) return false
 					boat.has_teleporter = true
 					return true
-				},
+				}
 			},
 			{
 				name: 'New Boat',
@@ -50,7 +50,7 @@ export class Shop {
 					boat.max_health += shop_config.boat_max_health_upgrade * 2
 					boat.health = boat.max_health
 					return true
-				},
+				}
 			},
 			{
 				name: 'Heal',
@@ -62,8 +62,8 @@ export class Shop {
 					boat.health += shop_config.boat_health_heal
 					boat.health = Math.min(boat.health, boat.max_health)
 					return true
-				},
-			},
+				}
+			}
 		]
 		this.money = 0
 		this.is_menu_open = false
@@ -71,7 +71,7 @@ export class Shop {
 		this.screen_quad = new defs.Square()
 		this.material = new Material(new ShopMenuShader(), {
 			texture: new Texture('assets/shop.jpg'),
-			money: this.money,
+			money: this.money
 		})
 	}
 

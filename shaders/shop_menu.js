@@ -7,7 +7,7 @@ export class ShopMenuShader extends Shader {
 		gpu_addresses,
 		graphics_state,
 		model_transform,
-		material,
+		material
 	) {
 		context.uniform1f(gpu_addresses.money, material.money)
 		if (material.texture && material.texture.ready) {

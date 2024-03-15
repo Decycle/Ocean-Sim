@@ -9,14 +9,14 @@ export class Boat {
 		this.model = new Shape_From_File('assets/minecraft-boat-subdivided.obj')
 		this.materials = [
 			new Material(new BoatShader(), {
-				texture: new Texture('assets/oak-wood.jpeg'),
+				texture: new Texture('assets/oak-wood.jpeg')
 			}),
 			new Material(new BoatShader(), {
-				texture: new Texture('assets/oak-wood-medium-dense.jpeg'),
+				texture: new Texture('assets/oak-wood-medium-dense.jpeg')
 			}),
 			new Material(new BoatShader(), {
-				texture: new Texture('assets/oak-wood-densest.jpeg'),
-			}),
+				texture: new Texture('assets/oak-wood-densest.jpeg')
+			})
 		]
 	}
 
@@ -25,7 +25,7 @@ export class Boat {
 		program_state,
 		model_transform,
 		healthPercentage = 1,
-		texture_density = 2,
+		texture_density = 2
 	) {
 		texture_density = texture_density % 3
 		this.model.draw(
@@ -33,8 +33,8 @@ export class Boat {
 			program_state,
 			model_transform,
 			this.materials[texture_density].override({
-				health: healthPercentage,
-			}),
+				health: healthPercentage
+			})
 		)
 	}
 }
