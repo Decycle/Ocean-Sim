@@ -44,7 +44,7 @@ export class Config {
 		this.camera_z_min_offset = 0
 		this.camera_z_max_offset = 15
 
-		this.mouse_camera_horizontal_sensitivity = 0.0025
+		this.mouse_camera_horizontal_sensitivity = 0.005
 		this.mouse_camera_vertical_sensitivity = 0.003
 
 		this.consume_target_distance = 1
