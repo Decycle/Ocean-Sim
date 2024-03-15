@@ -47,6 +47,7 @@ export class Shop {
 				effect: (boat) => {
 					if (boat.is_big_boat) return false
 					boat.is_big_boat = true
+					boat.max_health += shop_config.boat_max_health_upgrade * 2
 					boat.health = boat.max_health
 					return true
 				},
