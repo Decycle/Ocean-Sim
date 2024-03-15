@@ -37,7 +37,7 @@ export class OceanMapDisplay extends Shader {
             f_tex_coord = texture_coord;
             const float size = 0.4;
 
-            gl_Position = vec4(texture_coord * vec2(size, size * 16. / 9.) + vec2(0.5, 0.2), 0., 1);
+            gl_Position = vec4(texture_coord * vec2(size, size * 16. / 9.) + vec2(0.55, 0.2), 0., 1);
         }
         `
 		)
@@ -67,11 +67,11 @@ export class OceanMapDisplay extends Shader {
 					if (d > 1.)
 							discard;
 					vec4 color = texture2D( texture, uv * 0.5 + 0.5);
-					color = mix(vec4(0.3, 1., 0., 1.), color, smoothstep(0., 0.1, d));
+					color = mix(vec4(1., 1., 1., 1.), color, smoothstep(0., 0.1, d));
 					for (int i = 0; i < 100; i++) {
 						color += vec4(1.) * draw_circle(uv.yx, targets[i], 0.01);
 					}
-					color = mix(color, vec4(173. / 255., 116. / 255., 54. / 255., 1.), smoothstep(0.95, 1., d));
+					color = mix(color, vec4(1., 1., 1., 1.), smoothstep(0.95, 1., d));
 					gl_FragColor = color;
 				}
       `

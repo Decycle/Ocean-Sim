@@ -118,7 +118,7 @@ export class Project_Scene extends Scene {
 		let t = program_state.animation_time / 1000
 		let dt = 1 / 60 // fixed time step for physics to work properly
 
-		console.log('framerate:', 1000 / program_state.animation_delta_time)
+		// console.log('framerate:', 1000 / program_state.animation_delta_time)
 
 		this.t = t
 
@@ -148,6 +148,7 @@ export class Project_Scene extends Scene {
 		// 	Mat4.look_at(vec3(0, 1, 3), vec3(0, 0, 0), vec3(0, 1, 0)),
 		// )
 		// }
+
 		const boatScale = this.boatManager.boatScale()
 		const scaledBoatSize = this.boatManager.boatScaledSize()
 
@@ -396,7 +397,7 @@ export class Project_Scene extends Scene {
 		this.shopPage.updateBalance(this.shop.money)
 		const statusMessage = this.boatManager.has_teleporter
 			? this.boatManager.can_teleport
-				? 'Press t to teleport'
+				? 'Press t to Teleport'
 				: 'Teleporter on Cooldown'
 			: 'Teleporter: Missing'
 		this.shopPage.updateTeleporterStatus(statusMessage)

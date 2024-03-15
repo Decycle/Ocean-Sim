@@ -7,62 +7,36 @@
 		<title>Document</title>
 	</head>
 	<body>
+		<link rel="stylesheet" href="shop-page/style.css" />
 		<div id="shop-container">
-			<div id="upgrades-panel">
-				<h2>upgrades</h2>
-				<div class="speed-upgrade-container">
-					<h3 class="upgrade-name">(i) speed</h3>
-					<img class="speed-upgrade-image" src="shop-assets/boat-speed.png" />
-					<p class="cost">cost: 1</p>
+			<div id="shop">
+				<div class="small-item">
+					<img src="../assets/ui/heart.svg" alt="Heart Icon" />
+					<strong>[h] Heal</strong>
+					<p>1 Token</p>
 				</div>
-				<div class="max-health-upgrade-container">
-					<h3 class="upgrade-name">(o) max health</h3>
-					<img
-						class="max-health-upgrade-image"
-						src="shop-assets/health-shield.png"
-					/>
-					<p class="cost">cost: 2</p>
+				<div class="small-item">
+					<img src="../assets/ui/activity.svg" alt="Activity Icon" />
+					<strong>[o] Max Health</strong>
+					<p>2 Tokens</p>
 				</div>
-				<div class="teleporter-upgrade-container">
-					<h3 class="upgrade-name">(k) teleporter</h3>
+				<div class="small-item">
 					<img
-						class="teleport-upgrade-image"
-						src="shop-assets/teleport-icon.png"
+						src="../assets/ui/arrow-up-circle.svg"
+						alt="Arrow Up in Circle Icon"
 					/>
-					<p class="cost">cost: 5</p>
+					<strong>[i] Speed Boost</strong>
+					<p>1 Token</p>
+				</div>
+				<div class="small-item">
+					<img src="../assets/ui/chevrons-up.svg" alt="Up Chevrons Icon" />
+					<strong>[k] Teleporter</strong>
+					<p>1 Token</p>
 				</div>
 			</div>
-			<div class="right-panels-container">
-				<div class="shop-and-balance-container">
-					<div class="shop-text-container">
-						<h1>Shop</h1>
-					</div>
-					<div class="current-balance-container">
-						<h3>Current Balance</h3>
-						<div class="balance-token-container"></div>
-					</div>
-				</div>
-				<div class="bottom-right-panels-container">
-					<div class="new-ship-icon-container">
-						<p class="cost">cost: 3</p>
-						<img
-							class="big-ship-image"
-							src="shop-assets/big-ship-screenshot.png"
-						/>
-						<h3 id="new-ship-upgrade-name">(b) new ship</h3>
-					</div>
-					<div class="close-and-heal-icons-container">
-						<div class="close-button-container">
-							<img class="close-icon-image" src="shop-assets/close-icon.png" />
-							<p class="close-text">(m) close</p>
-						</div>
-						<div class="heal-button-container">
-							<p class="cost heal-cost">cost: 1</p>
-							<img class="heal-icon-image" src="shop-assets/heal-icon.png" />
-							<p class="heal-text">(h) heal</p>
-						</div>
-					</div>
-				</div>
+			<div id="info">
+				<p id="shop-shortcut-info">Shop: press m</p>
+				<p id="teleporter-info">Teleporter: Missing</p>
 			</div>
 		</div>
 	</body>

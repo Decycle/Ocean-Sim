@@ -5,7 +5,7 @@ const {vec3} = tiny
 export class Config {
 	constructor() {
 		this.oceanBoundary = 200
-		this.oceanSubdivision = 1000
+		this.oceanSubdivision = 500
 
 		this.oceanConfig = {
 			amplitude: 0.13,
