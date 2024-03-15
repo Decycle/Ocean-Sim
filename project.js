@@ -46,7 +46,7 @@ export class Project_Scene extends Scene {
 
 		this.oceanMap = new OceanMap(
 			hex_color('#111133'),
-			hex_color('#cc2222'),
+			hex_color('#ff0000'),
 			this.config.oceanBoundary,
 		)
 
@@ -347,9 +347,14 @@ export class Project_Scene extends Scene {
 		const [r, g, b, a] = this.oceanMap.get_center_color()
 
 		// console.log(r)
-		if (r >= 64) {
+		if (r >= this.config.damageThreshold) {
 			//take damage
-			this.boatManager.take_damage(0.1 * dt)
+			const damage =
+				((r - this.config.damageThreshold) /
+					(255 - this.config.damageThreshold)) *
+				dt *
+				this.config.damageMultiplier
+			this.boatManager.take_damage(damage)
 			if (this.boatManager.health <= 0) {
 				this.respawn()
 			}

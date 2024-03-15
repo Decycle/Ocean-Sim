@@ -49,5 +49,8 @@ export class Config {
 		this.consume_target_distance = 1
 
 		this.targets_per_chunk = 1
+
+		this.damageThreshold = 32
+		this.damageMultiplier = 0.2
 	}
 }

@@ -125,7 +125,7 @@ class BoatShader extends Shader {
         vec3 boat_color = texture2D(texture, vec2(uv.x, uv.y)).xyz;
         float is_red_outline = step(health + 0.2, noise(VERTEX_POS.xyz * 10.0));
         float is_red = step(health, noise(VERTEX_POS.xyz * 10.0));
-		vec3 red = vec3(250., 58., 20.) / 255.;
+		vec3 red = vec3(1.0, 0.0, 0.0);
         boat_color = mix(boat_color, red, is_red);
         vec3 ambient = vec3(0.2, 0.2, 0.2);
         vec3 light = normalize(vec3(1, 1, 1));
