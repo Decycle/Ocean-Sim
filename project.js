@@ -1,12 +1,8 @@
-import {defs, tiny} from './examples/common.js'
-import PostProcessingShader from './shaders/post_processing.js'
-import Quaternion from './util/quaternion.js'
+import {tiny} from './examples/common.js'
 import {SplashEffect} from './models/splash_effect.js'
 import {Ocean} from './models/ocean.js'
 import {BackgroundRenderer} from './models/background.js'
 import {UIHandler} from './game/ui.js'
-import {Boat} from './models/boat.js'
-import {BigBoat} from './models/big_boat.js'
 import {lerp, smoothlerp, clamp, remap} from './util/common.js'
 import {TestCube} from './models/test_cube.js'
 import {PostProcessor} from './models/post_processor.js'
@@ -136,6 +132,10 @@ export class Project_Scene extends Scene {
 		const [x, y, z] = this.boat_physics.boat_position
 
 		this.oceanMap.init_map(context, program_state, x, z)
+		if (this.states.render_steps === 0) {
+			return
+		}
+		this.oceanMap.clear_screen(context)
 
 		// camera rotation
 		if (this.states.camera_rotate_left) {
@@ -246,6 +246,10 @@ export class Project_Scene extends Scene {
 			this.oceanMap.get_map(),
 		) // render the ocean
 
+		if (this.states.render_steps === 1) {
+			return
+		}
+
 		// convert the quaternion to a rotation matrix1
 		const rotation = this.boat_physics.quaternion.toMatrix()
 
@@ -266,6 +270,9 @@ export class Project_Scene extends Scene {
 
 		this.boatManager.draw(context, program_state, boat_model_transform) // render the boat
 
+		if (this.states.render_steps === 2) {
+			return
+		}
 		this.targetManager.explore(x, z)
 		for (const target of this.targetManager.targets) {
 			const tx = target.x
@@ -308,8 +315,9 @@ export class Project_Scene extends Scene {
 			)
 		}
 		// second pass
-		if (this.enable_post_processing) {
-			this.post_processor.draw(context, program_state)
+		this.post_processor.draw(context, program_state)
+		if (this.states.render_steps === 3) {
+			return
 		}
 
 		this.oceanMap.draw_map(
@@ -318,6 +326,9 @@ export class Project_Scene extends Scene {
 			this.boat_physics.boat_horizontal_angle,
 			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary),
 		)
+		if (this.states.render_steps === 4) {
+			return
+		}
 		this.shop.draw_menu(context, program_state)
 
 		// console.log(r)
@@ -357,7 +368,7 @@ export class Project_Scene extends Scene {
 
 	add_camera_controls(canvas) {
 		canvas.addEventListener('click', (e) => {
-			this.states.is_mouse_down = true
+			this.states.is_mouse_down = true // for some very weird reason, e triggers twice
 			this.states.last_mouse_x = e.clientX
 			this.states.last_mouse_y = e.clientY
 		})

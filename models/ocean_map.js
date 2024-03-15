@@ -54,7 +54,9 @@ export class OceanMap {
 			// Update the texture with the current scene:
 			this.texture.copy_onto_graphics_card(context.context, false)
 		this.skipped_first_frame = true
+	}
 
+	clear_screen(context) {
 		context.context.clear(
 			context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT,
 		)

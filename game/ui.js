@@ -8,10 +8,11 @@ export class UIHandler {
 		scene.add_camera_controls(canvas)
 
 		scene.control_panel.innerHTML += 'Controls:'
-
 		scene.key_triggered_button('Toggle Post Processing', ['p'], () => {
-			scene.enable_post_processing = !scene.enable_post_processing
+			scene.states.enable_post_processing = !scene.states.enable_post_processing
 		})
+
+		scene.control_panel.innerHTML += 'Wave Configuration:'
 
 		scene.new_line()
 		scene.key_triggered_button(
@@ -138,10 +139,8 @@ export class UIHandler {
 		})
 
 		scene.new_line()
-
 		if (scene.config.show_advanced_controls) {
 			scene.control_panel.innerHTML += 'Wave Configuration:'
-
 			scene.new_line()
 
 			scene.key_triggered_button('+0.1', [], () => {
@@ -253,10 +252,16 @@ export class UIHandler {
 
 			scene.key_triggered_button('give money', ['g'], () => {
 				scene.shop.money += 1
-				if (scene.shop.money > scene.config.win_money) {
-					console.log('you win!')
-					scene.won = true
-				}
+			})
+
+			scene.key_triggered_button('reset teleporter', ['t'], () => {
+				scene.boatManager.can_teleport = true
+				console.log(scene.boatManager.can_teleport)
+			})
+
+			scene.key_triggered_button('next render step', ['n'], () => {
+				scene.states.render_steps += 1
+				scene.states.render_steps = scene.states.render_steps % 5
 			})
 		}
 	}

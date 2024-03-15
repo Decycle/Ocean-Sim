@@ -9,9 +9,6 @@ export class States {
 		this.camera_rotate_right = false
 		// current angle of the camera
 		this.camera_horizontal_angle = 0
-
-		// enable post processing
-		this.enable_post_processing = true
 		// current camera z offset (zoom)
 		this.camera_z_offset = 4.3
 
@@ -32,5 +29,8 @@ export class States {
 
 		this.last_mouse_x = 0
 		this.last_mouse_y = 0
+
+		// show step and step render pipeline for the demo
+		this.render_steps = 4
 	}
 }
