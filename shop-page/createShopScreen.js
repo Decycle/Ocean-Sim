@@ -1,5 +1,67 @@
 export function createShopPage() {
 	let shopPageEl = document.createElement('div')
+	shopPageEl.innerHTML = `<div id="shop-container">
+			<div id="upgrades-panel">
+				<h2>upgrades</h2>
+				<div class="speed-upgrade-container">
+					<h3 class="upgrade-name">(i) speed</h3>
+					<img class="speed-upgrade-image" src="shop-assets/boat-speed.png" />
+					<p class="cost">cost: 1</p>
+				</div>
+				<div class="max-health-upgrade-container">
+					<h3 class="upgrade-name">(o) max health</h3>
+					<img
+						class="max-health-upgrade-image"
+						src="shop-assets/health-shield.png"
+					/>
+					<p class="cost">cost: 2</p>
+				</div>
+				<div class="teleporter-upgrade-container">
+					<h3 class="upgrade-name">(k) teleporter</h3>
+					<img
+						class="teleport-upgrade-image"
+						src="shop-assets/teleport-icon.png"
+					/>
+					<p class="cost">cost: 5</p>
+				</div>
+			</div>
+			<div class="right-panels-container">
+				<div class="shop-and-balance-container">
+					<div class="shop-text-container">
+						<h1>Shop</h1>
+					</div>
+					<div class="current-balance-container">
+						<h3>Current Balance</h3>
+						<div class="balance-token-container"></div>
+					</div>
+				</div>
+				<div class="bottom-right-panels-container">
+					<div class="new-ship-icon-container">
+						<p class="cost">cost: 3</p>
+						<img
+							class="big-ship-image"
+							src="shop-assets/big-ship-screenshot.png"
+						/>
+						<h3 id="new-ship-upgrade-name">(b) new ship</h3>
+					</div>
+					<div class="close-and-heal-icons-container">
+						<div class="close-button-container">
+							<img class="close-icon-image" src="shop-assets/close-icon.png" />
+							<p class="close-text">(m) close</p>
+						</div>
+						<div class="heal-button-container">
+							<p class="cost heal-cost">cost: 1</p>
+							<img class="heal-icon-image" src="shop-assets/heal-icon.png" />
+							<p class="heal-text">(h) heal</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>`
+}
+
+export function createShopPageInlined() {
+	let shopPageEl = document.createElement('div')
 	shopPageEl.innerHTML = `<div id="shop-container" style="aspect-ratio: 7 / 4;width: 800px;background-color: #0C2A4E;display: flex;flex-direction: row;">
           <div id="upgrades-panel" style="width: 30%;margin: 20px;background-color: #90A2C6;border-radius: 10px;display: flex;flex-direction: column;align-items: center;">
               <h2 style="text-align: center;font-size: 40px;margin: 0;padding: 0;color: #20306C;">upgrades</h2>
