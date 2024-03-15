@@ -37,6 +37,8 @@ export class SplashShader extends Shader {
 			Matrix.flatten_2D_to_1D(M.transposed()),
 		)
 
+		context.uniform4fv(gpu_addresses.water_color, material.water_color)
+
 		if (material.texture && material.texture.ready) {
 			context.uniform1i(gpu_addresses.texture, 0)
 			material.texture.activate(context)
@@ -78,16 +80,18 @@ export class SplashShader extends Shader {
 			`
       uniform sampler2D texture;
       uniform float animation_time;
+	  uniform vec4 water_color;
 
       void main(){
         vec2 new_texture_coord = vec2(
             uv.x,
             uv.y * 0.5 + 0.5
         );
-        vec4 tex_color = texture2D( texture, new_texture_coord );
+        vec4 tex_color = texture2D( texture, new_texture_coord);
         // tex_color.a *= 0.5;
         if (tex_color.a < 0.01) discard;
-        gl_FragColor = tex_color;
+		float r = clamp(water_color.r - 0.2, 0.0, 1.0);
+        gl_FragColor = tex_color + vec4(r, 0.0, 0.0, 0.0);
       }
       `
 		)

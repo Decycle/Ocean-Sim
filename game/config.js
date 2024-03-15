@@ -5,7 +5,7 @@ const {vec3} = tiny
 export class Config {
 	constructor() {
 		this.oceanBoundary = 200
-		this.oceanSubdivision = 200
+		this.oceanSubdivision = 1000
 		this.oceanConfig = {
 			amplitude: 0.13,
 			waveMut: 0.22,
@@ -20,8 +20,8 @@ export class Config {
 			boat_starting_maximum_velocity: 10,
 			boatFallingAcceleration: 3,
 			boatDraftPercentage: 0.75,
-			heightLerpFactor: 0.05,
-			quaternionInterpolation: 0.051,
+			heightLerpFactor: 3, // times dt
+			quaternionInterpolation: 3, // times dt
 		}
 
 		this.shopConfig = {
@@ -38,7 +38,7 @@ export class Config {
 		}
 
 		// whether or not to show advanced controls
-		this.show_advanced_controls = false
+		this.show_advanced_controls = true
 
 		this.camera_z_min_offset = 0
 		this.camera_z_max_offset = 20

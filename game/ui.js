@@ -243,26 +243,8 @@ export class UIHandler {
 
 			scene.new_line()
 
-			scene.key_triggered_button('big boat', ['b'], () => {
-				scene.states.is_big_boat = !scene.states.is_big_boat
-			})
-
-			scene.new_line()
-
-			scene.key_triggered_button('take damage', ['t'], () => {
-				if (scene.states.is_big_boat) {
-					scene.big_boat.take_damage(0.05)
-				} else {
-					scene.boat.take_damage(0.05)
-				}
-			})
-
-			scene.key_triggered_button('heal', ['h'], () => {
-				if (scene.states.is_big_boat) {
-					scene.big_boat.heal(100)
-				} else {
-					scene.boat.heal(100)
-				}
+			scene.key_triggered_button('give money', ['g'], () => {
+				scene.shop.money += 1
 			})
 		}
 	}

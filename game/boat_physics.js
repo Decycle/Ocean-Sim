@@ -48,7 +48,7 @@ export class BoatPhysics {
 		this.boat_maximum_velocity = max_speed
 	}
 
-	update(t, dt) {
+	update(t, dt, water_color) {
 		this.boat_horizontal_angle += 0.9 * dt * this.horizontal_rotation
 		if (this.is_moving_forward) {
 			this.go_forward()
@@ -84,14 +84,14 @@ export class BoatPhysics {
 					0,
 					1,
 				)
-				this.on_splash(t, x, z, ny, strength)
+				this.on_splash(t, x, z, ny, water_color, strength)
 			}
 
 			// smoothly move the boat up to the water level
 			this.boat_position[1] = smoothlerp(
 				this.boat_position[1],
 				ny + boatHeight * this.boatDraftPercentage,
-				this.heightLerpFactor,
+				this.heightLerpFactor * dt,
 			)
 			this.boat_velocity[1] = 0
 		}
@@ -145,7 +145,7 @@ export class BoatPhysics {
 			this.last_quaternion = this.quaternion
 			this.quaternion = this.quaternion.slerp(
 				new_quaternion,
-				this.quaternionInterpolation,
+				this.quaternionInterpolation * dt,
 			)
 		} // otherwise, rotate the boat according to the angular velocity
 		else {

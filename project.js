@@ -59,8 +59,8 @@ export class Project_Scene extends Scene {
 
 		this.boat_physics = new BoatPhysics(
 			this.config.oceanConfig,
-			(t, x, z, ny, strength) => {
-				this.splash_effect.splash(t, x, z, ny, strength)
+			(t, x, z, ny, water_color, strength) => {
+				this.splash_effect.splash(t, x, z, ny, water_color, strength)
 			},
 			vec3(1, 1, 1),
 			this.config.physicsConfig,
@@ -72,8 +72,6 @@ export class Project_Scene extends Scene {
 		)
 
 		this.shop = new Shop(this.config.shopConfig)
-
-		this.shop.money = 100
 	}
 
 	clamp_ocean_config() {
@@ -103,7 +101,8 @@ export class Project_Scene extends Scene {
 		super.display(context, program_state)
 
 		const t = program_state.animation_time / 1000
-		const dt = program_state.animation_delta_time / 1000
+		// const dt = program_state.animation_delta_time / 1000
+		const dt = 1 / 60 // fixed time step for physics to work properly
 
 		// console.log(1 / dt)
 
@@ -122,11 +121,14 @@ export class Project_Scene extends Scene {
 		const boatScale = this.boatManager.boatScale()
 		const scaledBoatSize = this.boatManager.boatScaledSize()
 
+		const [r, g, b, a] = this.oceanMap.get_center_color()
+		const water_color = vec4(r / 255, g / 255, b / 255, 1)
+
 		this.boat_physics.updateBoatSize(scaledBoatSize)
 		this.boat_physics.updateOceanConfig(this.config.oceanConfig)
 
+		this.boat_physics.update(t, dt, water_color)
 		const [x, y, z] = this.boat_physics.boat_position
-		this.boat_physics.update(t, dt)
 
 		this.oceanMap.init_map(context, program_state, x, z)
 
@@ -158,17 +160,17 @@ export class Project_Scene extends Scene {
 		this.states.camera_position[0] = smoothlerp(
 			this.states.camera_position[0],
 			x,
-			0.5,
+			30 * dt,
 		)
 		this.states.camera_position[1] = smoothlerp(
 			this.states.camera_position[1],
 			y,
-			0.5,
+			30 * dt,
 		)
 		this.states.camera_position[2] = smoothlerp(
 			this.states.camera_position[2],
 			z,
-			0.5,
+			30 * dt,
 		)
 
 		const captain_position = this.boatManager.captainPosition()
@@ -209,7 +211,7 @@ export class Project_Scene extends Scene {
 			fast_fov,
 		)
 
-		this.states.fov = smoothlerp(this.states.fov, fov, 0.07) // higher fov when moving faster
+		this.states.fov = smoothlerp(this.states.fov, fov, 4.2 * dt) // higher fov when moving faster
 
 		program_state.projection_transform = Mat4.perspective(
 			this.states.fov,
@@ -320,6 +322,10 @@ export class Project_Scene extends Scene {
 				0.1,
 			)
 		}
+		// second pass
+		if (this.enable_post_processing) {
+			this.post_processor.draw(context, program_state)
+		}
 
 		this.oceanMap.draw_map(
 			context,
@@ -328,23 +334,6 @@ export class Project_Scene extends Scene {
 			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary),
 		)
 		this.shop.draw_menu(context, program_state)
-		// second pass
-		// if (this.enable_post_processing) {
-		// 	this.post_processor.draw(context, program_state)
-		// }
-
-		// if the user is pressing the splash key, splash
-		if (this.states.is_splashing) {
-			this.splash_effect.splash(t, x, z, ny)
-			this.states.is_splashing = false
-		}
-
-		// every 10 seconds, clean up unused splash effect
-		if (t % 10 < 0.05) {
-			this.splash_effect.cleanup(t)
-		}
-
-		const [r, g, b, a] = this.oceanMap.get_center_color()
 
 		// console.log(r)
 		if (r >= this.config.damageThreshold) {
@@ -358,6 +347,18 @@ export class Project_Scene extends Scene {
 			if (this.boatManager.health <= 0) {
 				this.respawn()
 			}
+		}
+
+		// if the user is pressing the splash key, splash
+		if (this.states.is_splashing) {
+			const ny = this.boat_physics.get_gerstner_wave(x, z, t)[0][1]
+			this.splash_effect.splash(t, x, z, ny, water_color)
+			this.states.is_splashing = false
+		}
+
+		// every 10 seconds, clean up unused splash effect
+		if (t % 10 < 0.05) {
+			this.splash_effect.cleanup(t)
 		}
 	}
 

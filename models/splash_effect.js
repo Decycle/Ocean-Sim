@@ -28,9 +28,18 @@ class CylinderStrip extends tiny.Shape {
 }
 
 class Splash {
-	constructor(start_time, x, z, water_height, strength = 1, life_time = 5) {
+	constructor(
+		start_time,
+		x,
+		z,
+		water_height,
+		water_color,
+		strength = 1,
+		life_time = 5,
+	) {
 		this.start_time = start_time
 		this.x = x
+		this.water_color = water_color
 		this.water_height = water_height
 		this.z = z
 		this.strength = strength
@@ -50,7 +59,7 @@ class Splash {
 			context,
 			program_state,
 			model_transform,
-			material,
+			material.override({water_color: this.water_color}),
 			'TRIANGLE_STRIP',
 		)
 	}
@@ -74,12 +83,21 @@ export class SplashEffect {
 		)
 	}
 
-	splash(start_time, x, z, water_height, strength = 1, life_time = 0.5) {
+	splash(
+		start_time,
+		x,
+		z,
+		water_height,
+		water_color,
+		strength = 1,
+		life_time = 0.5,
+	) {
 		const splash = new Splash(
 			start_time,
 			x,
 			z,
 			water_height,
+			water_color,
 			strength,
 			life_time,
 		)

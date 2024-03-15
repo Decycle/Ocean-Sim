@@ -46,5 +46,6 @@ export class PostProcessor {
 			Mat4.identity(),
 			this.material,
 		)
+		context.context.clear(context.context.DEPTH_BUFFER_BIT)
 	}
 }
