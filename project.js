@@ -4,7 +4,7 @@ import {Ocean} from './models/ocean.js'
 import {BackgroundRenderer} from './models/background.js'
 import {UIHandler} from './game/ui.js'
 import {lerp, smoothlerp, clamp, remap} from './util/common.js'
-import {TestCube} from './models/test_cube.js'
+import {Target} from './models/target.js'
 import {PostProcessor} from './models/post_processor.js'
 import {BoatPhysics} from './game/boat_physics.js'
 import {OceanMap} from './models/ocean_map.js'
@@ -52,7 +52,7 @@ export class Project_Scene extends Scene {
 			this.config.oceanBoundary,
 			this.config.targets_per_chunk
 		)
-		this.test_cube = new TestCube()
+		this.target = new Target()
 
 		this.boat_physics = new BoatPhysics(
 			this.config.oceanConfig,
@@ -342,7 +342,7 @@ export class Project_Scene extends Scene {
 			const output = this.boat_physics.get_gerstner_wave(tx, tz, t)
 			const pos = output[0]
 			const normal = output[1]
-			this.test_cube.draw_line(
+			this.target.draw_line(
 				context,
 				program_state,
 				pos[0],
