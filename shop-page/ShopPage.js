@@ -33,12 +33,12 @@ export class ShopPage {
 				<div class="small-item">
 					<img src="../assets/ui/chevrons-up.svg" alt="Up Chevrons Icon" />
 					<strong>[k] Teleporter</strong>
-					<p>1 Token</p>
+					<p>5 Token</p>
 				</div>
 				<div class="large-item">
 					<img src="../assets/ui/big-ship-screenshot.png" alt="Big Ship Screenshot" />
 					<strong>[b] Big Ship</strong>
-					<p>5 Tokens</p>
+					<p>3 Tokens</p>
 				</div>
 			</div>
 		</div>`
