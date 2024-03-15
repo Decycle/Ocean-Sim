@@ -1,13 +1,13 @@
 import {tiny, defs} from '../examples/common.js'
 import PostProcessingShader from '../shaders/post_processing.js'
-import {clamp, remap, smoothlerp} from './util/common.js'
-import Quaternion from './util/quaternion.js'
+import {clamp, remap, smoothlerp} from '../util/common.js'
+import Quaternion from '../util/quaternion.js'
 const {vec3, Mat4, Material, Texture} = tiny
 
 export class BoatPhysics {
-	constructor(oceanConfig, on_splash, boat_size) {
-		this.boat_moving_force = 0.5
-		this.boat_maximum_velocity = 3
+	constructor(oceanConfig, on_splash, boat_size, physics_config) {
+		this.boat_moving_force = physics_config.boat_moving_force
+		this.boat_maximum_velocity = physics_config.boat_maximum_velocity
 
 		this.boat_position = vec3(0, 0, 0)
 		this.boat_velocity = vec3(0, 0, 0)
@@ -25,10 +25,10 @@ export class BoatPhysics {
 		this.is_moving_forward = false
 		this.is_moving_backward = false
 
-		this.boatFallingAcceleration = 3
-		this.boatDraftPercentage = 0.75
-		this.heightLerpFactor = 0.05
-		this.quaternionInterpolation = 0.051
+		this.boatFallingAcceleration = physics_config.boatFallingAcceleration
+		this.boatDraftPercentage = physics_config.boatDraftPercentage
+		this.heightLerpFactor = physics_config.heightLerpFactor
+		this.quaternionInterpolation = physics_config.quaternionInterpolation
 
 		this.oceanConfig = oceanConfig
 		this.on_splash = on_splash
@@ -58,6 +58,7 @@ export class BoatPhysics {
 				this.boat_velocity.times(dt),
 			),
 		)
+
 		const [x, y, z] = this.boat_position
 		// calculate the new position of the boat at this instant
 		const wave_pos = this.get_gerstner_wave(x, z, t)[0]
