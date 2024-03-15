@@ -1,9 +1,9 @@
-import {clamp} from '../util/common.js'
-
 export class UIHandler {
 	setup_ui(scene) {
-		const canvas = document.getElementById('main-canvas').firstChild
-		canvas.style.cursor = 'none'
+		const canvas = document
+			.getElementById('main-canvas')
+			.getElementsByTagName('canvas')[0]
+		// canvas.style.cursor = 'none'
 
 		scene.add_camera_controls(canvas)
 
@@ -124,12 +124,15 @@ export class UIHandler {
 		scene.new_line()
 
 		for (let item of scene.shop.items) {
-			const title =
-				item.name == 'Close' ? 'Close Shop' : `${item.name} Cost: ${item.cost}`
+			const title = `${item.name} Cost: ${item.cost}`
 			scene.key_triggered_button(title, [item.key], () => {
-				const result = scene.shop.buy_item(item, scene.boatManager)
+				if (!scene.shopPage.is_open) return
+				scene.shop.buy_item(item, scene.boatManager)
 			})
 		}
+		scene.key_triggered_button('Close', ['m'], () => {
+			scene.shopPage.toggle()
+		})
 		scene.new_line()
 		scene.live_string((box) => {
 			box.textContent = `Health: ${scene.boatManager.health.toFixed(2)} / ${scene.boatManager.max_health}`
@@ -149,7 +152,7 @@ export class UIHandler {
 			}
 		})
 
-		scene.key_triggered_button('Teleport', ['j'], () => {
+		scene.key_triggered_button('Teleport', ['t'], () => {
 			if (scene.boatManager.has_teleporter && scene.boatManager.can_teleport) {
 				scene.boatManager.can_teleport = false
 				scene.boat_physics.teleport()
@@ -245,14 +248,17 @@ export class UIHandler {
 			scene.new_line()
 			scene.key_triggered_button('give money', ['g'], () => {
 				scene.shop.money += 1
+				if (scene.shop.money >= 5) {
+					scene.shop.money = 5
+				}
 			})
-			scene.key_triggered_button('reset teleporter', ['t'], () => {
+			scene.key_triggered_button('reset teleporter', ['j'], () => {
 				scene.boatManager.can_teleport = true
 				console.log(scene.boatManager.can_teleport)
 			})
 			scene.key_triggered_button('next render step', ['n'], () => {
 				scene.states.render_steps += 1
-				scene.states.render_steps = scene.states.render_steps % 5
+				scene.states.render_steps = scene.states.render_steps % 6
 			})
 		}
 	}

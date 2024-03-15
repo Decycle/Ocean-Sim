@@ -31,7 +31,7 @@ export class States {
 		this.last_mouse_y = 0
 
 		// show step and step render pipeline for the demo
-		this.render_steps = 4
+		this.render_steps = 5
 
 		this.is_paused = false
 		this.last_paused_time = 0

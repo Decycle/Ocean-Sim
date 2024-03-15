@@ -18,7 +18,7 @@ export class Config {
 
 		this.physicsConfig = {
 			boat_moving_force: 0.5,
-			boat_starting_maximum_velocity: 3,
+			boat_starting_maximum_velocity: 10,
 			boatFallingAcceleration: 3,
 			boatDraftPercentage: 0.75,
 			heightLerpFactor: 3, // times dt
@@ -27,7 +27,7 @@ export class Config {
 
 		this.shopConfig = {
 			boat_max_health_upgrade: 0.5,
-			boat_max_speed_upgrade: 1.5,
+			boat_max_speed_upgrade: 5,
 			boat_health_heal: 100,
 		}
 

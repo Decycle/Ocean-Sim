@@ -13,6 +13,7 @@ import {Config} from './game/config.js'
 import {States} from './game/states.js'
 import {BoatManager} from './game/boat_manager.js'
 import {Shop} from './game/shop.js'
+import {ShopPage} from './shop-page/ShopPage.js'
 // Pull these names into this module's scope for convenience:
 const {vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture} =
 	tiny
@@ -68,6 +69,9 @@ export class Project_Scene extends Scene {
 		)
 
 		this.shop = new Shop(this.config.shopConfig)
+
+		const canvasContainer = document.getElementById('main-canvas')
+		this.shopPage = new ShopPage(canvasContainer)
 	}
 
 	clamp_ocean_config() {
@@ -253,6 +257,9 @@ export class Project_Scene extends Scene {
 
 		// first pass
 		this.backgroundRenderer.draw(context, program_state) // render the background
+		if (this.states.render_steps === 1) {
+			return
+		}
 		this.splash_effect.draw(context, program_state) // render the splash effect (if any)
 
 		const ocean_model_transform = Mat4.translation(x, 0, z).times(
@@ -274,7 +281,7 @@ export class Project_Scene extends Scene {
 			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary),
 		) // render the ocean
 
-		if (this.states.render_steps === 1) {
+		if (this.states.render_steps === 2) {
 			return
 		}
 
@@ -298,7 +305,7 @@ export class Project_Scene extends Scene {
 
 		this.boatManager.draw(context, program_state, boat_model_transform) // render the boat
 
-		if (this.states.render_steps === 2) {
+		if (this.states.render_steps === 3) {
 			return
 		}
 		for (const target of this.targetManager.targets) {
@@ -312,12 +319,15 @@ export class Project_Scene extends Scene {
 			) {
 				target.active = false
 				this.shop.money += 1
-				this.boatManager.can_teleport = true
-				console.log('Money:', this.shop.money)
-				if (this.shop.money >= this.config.win_money) {
-					this.won = true
-					console.log('You won!')
+				if (this.shop.money >= 5) {
+					this.shop.money = 5
 				}
+				this.boatManager.can_teleport = true
+
+				// if (this.shop.money >= this.config.win_money) {
+				// 	this.won = true
+				// 	console.log('You won!')
+				// }
 			}
 
 			if (
@@ -343,7 +353,7 @@ export class Project_Scene extends Scene {
 		}
 		// second pass
 		this.post_processor.draw(context, program_state)
-		if (this.states.render_steps === 3) {
+		if (this.states.render_steps === 4) {
 			return
 		}
 
@@ -380,6 +390,14 @@ export class Project_Scene extends Scene {
 		if (t % 10 < 0.05) {
 			this.splash_effect.cleanup(t)
 		}
+
+		this.shopPage.updateBalance(this.shop.money)
+		const statusMessage = this.boatManager.has_teleporter
+			? this.boatManager.can_teleport
+				? 'Press t to teleport'
+				: 'Teleporter on Cooldown'
+			: 'Teleporter: Missing'
+		this.shopPage.updateTeleporterStatus(statusMessage)
 	}
 
 	respawn() {
@@ -387,6 +405,7 @@ export class Project_Scene extends Scene {
 		this.boat_physics.boat_position = vec3(0, 0, 0)
 		this.boatManager.health = this.boatManager.max_health
 		this.states.money = Math.floor(this.states.money / 2)
+		this.shopPage.updateBalance(this.shop.money)
 		this.states.upgrades = []
 	}
 

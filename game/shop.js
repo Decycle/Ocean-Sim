@@ -9,7 +9,7 @@ export class Shop {
 			{
 				name: 'Max Health',
 				cost: 2,
-				key: 'i',
+				key: 'o',
 				description: 'Increase the maximum health of your boat',
 				effect: (boat) => {
 					boat.max_health += shop_config.boat_max_health_upgrade
@@ -21,7 +21,7 @@ export class Shop {
 			{
 				name: 'Max Speed',
 				cost: 1,
-				key: 'o',
+				key: 'i',
 				description: 'Increase the maximum speed of your boat',
 				effect: (boat) => {
 					boat.increase_speed(shop_config.boat_max_speed_upgrade)
@@ -60,16 +60,6 @@ export class Shop {
 					if (boat.health === boat.max_health) return false
 					boat.health += shop_config.boat_health_heal
 					boat.health = Math.min(boat.health, boat.max_health)
-					return true
-				},
-			},
-			{
-				name: 'Close',
-				cost: 0,
-				key: 'm',
-				description: 'Close the shop',
-				effect: (_) => {
-					this.is_menu_open = !this.is_menu_open
 					return true
 				},
 			},
