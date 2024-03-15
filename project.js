@@ -410,10 +410,18 @@ export class Project_Scene extends Scene {
 	}
 
 	add_camera_controls(canvas) {
-		canvas.addEventListener('click', (e) => {
-			this.states.is_mouse_down = true // for some very weird reason, e triggers twice
+		// canvas.addEventListener('click', (e) => {
+		// 	this.states.is_mouse_down = true // for some very weird reason, e triggers twice
+		// 	this.states.last_mouse_x = e.clientX
+		// 	this.states.last_mouse_y = e.clientY
+		// })
+		canvas.addEventListener('mousedown', (e) => {
+			this.states.is_mouse_down = true
 			this.states.last_mouse_x = e.clientX
 			this.states.last_mouse_y = e.clientY
+		})
+		canvas.addEventListener('mouseup', (e) => {
+			this.states.is_mouse_down = false
 		})
 
 		canvas.addEventListener('mousemove', (e) => {
