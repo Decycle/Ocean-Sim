@@ -249,9 +249,6 @@ export class UIHandler {
 			scene.new_line()
 			scene.key_triggered_button('give money', ['g'], () => {
 				scene.shop.money += 1
-				if (scene.shop.money >= 5) {
-					scene.shop.money = 5
-				}
 			})
 			scene.key_triggered_button('reset teleporter', ['j'], () => {
 				scene.boatManager.can_teleport = true

@@ -322,9 +322,6 @@ export class Project_Scene extends Scene {
 			) {
 				target.active = false
 				this.shop.money += 1
-				if (this.shop.money >= 5) {
-					this.shop.money = 5
-				}
 				this.boatManager.can_teleport = true
 
 				// if (this.shop.money >= this.config.win_money) {
