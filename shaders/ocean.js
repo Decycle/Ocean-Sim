@@ -240,13 +240,13 @@ class OceanShader extends Shader {
         vec3 normal = VERTEX_NORMAL;
 
         float noiseFrequency = 20.;
-        float noiseFactor = 0.05;
+        float noiseFactor = 0.03;
 
-        float noise1 = (smoothNoise(OLD_VERTEX_POS.xy * noiseFrequency) - 0.5) * noiseFactor;
-        float noise2 = (smoothNoise((OLD_VERTEX_POS.xy - 10000.637) * noiseFrequency) - 0.5) * noiseFactor;
-        float noise3 = (smoothNoise((OLD_VERTEX_POS.xy - 20000.253) * noiseFrequency) - 0.5) * noiseFactor;
+        float noise1 = (smoothNoise(OLD_VERTEX_POS.xz * noiseFrequency) - 0.5) * noiseFactor;
+        float noise2 = (smoothNoise((OLD_VERTEX_POS.xz - 10000.637) * noiseFrequency) - 0.5) * noiseFactor;
+        float noise3 = (smoothNoise((OLD_VERTEX_POS.xz - 20000.253) * noiseFrequency) - 0.5) * noiseFactor;
 
-        // normal = normalize(normal + vec3(noise1, noise2, noise3));
+        normal = normalize(normal + vec3(noise1, noise2, noise3));
 
         vec3 lightDir = normalize(vec3(1., 1., 1.));
         vec3 blue = vec3(.109,.109, .435) * 0.3;
