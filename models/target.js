@@ -4,7 +4,7 @@ import BoatShader from '../shaders/boat.js'
 
 const {vec3, Material, hex_color, Texture, Mat4} = tiny
 
-export class TestCube {
+export class Target {
 	constructor() {
 		this.model = new defs.Cube()
 		this.material = new Material(new defs.Basic_Shader())

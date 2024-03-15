@@ -4,7 +4,7 @@ import {Ocean} from './models/ocean.js'
 import {BackgroundRenderer} from './models/background.js'
 import {UIHandler} from './game/ui.js'
 import {lerp, smoothlerp, clamp, remap} from './util/common.js'
-import {TestCube} from './models/test_cube.js'
+import {Target} from './models/target.js'
 import {PostProcessor} from './models/post_processor.js'
 import {BoatPhysics} from './game/boat_physics.js'
 import {OceanMap} from './models/ocean_map.js'
@@ -52,7 +52,7 @@ export class Project_Scene extends Scene {
 			this.config.oceanBoundary,
 			this.config.targets_per_chunk
 		)
-		this.test_cube = new TestCube()
+		this.target = new Target()
 
 		this.boat_physics = new BoatPhysics(
 			this.config.oceanConfig,
@@ -110,25 +110,25 @@ export class Project_Scene extends Scene {
 	display(context, program_state) {
 		super.display(context, program_state)
 
-		if (this.won) {
-			console.log('display winning screen')
-			return
-		}
+		// if (this.won) {
+		// 	console.log('display winning screen')
+		// 	return
+		// }
 
 		let t = program_state.animation_time / 1000
 		let dt = 1 / 60 // fixed time step for physics to work properly
 
 		// console.log('framerate:', 1000 / program_state.animation_delta_time)
 
-		this.t = t
+		// this.t = t
 
-		if (this.states.is_paused) {
-			// record the time when the game is paused
-			t = this.states.last_paused_time
-			// dt = 0
-		} else {
-			t -= this.states.missed_time
-		}
+		// if (this.states.is_paused) {
+		// 	// record the time when the game is paused
+		// 	t = this.states.last_paused_time
+		// 	// dt = 0
+		// } else {
+		// 	t -= this.states.missed_time
+		// }
 
 		// console.log('t:', t, 'dt:', dt)
 		// console.log('last paused time:', this.states.last_paused_time)
@@ -339,7 +339,7 @@ export class Project_Scene extends Scene {
 			const output = this.boat_physics.get_gerstner_wave(tx, tz, t)
 			const pos = output[0]
 			const normal = output[1]
-			this.test_cube.draw_line(
+			this.target.draw_line(
 				context,
 				program_state,
 				pos[0],
@@ -366,7 +366,10 @@ export class Project_Scene extends Scene {
 		this.shop.draw_menu(context, program_state)
 
 		// console.log(r)
-		if (r >= this.config.damageThreshold) {
+		if (
+			r >= this.config.damageThreshold &&
+			t > this.states.last_spawn_time + this.config.spawn_protect_time
+		) {
 			//take damage
 			const damage =
 				((r - this.config.damageThreshold) /
@@ -375,7 +378,7 @@ export class Project_Scene extends Scene {
 				this.config.damageMultiplier
 			this.boatManager.take_damage(damage)
 			if (this.boatManager.health <= 0) {
-				this.respawn()
+				this.respawn(t)
 			}
 		}
 
@@ -400,9 +403,10 @@ export class Project_Scene extends Scene {
 		this.shopPage.updateTeleporterStatus(statusMessage)
 	}
 
-	respawn() {
+	respawn(t) {
 		// lost half money on death
 		this.boat_physics.boat_position = vec3(0, 0, 0)
+		this.states.last_spawn_time = t
 		this.boatManager.health = this.boatManager.max_health
 		this.states.money = Math.floor(this.states.money / 2)
 		this.shopPage.updateBalance(this.shop.money)
