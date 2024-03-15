@@ -161,6 +161,8 @@ export class Project_Scene extends Scene {
 			this.config.camera_z_min_offset,
 			this.config.camera_z_max_offset,
 		)
+
+		console.log(this.states.camera_z_offset)
 		// update the camera position
 		this.states.camera_position[0] = smoothlerp(
 			this.states.camera_position[0],
@@ -326,9 +328,6 @@ export class Project_Scene extends Scene {
 			this.boat_physics.boat_horizontal_angle,
 			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary),
 		)
-		if (this.states.render_steps === 4) {
-			return
-		}
 		this.shop.draw_menu(context, program_state)
 
 		// console.log(r)
