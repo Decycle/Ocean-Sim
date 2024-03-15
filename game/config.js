@@ -20,19 +20,19 @@ export class Config {
 			boat_moving_force: 0.5,
 			boat_starting_maximum_velocity: 10,
 			boatFallingAcceleration: 3,
-			boatDraftPercentage: 0.75,
-			heightLerpFactor: 3, // times dt
-			quaternionInterpolation: 3 // times dt
+			boatDraftPercentage: 0.75, // 75% of the boat is submerged
+			heightLerpFactor: 3,
+			quaternionInterpolation: 3
 		}
 
 		this.shopConfig = {
-			boat_max_health_upgrade: 0.5,
-			boat_max_speed_upgrade: 5,
-			boat_health_heal: 100
+			boat_max_health_upgrade: 0.5, // upgrade health by 0.5 per purchase
+			boat_max_speed_upgrade: 5, // upgrade speed by 5 per purchase
+			boat_health_heal: 100 // heal 100 health per purchase (full heal)
 		}
 
 		this.boatConfig = {
-			small_boat_size: vec3(15.5, 6.5, 21.5),
+			small_boat_size: vec3(15.5, 6.5, 21.5), // calculated from model obj file
 			big_boat_size: vec3(2.68, 8.1, 7.4),
 			small_boat_scale: 0.42,
 			big_boat_scale: 1.0
@@ -47,13 +47,13 @@ export class Config {
 		this.mouse_camera_horizontal_sensitivity = 0.005
 		this.mouse_camera_vertical_sensitivity = 0.003
 
-		this.consume_target_distance = 1
+		this.consume_target_distance = 1 // how close the boat needs to get to get the target
 
-		this.targets_per_chunk = 2
+		this.targets_per_chunk = 2 // number of tokens generated per chunk (per ocean boundary)
 
 		this.damageThreshold = 32
 		this.damageMultiplier = 0.2
 
-		this.win_money = 20
+		this.spawn_protect_time = 5 // 5 seconds invincibility if the boat is just spawned
 	}
 }
