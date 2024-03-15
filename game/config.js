@@ -17,12 +17,28 @@ export class Config {
 
 		this.physicsConfig = {
 			boat_moving_force: 0.5,
-			boat_maximum_velocity: 10,
+			boat_starting_maximum_velocity: 10,
 			boatFallingAcceleration: 3,
 			boatDraftPercentage: 0.75,
 			heightLerpFactor: 0.05,
 			quaternionInterpolation: 0.051,
 		}
+
+		this.shopConfig = {
+			boat_max_health_upgrade: 0.5,
+			boat_max_speed_upgrade: 0.5,
+			boat_health_heal: 100,
+		}
+
+		this.boatConfig = {
+			small_boat_size: vec3(15.5, 6.5, 21.5),
+			big_boat_size: vec3(2.68, 8.1, 7.4),
+			small_boat_scale: 0.42,
+			big_boat_scale: 1.0,
+		}
+
+		// whether or not to show advanced controls
+		this.show_advanced_controls = false
 
 		this.camera_z_min_offset = 0
 		this.camera_z_max_offset = 20
@@ -30,12 +46,8 @@ export class Config {
 		this.mouse_camera_horizontal_sensitivity = 0.005
 		this.mouse_camera_vertical_sensitivity = 0.003
 
-		this.small_boat_size = vec3(15.5, 6.5, 21.5)
-		this.big_boat_size = vec3(2.68, 8.1, 7.4)
-
-		this.small_boat_scale = 0.42
-		this.big_boat_scale = 1.0
-
 		this.consume_target_distance = 1
+
+		this.targets_per_chunk = 1
 	}
 }

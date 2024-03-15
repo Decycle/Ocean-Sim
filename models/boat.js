@@ -18,28 +18,22 @@ export class Boat {
 				texture: new Texture('assets/oak-wood-densest.jpeg'),
 			}),
 		]
-
-		this.health = 1
 	}
 
-	take_damage(damage) {
-		this.health -= damage
-		if (this.health < 0) this.health = 0
-	}
-
-	heal(healFactor) {
-		this.health += healFactor
-		if (this.health > 1) this.health = 1
-	}
-
-	draw(context, program_state, model_transform, texture_density = 2) {
+	draw(
+		context,
+		program_state,
+		model_transform,
+		healthPercentage = 1,
+		texture_density = 2,
+	) {
 		texture_density = texture_density % 3
 		this.model.draw(
 			context,
 			program_state,
 			model_transform,
 			this.materials[texture_density].override({
-				health: this.health,
+				health: healthPercentage,
 			}),
 		)
 	}

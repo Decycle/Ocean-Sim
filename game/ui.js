@@ -121,9 +121,17 @@ export class UIHandler {
 		)
 
 		scene.new_line()
+
+		for (let item of scene.shop.items) {
+			scene.key_triggered_button(item.name, [item.key], () => {
+				const result = scene.shop.buy_item(item, scene.boatManager)
+			})
+		}
+
+		scene.new_line()
 		scene.new_line()
 
-		if (scene.states.show_advanced_controls) {
+		if (scene.config.show_advanced_controls) {
 			scene.control_panel.innerHTML += 'Wave Configuration:'
 
 			scene.new_line()
@@ -243,17 +251,17 @@ export class UIHandler {
 
 			scene.key_triggered_button('take damage', ['t'], () => {
 				if (scene.states.is_big_boat) {
-					scene.big_boat.take_damage(0.01)
+					scene.big_boat.take_damage(0.05)
 				} else {
-					scene.boat.take_damage(0.01)
+					scene.boat.take_damage(0.05)
 				}
 			})
 
 			scene.key_triggered_button('heal', ['h'], () => {
 				if (scene.states.is_big_boat) {
-					scene.big_boat.heal(0.01)
+					scene.big_boat.heal(100)
 				} else {
-					scene.boat.heal(0.01)
+					scene.boat.heal(100)
 				}
 			})
 		}

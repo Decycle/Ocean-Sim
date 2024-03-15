@@ -10,9 +10,6 @@ export class States {
 		// current angle of the camera
 		this.camera_horizontal_angle = 0
 
-		// whether or not to show advanced controls
-		this.show_advanced_controls = true
-
 		// enable post processing
 		this.enable_post_processing = true
 		// current camera z offset (zoom)
@@ -26,16 +23,10 @@ export class States {
 		this.is_zooming_in = false
 		this.is_zooming_out = false
 
-		// is the boat big
-		this.is_big_boat = false
-
 		// fov
 		this.fov = Math.PI / 3
 
 		this.camera_position = vec3(0, 0, 0)
-
-		this.money = 0
-		this.upgrades = []
 
 		this.is_mouse_down = false
 

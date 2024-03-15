@@ -48,7 +48,11 @@ export class TargetManager {
 			const tx = this.targets[i].x
 			const tz = this.targets[i].z
 
-			if (Math.abs(tx - x) > ocean_size || Math.abs(tz - z) > ocean_size) {
+			if (
+				Math.abs(tx - x) > ocean_size ||
+				Math.abs(tz - z) > ocean_size ||
+				!this.targets[i].active
+			) {
 				continue
 			}
 			result[index] = (tx - x) / ocean_size

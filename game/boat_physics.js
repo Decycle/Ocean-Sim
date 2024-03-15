@@ -7,7 +7,7 @@ const {vec3, Mat4, Material, Texture} = tiny
 export class BoatPhysics {
 	constructor(oceanConfig, on_splash, boat_size, physics_config) {
 		this.boat_moving_force = physics_config.boat_moving_force
-		this.boat_maximum_velocity = physics_config.boat_maximum_velocity
+		this.boat_maximum_velocity = physics_config.boat_starting_maximum_velocity
 
 		this.boat_position = vec3(0, 0, 0)
 		this.boat_velocity = vec3(0, 0, 0)
@@ -42,6 +42,10 @@ export class BoatPhysics {
 
 	updateBoatSize(boat_size) {
 		this.boat_size = boat_size
+	}
+
+	updateMaxSpeed(max_speed) {
+		this.boat_maximum_velocity = max_speed
 	}
 
 	update(t, dt) {

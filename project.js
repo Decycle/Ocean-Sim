@@ -15,6 +15,8 @@ import {OceanMap} from './models/ocean_map.js'
 import {TargetManager} from './game/target.js'
 import {Config} from './game/config.js'
 import {States} from './game/states.js'
+import {BoatManager} from './game/boat_manager.js'
+import {Shop} from './game/shop.js'
 // Pull these names into this module's scope for convenience:
 const {vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture} =
 	tiny
@@ -29,14 +31,12 @@ export class Project_Scene extends Scene {
 			make_controls: true,
 			show_explanation: false,
 		}
-		this.boat = new Boat()
-		this.big_boat = new BigBoat()
-
-		this.backgroundRenderer = new BackgroundRenderer()
-		this.uiHandler = new UIHandler()
 
 		this.config = new Config()
 		this.states = new States()
+
+		this.backgroundRenderer = new BackgroundRenderer()
+		this.uiHandler = new UIHandler()
 
 		this.ocean = new Ocean(
 			this.config.oceanBoundary,
@@ -51,7 +51,10 @@ export class Project_Scene extends Scene {
 		)
 
 		this.splash_effect = new SplashEffect()
-		this.targetManager = new TargetManager(this.config.oceanBoundary, 10)
+		this.targetManager = new TargetManager(
+			this.config.oceanBoundary,
+			this.config.targets_per_chunk,
+		)
 		this.test_cube = new TestCube()
 
 		this.boat_physics = new BoatPhysics(
@@ -62,6 +65,15 @@ export class Project_Scene extends Scene {
 			vec3(1, 1, 1),
 			this.config.physicsConfig,
 		)
+
+		this.boatManager = new BoatManager(
+			this.config.boatConfig,
+			this.boat_physics,
+		)
+
+		this.shop = new Shop(this.config.shopConfig)
+
+		this.shop.money = 100
 	}
 
 	clamp_ocean_config() {
@@ -107,17 +119,8 @@ export class Project_Scene extends Scene {
 		// 	Mat4.look_at(vec3(0, 1, 3), vec3(0, 0, 0), vec3(0, 1, 0)),
 		// )
 		// }
-		const boatScale = this.states.is_big_boat
-			? this.config.big_boat_scale
-			: this.config.small_boat_scale
-
-		const boatSize = this.states.is_big_boat
-			? this.config.big_boat_size
-			: this.config.small_boat_size
-
-		const boat = this.states.is_big_boat ? this.big_boat : this.boat
-
-		const scaledBoatSize = boatSize.times(boatScale)
+		const boatScale = this.boatManager.boatScale()
+		const scaledBoatSize = this.boatManager.boatScaledSize()
 
 		this.boat_physics.updateBoatSize(scaledBoatSize)
 		this.boat_physics.updateOceanConfig(this.config.oceanConfig)
@@ -168,13 +171,7 @@ export class Project_Scene extends Scene {
 			0.5,
 		)
 
-		const small_boat_captain_position = vec3(0, 0.5, 0)
-		const big_boat_captain_position = vec3(0.5, 0.5, 0)
-
-		const captain_position = this.states.is_big_boat
-			? big_boat_captain_position
-			: small_boat_captain_position
-
+		const captain_position = this.boatManager.captainPosition()
 		const camera_target = this.states.camera_position.plus(captain_position)
 
 		program_state.set_camera(
@@ -188,7 +185,7 @@ export class Project_Scene extends Scene {
 							camera_target[2],
 						), //look at where a human would be
 					)
-					// .times(Mat4.rotation(-this.mouse_camera_vertical_angle, 0, 0, 1)) // mouse camera rotation
+					// .times(Mat4.rotation(-use_camera_vertical_angle, 0, 0, 1)) // mouse camera rotation
 					.times(
 						Mat4.rotation(-this.states.mouse_camera_horizontal_angle, 0, 1, 0),
 					) // mouse camera rotation
@@ -245,9 +242,9 @@ export class Project_Scene extends Scene {
 		// convert the quaternion to a rotation matrix1
 		const rotation = this.boat_physics.quaternion.toMatrix()
 
-		const bigFlip = this.states.is_big_boat ? -1 : 1 // flip the boat if it's big
-		const bigRotate = this.states.is_big_boat ? -Math.PI / 2 : 0 // rotate the boat if it's big
-		const bigRaise = this.states.is_big_boat ? 1 : 0 // raise the boat if it's big
+		const bigFlip = this.boatManager.is_big_boat ? -1 : 1 // flip the boat if it's big
+		const bigRotate = this.boatManager.is_big_boat ? -Math.PI / 2 : 0 // rotate the boat if it's big
+		const bigRaise = this.boatManager.is_big_boat ? 1 : 0 // raise the boat if it's big
 
 		const boat_model_transform = Mat4.translation(
 			x,
@@ -260,7 +257,7 @@ export class Project_Scene extends Scene {
 			.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)) // rotate the boat 180 degrees by z axis so it faces the right way
 			.times(Mat4.scale(boatScale, boatScale * bigFlip, boatScale)) // boat scale
 
-		boat.draw(context, program_state, boat_model_transform) // render the boat
+		this.boatManager.draw(context, program_state, boat_model_transform) // render the boat
 
 		// const targetX = 10
 		// const targetZ = 20
@@ -298,8 +295,8 @@ export class Project_Scene extends Scene {
 				target.active
 			) {
 				target.active = false
-				this.states.money += 1
-				console.log('money:', this.states.money)
+				this.shop.money += 1
+				console.log('Money:', this.shop.money)
 			}
 
 			if (
@@ -330,6 +327,7 @@ export class Project_Scene extends Scene {
 			this.boat_physics.boat_horizontal_angle,
 			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary),
 		)
+		this.shop.draw_menu(context, program_state)
 		// second pass
 		// if (this.enable_post_processing) {
 		// 	this.post_processor.draw(context, program_state)
@@ -351,16 +349,9 @@ export class Project_Scene extends Scene {
 		// console.log(r)
 		if (r >= 64) {
 			//take damage
-			if (this.states.is_big_boat) {
-				this.big_boat.take_damage(0.003)
-				if (this.big_boat.health <= 0) {
-					this.respawn()
-				}
-			} else {
-				this.boat.take_damage(0.003)
-				if (this.boat.health <= 0) {
-					this.respawn()
-				}
+			this.boatManager.take_damage(0.1 * dt)
+			if (this.boatManager.health <= 0) {
+				this.respawn()
 			}
 		}
 	}
@@ -368,8 +359,7 @@ export class Project_Scene extends Scene {
 	respawn() {
 		// lost half money on death
 		this.boat_physics.boat_position = vec3(0, 0, 0)
-		this.big_boat.health = 1
-		this.boat.health = 1
+		this.boatManager.health = this.boatManager.max_health
 		this.states.money = Math.floor(this.states.money / 2)
 		this.states.upgrades = []
 	}
