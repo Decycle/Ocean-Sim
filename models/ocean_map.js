@@ -27,6 +27,8 @@ export class OceanMap {
 		this.screen_quad = new defs.Square()
 
 		this.oceanSize = oceanSize
+
+		this.seed = Math.random()
 	}
 
 	init_map(context, program_state, x, z) {
@@ -38,6 +40,7 @@ export class OceanMap {
 				x: x,
 				z: z,
 				scale: this.oceanSize,
+				seed: this.seed,
 			}),
 		)
 		this.scratchpad_context.drawImage(

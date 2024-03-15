@@ -9,10 +9,6 @@ export class UIHandler {
 
 		scene.control_panel.innerHTML += 'Controls:'
 		scene.new_line()
-		scene.key_triggered_button('Toggle Post Processing', ['p'], () => {
-			scene.states.enable_post_processing = !scene.states.enable_post_processing
-		})
-		scene.new_line()
 		scene.key_triggered_button(
 			'Left Turn',
 			['a'],
@@ -59,7 +55,7 @@ export class UIHandler {
 				scene.boat_physics.is_moving_backward = false
 			},
 		)
-		// scene.new_line()
+		scene.new_line()
 		// scene.key_triggered_button('full screen', ['f'], () => {
 		// 	if (document.fullscreenElement) {
 		// 		document.exitFullscreen()
@@ -68,7 +64,7 @@ export class UIHandler {
 		// 	}
 		// })
 
-		scene.new_line()
+		// scene.new_line()
 
 		scene.key_triggered_button(
 			'Rotate Left',

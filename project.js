@@ -41,7 +41,7 @@ export class Project_Scene extends Scene {
 		)
 
 		this.oceanMap = new OceanMap(
-			hex_color('#111133'),
+			hex_color('#05133d'),
 			hex_color('#ff0000'),
 			this.config.oceanBoundary,
 		)
@@ -93,6 +93,16 @@ export class Project_Scene extends Scene {
 		)
 	}
 
+	pause(t) {
+		this.states.is_paused = true
+		this.states.last_paused_time = t
+	}
+
+	unpause(t) {
+		this.states.is_paused = false
+		this.states.missed_time += t - this.states.last_paused_time
+	}
+
 	display(context, program_state) {
 		super.display(context, program_state)
 
@@ -101,9 +111,22 @@ export class Project_Scene extends Scene {
 			return
 		}
 
-		const t = program_state.animation_time / 1000
-		// const dt = program_state.animation_delta_time / 1000
-		const dt = 1 / 60 // fixed time step for physics to work properly
+		let t = program_state.animation_time / 1000
+		let dt = 1 / 60 // fixed time step for physics to work properly
+
+		this.t = t
+
+		if (this.states.is_paused) {
+			// record the time when the game is paused
+			t = this.states.last_paused_time
+			// dt = 0
+		} else {
+			t -= this.states.missed_time
+		}
+
+		console.log('t:', t, 'dt:', dt)
+		console.log('last paused time:', this.states.last_paused_time)
+		console.log('missed time:', this.states.missed_time)
 
 		// console.log(1 / dt)
 
@@ -162,7 +185,6 @@ export class Project_Scene extends Scene {
 			this.config.camera_z_max_offset,
 		)
 
-		console.log(this.states.camera_z_offset)
 		// update the camera position
 		this.states.camera_position[0] = smoothlerp(
 			this.states.camera_position[0],
@@ -226,6 +248,9 @@ export class Project_Scene extends Scene {
 			0.1,
 			100,
 		)
+
+		this.targetManager.explore(x, z)
+
 		// first pass
 		this.backgroundRenderer.draw(context, program_state) // render the background
 		this.splash_effect.draw(context, program_state) // render the splash effect (if any)
@@ -246,6 +271,7 @@ export class Project_Scene extends Scene {
 			this.oceanConfig,
 			t,
 			this.oceanMap.get_map(),
+			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary),
 		) // render the ocean
 
 		if (this.states.render_steps === 1) {
@@ -275,7 +301,6 @@ export class Project_Scene extends Scene {
 		if (this.states.render_steps === 2) {
 			return
 		}
-		this.targetManager.explore(x, z)
 		for (const target of this.targetManager.targets) {
 			const tx = target.x
 			const tz = target.z

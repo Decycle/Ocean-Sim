@@ -32,5 +32,9 @@ export class States {
 
 		// show step and step render pipeline for the demo
 		this.render_steps = 4
+
+		this.is_paused = false
+		this.last_paused_time = 0
+		this.missed_time = 0
 	}
 }
