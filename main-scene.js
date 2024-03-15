@@ -27,7 +27,7 @@ const {
 	Scene,
 	Canvas_Widget,
 	Code_Widget,
-	Text_Widget,
+	Text_Widget
 } = tiny
 
 // Now we have loaded everything in the files tiny-graphics.js, tiny-graphics-widgets.js, and common.js.
@@ -50,7 +50,7 @@ Object.assign(
 	{Surfaces_Demo},
 	{Text_Demo},
 	{Transforms_Sandbox},
-	{Project_Scene},
+	{Project_Scene}
 )
 
 // ******************** End extra step
@@ -66,5 +66,5 @@ export {
 	Canvas_Widget,
 	Code_Widget,
 	Text_Widget,
-	defs,
+	defs
 }

@@ -10,7 +10,7 @@ export class BackgroundRenderer {
 	constructor() {
 		this.screen_quad = new defs.Square()
 		this.material = new Material(new BackgroundShader(), {
-			color: hex_color('#3b59CC'),
+			color: hex_color('#3b59CC')
 		})
 	}
 
@@ -19,7 +19,7 @@ export class BackgroundRenderer {
 			context,
 			program_state,
 			Mat4.identity(),
-			this.material,
+			this.material
 		)
 
 		context.context.clear(context.context.DEPTH_BUFFER_BIT)

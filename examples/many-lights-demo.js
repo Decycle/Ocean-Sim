@@ -10,7 +10,7 @@ const {
 	Material,
 	Shader,
 	Texture,
-	Scene,
+	Scene
 } = tiny
 
 export class Many_Lights_Demo extends Scene {
@@ -33,7 +33,7 @@ export class Many_Lights_Demo extends Scene {
 			diffusivity: 0.5,
 			specularity: 0.5,
 			smoothness: 10,
-			texture: new Texture('assets/rgb.jpg'),
+			texture: new Texture('assets/rgb.jpg')
 		})
 
 		// Don't create any DOM elements to control this scene:
@@ -46,7 +46,7 @@ export class Many_Lights_Demo extends Scene {
 		for (let row = 0; row < this.rows; row++)
 			for (let column = 0; column < this.columns; column++)
 				this.box_positions.push(
-					vec3(row, -2 - 2 * Math.random(), -column).randomized(1),
+					vec3(row, -2 - 2 * Math.random(), -column).randomized(1)
 				)
 
 		// The lights lists will function as a lookup table for the light in a current row and column:
@@ -55,13 +55,13 @@ export class Many_Lights_Demo extends Scene {
 			this.row_lights[~~-c] = vec3(
 				2 * Math.random() * this.rows,
 				-Math.random(),
-				-c,
+				-c
 			)
 		for (let r = 0; r < this.rows; r++)
 			this.column_lights[~~r] = vec3(
 				r,
 				-Math.random(),
-				-2 * Math.random() * this.columns,
+				-2 * Math.random() * this.columns
 			)
 	}
 
@@ -71,14 +71,14 @@ export class Many_Lights_Demo extends Scene {
 			Mat4.look_at(
 				vec3(this.rows / 2, 5, 5),
 				vec3(this.rows / 2, 0, -4),
-				vec3(0, 1, 0),
-			),
+				vec3(0, 1, 0)
+			)
 		)
 		program_state.projection_transform = Mat4.perspective(
 			Math.PI / 4,
 			context.width / context.height,
 			1,
-			500,
+			500
 		)
 
 		// To draw each individual box, select the two lights sharing
@@ -89,15 +89,15 @@ export class Many_Lights_Demo extends Scene {
 				new Light(
 					this.column_lights[~~p[0]].to4(1),
 					color(1, 1, p[0] % 1, 1),
-					9,
-				),
+					9
+				)
 			]
 			// Draw the box:
 			this.shapes.cube.draw(
 				context,
 				program_state,
 				Mat4.translation(...p).times(Mat4.scale(0.3, 1, 0.3)),
-				this.brick,
+				this.brick
 			)
 		})
 		if (!program_state.animate || program_state.animation_delta_time > 500)

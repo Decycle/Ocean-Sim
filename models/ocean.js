@@ -7,7 +7,7 @@ export class OceanPlane extends tiny.Vertex_Buffer {
 	// **Minimal_Shape** an even more minimal triangle, with three
 	// vertices each holding a 3D position and a color.
 	constructor(boundary, subdivision) {
-		super('position')
+		super('position', 'texture_coord')
 		const step = boundary / subdivision
 
 		for (let i = 0; i < subdivision; i++) {
@@ -15,6 +15,9 @@ export class OceanPlane extends tiny.Vertex_Buffer {
 				const x0 = step * i
 				const y0 = step * j
 				this.arrays.position.push(vec3(x0, 0, y0))
+				this.arrays.texture_coord.push(
+					vec3(i / subdivision, j / subdivision, 0)
+				)
 				if (i == subdivision - 1 || j == subdivision - 1) continue
 				const x0y0 = i * subdivision + j
 				const x1y0 = (i + 1) * subdivision + j
@@ -35,11 +38,11 @@ export class Ocean {
 
 		this.material = new Material(new OceanShader(), {
 			...configs,
-			boundary,
+			boundary
 		})
 	}
 
-	draw(context, program_state, model_transform, configs, t, map) {
+	draw(context, program_state, model_transform, configs, t, map, targets) {
 		this.ocean_plane.draw(
 			context,
 			program_state,
@@ -48,7 +51,8 @@ export class Ocean {
 				...configs,
 				time: t,
 				map: map,
-			}),
+				targets: targets
+			})
 		)
 	}
 }

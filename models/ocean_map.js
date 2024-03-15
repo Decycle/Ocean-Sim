@@ -6,27 +6,29 @@ const {vec3, Mat4, Material, Texture, hex_color} = tiny
 export class OceanMap {
 	constructor(seaColor, badSeaColor, oceanSize) {
 		this.scratchpad = document.createElement('canvas', {
-			willReadFrequently: true,
+			willReadFrequently: true
 		})
 		// A hidden canvas for re-sizing the real canvas to be square:
 		this.scratchpad_context = this.scratchpad.getContext('2d')
 		this.scratchpad.width = 64
 		this.scratchpad.height = 64 // Initial image source: Blank gif file:
 		this.texture = new Texture(
-			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 		)
 		this.ocean_map_material = new Material(new OceanMapShader(), {
 			seaColor,
-			badSeaColor,
+			badSeaColor
 		})
 		this.ocean_map_display_material = new Material(new OceanMapDisplay(), {
-			texture: this.texture,
+			texture: this.texture
 		})
 
 		this.skipped_first_frame = false
 		this.screen_quad = new defs.Square()
 
 		this.oceanSize = oceanSize
+
+		this.seed = Math.random()
 	}
 
 	init_map(context, program_state, x, z) {
@@ -37,15 +39,16 @@ export class OceanMap {
 			this.ocean_map_material.override({
 				x: x,
 				z: z,
-				scale: this.oceanSize / 2,
-			}),
+				scale: this.oceanSize,
+				seed: this.seed
+			})
 		)
 		this.scratchpad_context.drawImage(
 			context.canvas,
 			0,
 			0,
 			this.scratchpad.width,
-			this.scratchpad.height,
+			this.scratchpad.height
 		)
 
 		this.texture.image.src = this.scratchpad.toDataURL('image/png')
@@ -54,9 +57,11 @@ export class OceanMap {
 			// Update the texture with the current scene:
 			this.texture.copy_onto_graphics_card(context.context, false)
 		this.skipped_first_frame = true
+	}
 
+	clear_screen(context) {
 		context.context.clear(
-			context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT,
+			context.context.COLOR_BUFFER_BIT | context.context.DEPTH_BUFFER_BIT
 		)
 	}
 
@@ -64,16 +69,15 @@ export class OceanMap {
 		return this.texture
 	}
 
-	draw_map(context, program_state, theta, target_x, target_z) {
+	draw_map(context, program_state, theta, targets) {
 		this.screen_quad.draw(
 			context,
 			program_state,
 			Mat4.identity(),
 			this.ocean_map_display_material.override({
 				theta: theta,
-				target_x: target_x,
-				target_z: target_z,
-			}),
+				targets: targets
+			})
 		)
 	}
 

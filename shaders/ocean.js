@@ -10,37 +10,37 @@ class OceanShader extends Shader {
 		gpu_addresses,
 		graphics_state,
 		model_transform,
-		material,
+		material
 	) {
 		// update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
 		const [P, C, M] = [
 			graphics_state.projection_transform,
 			graphics_state.camera_inverse,
-			model_transform,
+			model_transform
 		]
 
 		context.uniformMatrix4fv(
 			gpu_addresses.projection_transform,
 			false,
-			Matrix.flatten_2D_to_1D(P.transposed()),
+			Matrix.flatten_2D_to_1D(P.transposed())
 		)
 
 		context.uniformMatrix4fv(
 			gpu_addresses.camera_inverse,
 			false,
-			Matrix.flatten_2D_to_1D(C.transposed()),
+			Matrix.flatten_2D_to_1D(C.transposed())
 		)
 
 		context.uniformMatrix4fv(
 			gpu_addresses.camera_transform,
 			false,
-			Matrix.flatten_2D_to_1D(graphics_state.camera_transform.transposed()),
+			Matrix.flatten_2D_to_1D(graphics_state.camera_transform.transposed())
 		)
 
 		context.uniformMatrix4fv(
 			gpu_addresses.model_transform,
 			false,
-			Matrix.flatten_2D_to_1D(model_transform.transposed()),
+			Matrix.flatten_2D_to_1D(model_transform.transposed())
 		)
 
 		context.uniform1f(gpu_addresses.animation_time, material.time)
@@ -51,12 +51,13 @@ class OceanShader extends Shader {
 
 		context.uniform1f(
 			gpu_addresses.amplitude_multiplier,
-			material.amplitudeMultiplier,
+			material.amplitudeMultiplier
 		)
 		context.uniform1f(gpu_addresses.wave_multiplier, material.waveMultiplier)
 		context.uniform1f(gpu_addresses.seed_offset, material.seedOffset)
 
 		context.uniform1f(gpu_addresses.size, material.boundary)
+		context.uniform2fv(gpu_addresses.targets, material.targets)
 
 		if (material.map && material.map.ready) {
 			context.uniform1i(gpu_addresses.map, 0)
@@ -71,6 +72,7 @@ class OceanShader extends Shader {
             varying vec3 VERTEX_NORMAL;
             varying vec3 VIEW_DIR;
             varying float Z;
+            varying vec2 uv;
       `
 	}
 
@@ -80,8 +82,8 @@ class OceanShader extends Shader {
 			this.shared_glsl_code() +
 			`
         uniform float animation_time;
-        attribute vec4 color;
         attribute vec3 position;
+        attribute vec3 texture_coord;
         // Position is expressed in object coordinates.
 
         uniform mat4 projection_transform;
@@ -154,6 +156,7 @@ class OceanShader extends Shader {
           VERTEX_POS = world_pos.xyz;
           VERTEX_NORMAL = normal;
           OLD_VERTEX_POS = position;
+          uv = texture_coord.xy;
         }
         `
 		)
@@ -215,7 +218,7 @@ class OceanShader extends Shader {
         vec3 R = normalize(reflect(-L, N));
 
         float spec = max(dot(R, V), 0.);
-        spec = pow(spec, 60.);
+        spec = pow(spec, 30.);
         spec = clamp(spec, 0., 1.);
 
         float fresnel = fresnel(N, V);
@@ -223,11 +226,14 @@ class OceanShader extends Shader {
 
         vec3 reflected = sky(reflect(-V, N), L);
         vec3 col = mix(oceanColor, reflected, fresnel);
-        col += vec3(spec) ;
-        // return vec3(fresnel);
+        col += vec3(spec);
 
         return clamp(col, 0., 1.);
     }
+
+				float draw_circle(vec2 uv, vec2 c, float r) {
+					return smoothstep(r + 0.005, r, length(uv - c));
+				}
 
       void main(){
 
@@ -240,13 +246,15 @@ class OceanShader extends Shader {
         float noise2 = (smoothNoise((OLD_VERTEX_POS.xy - 10000.637) * noiseFrequency) - 0.5) * noiseFactor;
         float noise3 = (smoothNoise((OLD_VERTEX_POS.xy - 20000.253) * noiseFrequency) - 0.5) * noiseFactor;
 
-        normal = normalize(normal + vec3(noise1, noise2, noise3));
+        // normal = normalize(normal + vec3(noise1, noise2, noise3));
 
         vec3 lightDir = normalize(vec3(1., 1., 1.));
         vec3 blue = vec3(.109,.109, .435) * 0.3;
         vec3 red = vec3(1.0, 0.0, 0.0);
         vec3 oceanColor = texture2D(map, OLD_VERTEX_POS.zx / size).xyz;
+
         vec3 color = lighting(normal, lightDir, VIEW_DIR, oceanColor);
+
         gl_FragColor = vec4( color, 1.0 );
       }
       `

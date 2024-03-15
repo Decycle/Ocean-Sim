@@ -11,7 +11,7 @@ const {
 	Material,
 	Shader,
 	Texture,
-	Scene,
+	Scene
 } = tiny
 const {Triangle, Square, Tetrahedron, Windmill, Cube, Subdivision_Sphere} = defs
 
@@ -36,7 +36,7 @@ export class Surfaces_Demo extends Scene {
 			const textured = new defs.Textured_Phong(1)
 			this.material = new Material(textured, {
 				ambient: 0.5,
-				texture: new Texture('assets/rgb.jpg'),
+				texture: new Texture('assets/rgb.jpg')
 			})
 
 			for (let i = 0; i < this.num_scenes; i++)
@@ -60,7 +60,7 @@ export class Surfaces_Demo extends Scene {
 
 		this.shapes = {
 			sheet: new defs.Grid_Patch(10, 10, row_operation, column_operation),
-			sheet2: new defs.Grid_Patch(10, 10, row_operation_2, column_operation_2),
+			sheet2: new defs.Grid_Patch(10, 10, row_operation_2, column_operation_2)
 		}
 	}
 
@@ -73,7 +73,7 @@ export class Surfaces_Demo extends Scene {
 		const column_operation = (t, p) =>
 			Mat4.translation(0.2, 0, 0).times(p.to4(1)).to3()
 		this.shapes = {
-			sheet: new defs.Grid_Patch(10, 10, row_operation, column_operation),
+			sheet: new defs.Grid_Patch(10, 10, row_operation, column_operation)
 		}
 	}
 
@@ -81,25 +81,25 @@ export class Surfaces_Demo extends Scene {
 		this.shapes = {
 			donut: new defs.Torus(15, 15, [
 				[0, 2],
-				[0, 1],
+				[0, 1]
 			]),
 			hexagon: new defs.Regular_2D_Polygon(1, 5),
 			cone: new defs.Cone_Tip(4, 10, [
 				[0, 2],
-				[0, 1],
+				[0, 1]
 			]),
 			tube: new defs.Cylindrical_Tube(1, 10, [
 				[0, 2],
-				[0, 1],
+				[0, 1]
 			]),
 			ball: new defs.Grid_Sphere(6, 6, [
 				[0, 2],
-				[0, 1],
+				[0, 1]
 			]),
 			donut2: new (defs.Torus.prototype.make_flat_shaded_version())(20, 20, [
 				[0, 2],
-				[0, 1],
-			]),
+				[0, 1]
+			])
 		}
 	}
 
@@ -114,7 +114,7 @@ export class Surfaces_Demo extends Scene {
 			[0.5, 0, -1],
 			[0.4, 0, -1.5],
 			[0.25, 0, -1.8],
-			[0, 0, -1.7],
+			[0, 0, -1.7]
 		)
 
 		this.shapes = {bullet: new defs.Surface_Of_Revolution(9, 9, points)}
@@ -123,7 +123,7 @@ export class Surfaces_Demo extends Scene {
 		this.solid = new Material(phong, {
 			diffusivity: 0.5,
 			smoothness: 800,
-			color: color(0.7, 0.8, 0.6, 1),
+			color: color(0.7, 0.8, 0.6, 1)
 		})
 	}
 
@@ -134,28 +134,28 @@ export class Surfaces_Demo extends Scene {
 			box: new defs.Cube(),
 			cone_0: new defs.Closed_Cone(4, 10, [
 				[0.67, 1],
-				[0, 1],
+				[0, 1]
 			]),
 			tube_0: new defs.Cylindrical_Tube(7, 7, [
 				[0.67, 1],
-				[0, 1],
+				[0, 1]
 			]),
 			cone_1: new defs.Closed_Cone(4, 10, [
 				[0.34, 0.66],
-				[0, 1],
+				[0, 1]
 			]),
 			tube_1: new defs.Cylindrical_Tube(7, 7, [
 				[0.34, 0.66],
-				[0, 1],
+				[0, 1]
 			]),
 			cone_2: new defs.Closed_Cone(4, 10, [
 				[0, 0.33],
-				[0, 1],
+				[0, 1]
 			]),
 			tube_2: new defs.Cylindrical_Tube(7, 7, [
 				[0, 0.33],
-				[0, 1],
-			]),
+				[0, 1]
+			])
 		}
 	}
 
@@ -164,20 +164,20 @@ export class Surfaces_Demo extends Scene {
 			box: new Cube(),
 			cone: new defs.Closed_Cone(4, 10, [
 				[0, 2],
-				[0, 1],
+				[0, 1]
 			]),
 			capped: new defs.Capped_Cylinder(1, 10, [
 				[0, 2],
-				[0, 1],
+				[0, 1]
 			]),
 			cone2: new defs.Rounded_Closed_Cone(5, 10, [
 				[0, 2],
-				[0, 1],
+				[0, 1]
 			]),
 			capped2: new defs.Rounded_Capped_Cylinder(5, 10, [
 				[0, 2],
-				[0, 1],
-			]),
+				[0, 1]
+			])
 		}
 	}
 
@@ -188,7 +188,7 @@ export class Surfaces_Demo extends Scene {
 				[0, 1, -1],
 				[-1, 0, -1],
 				[0, -1, -1],
-				[1, 0, -1],
+				[1, 0, -1]
 			),
 			star_array = Array(19).fill(vec3(1, 0, -1))
 
@@ -198,7 +198,7 @@ export class Surfaces_Demo extends Scene {
 			Mat4.rotation((i / (a.length - 1)) * 2 * Math.PI, 0, 0, 1)
 				.times(Mat4.translation((i % 2) / 2, 0, 0))
 				.times(x.to4(1))
-				.to3(),
+				.to3()
 		)
 
 		// The square is transformed away from the origin:
@@ -208,7 +208,7 @@ export class Surfaces_Demo extends Scene {
 				(a[i] = Mat4.rotation(0.5 * Math.PI, 1, 1, 1)
 					.times(Mat4.translation(0, 0, 2))
 					.times(x.to4(1))
-					.to3()),
+					.to3())
 		)
 
 		// Now that we have two 1D curves, let's make a surface between them:
@@ -221,15 +221,15 @@ export class Surfaces_Demo extends Scene {
 		this.shapes = {
 			shell: new defs.Grid_Patch(30, 30, sampler2, sample_two_arrays, [
 				[0, 1],
-				[0, 1],
-			]),
+				[0, 1]
+			])
 		}
 	}
 
 	display_scene_0(context, program_state) {
 		if (!context.scratchpad.controls) {
 			this.children.push(
-				(context.scratchpad.controls = new defs.Movement_Controls()),
+				(context.scratchpad.controls = new defs.Movement_Controls())
 			)
 			program_state.set_camera(Mat4.translation(0, 0, -3))
 		}
@@ -239,13 +239,13 @@ export class Surfaces_Demo extends Scene {
 			context,
 			program_state,
 			Mat4.translation(-1.5, 0, 0).times(r),
-			this.material,
+			this.material
 		)
 		this.shapes.sheet2.draw(
 			context,
 			program_state,
 			Mat4.translation(1.5, 0, 0).times(r),
-			this.material,
+			this.material
 		)
 	}
 
@@ -255,7 +255,7 @@ export class Surfaces_Demo extends Scene {
 
 		// Update the JavaScript-side shape with new vertices:
 		this.shapes.sheet.arrays.position.forEach(
-			(p, i, a) => (a[i] = vec3(p[0], p[1], 0.15 * random(i / a.length))),
+			(p, i, a) => (a[i] = vec3(p[0], p[1], 0.15 * random(i / a.length)))
 		)
 		// Update the normals to reflect the surface's new arrangement.
 		// This won't be perfect flat shading because vertices are shared.
@@ -268,7 +268,7 @@ export class Surfaces_Demo extends Scene {
 		this.shapes.sheet.copy_onto_graphics_card(
 			context.context,
 			['position', 'normal'],
-			false,
+			false
 		)
 	}
 
@@ -280,7 +280,7 @@ export class Surfaces_Demo extends Scene {
 				context,
 				program_state,
 				model_transform.times(this.r),
-				this.material,
+				this.material
 			)
 			model_transform.post_multiply(Mat4.translation(2, 0, 0))
 		}
@@ -291,13 +291,13 @@ export class Surfaces_Demo extends Scene {
 			program_state.animation_time / 5000,
 			0,
 			1,
-			0,
+			0
 		)
 		this.shapes.bullet.draw(
 			context,
 			program_state,
 			model_transform.times(this.r),
-			this.solid,
+			this.solid
 		)
 	}
 
@@ -307,19 +307,19 @@ export class Surfaces_Demo extends Scene {
 			context,
 			program_state,
 			Mat4.translation(2, -1, -2),
-			this.material,
+			this.material
 		)
 
 		// Manually recreate the above compound Shape out of individual components:
 		const base = Mat4.translation(-1, -1, -2)
 		const ball_matrix = base.times(
-			Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.scale(0.25, 0.25, 0.25)),
+			Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.scale(0.25, 0.25, 0.25))
 		)
 		this.shapes.ball.draw(context, program_state, ball_matrix, this.material)
 		const matrices = [
 			Mat4.identity(),
 			Mat4.rotation(-Math.PI / 2, 1, 0, 0).times(Mat4.scale(1, -1, 1)),
-			Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.scale(-1, 1, 1)),
+			Mat4.rotation(Math.PI / 2, 0, 1, 0).times(Mat4.scale(-1, 1, 1))
 		]
 		for (let i = 0; i < 3; i++) {
 			const m = base.times(matrices[i])
@@ -342,7 +342,7 @@ export class Surfaces_Demo extends Scene {
 				context,
 				program_state,
 				cone_matrix,
-				this.material,
+				this.material
 			)
 			this.shapes.box.draw(context, program_state, box1_matrix, this.material)
 			this.shapes.box.draw(context, program_state, box2_matrix, this.material)
@@ -351,7 +351,7 @@ export class Surfaces_Demo extends Scene {
 				context,
 				program_state,
 				tube_matrix,
-				this.material,
+				this.material
 			)
 		}
 	}
@@ -371,13 +371,13 @@ export class Surfaces_Demo extends Scene {
 			program_state.animation_time / 5000,
 			0,
 			1,
-			0,
+			0
 		)
 		this.shapes.shell.draw(
 			context,
 			program_state,
 			model_transform.times(this.r),
-			this.material,
+			this.material
 		)
 	}
 
@@ -423,21 +423,21 @@ export class Surfaces_Demo extends Scene {
 
 			for (let i = 0; i < this.num_scenes; i++) {
 				const element_1 = document_element.appendChild(
-					document.createElement('div'),
+					document.createElement('div')
 				)
 				element_1.className = 'canvas-widget'
 
 				const cw = new tiny.Canvas_Widget(element_1, undefined, {
 					make_controls: i == 0,
 					make_editor: false,
-					make_code_nav: false,
+					make_code_nav: false
 				})
 				cw.webgl_manager.scenes.push(this.sections[i])
 				cw.webgl_manager.program_state = webgl_manager.program_state
 				cw.webgl_manager.set_size([1080, 300])
 
 				const element_2 = document_element.appendChild(
-					document.createElement('div'),
+					document.createElement('div')
 				)
 				element_2.className = 'code-widget'
 
@@ -445,11 +445,11 @@ export class Surfaces_Demo extends Scene {
 					element_2,
 					Surfaces_Demo.prototype['construct_scene_' + i],
 					[],
-					{hide_navigator: true},
+					{hide_navigator: true}
 				)
 
 				const element_3 = document_element.appendChild(
-					document.createElement('div'),
+					document.createElement('div')
 				)
 				element_3.className = 'code-widget'
 
@@ -457,12 +457,12 @@ export class Surfaces_Demo extends Scene {
 					element_3,
 					Surfaces_Demo.prototype['display_scene_' + i],
 					[],
-					{hide_navigator: true},
+					{hide_navigator: true}
 				)
 			}
 
 			const final_text = document_element.appendChild(
-				document.createElement('div'),
+				document.createElement('div')
 			)
 			final_text.innerHTML = `<p>That's all the examples.  Below is the code that generates this whole multi-part tutorial:</p>`
 		} else this['explain_scene_' + this.scene_id](document_element)
@@ -473,13 +473,13 @@ export class Surfaces_Demo extends Scene {
 			Math.PI / 4,
 			context.width / context.height,
 			1,
-			100,
+			100
 		)
 		this.r = Mat4.rotation(
 			-0.5 * Math.sin(program_state.animation_time / 5000),
 			1,
 			1,
-			1,
+			1
 		)
 
 		if (this.is_master) {
@@ -489,10 +489,10 @@ export class Surfaces_Demo extends Scene {
 			const t = (this.t = program_state.animation_time / 1000)
 			const angle = Math.sin(t)
 			const light_position = Mat4.rotation(angle, 1, 0, 0).times(
-				vec4(0, 0, 1, 0),
+				vec4(0, 0, 1, 0)
 			)
 			program_state.lights = [
-				new Light(light_position, color(1, 1, 1, 1), 1000000),
+				new Light(light_position, color(1, 1, 1, 1), 1000000)
 			]
 		} else this['display_scene_' + this.scene_id](context, program_state)
 	}

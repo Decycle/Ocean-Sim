@@ -1,13 +1,13 @@
 import {tiny, defs} from '../examples/common.js'
 import PostProcessingShader from '../shaders/post_processing.js'
-import {clamp, remap, smoothlerp} from './util/common.js'
-import Quaternion from './util/quaternion.js'
+import {clamp, remap, smoothlerp} from '../util/common.js'
+import Quaternion from '../util/quaternion.js'
 const {vec3, Mat4, Material, Texture} = tiny
 
 export class BoatPhysics {
-	constructor(oceanConfig, on_splash, boat_size) {
-		this.boat_moving_force = 0.5
-		this.boat_maximum_velocity = 3
+	constructor(oceanConfig, on_splash, boat_size, physics_config) {
+		this.boat_moving_force = physics_config.boat_moving_force
+		this.boat_maximum_velocity = physics_config.boat_starting_maximum_velocity
 
 		this.boat_position = vec3(0, 0, 0)
 		this.boat_velocity = vec3(0, 0, 0)
@@ -25,10 +25,10 @@ export class BoatPhysics {
 		this.is_moving_forward = false
 		this.is_moving_backward = false
 
-		this.boatFallingAcceleration = 3
-		this.boatDraftPercentage = 0.75
-		this.heightLerpFactor = 0.05
-		this.quaternionInterpolation = 0.051
+		this.boatFallingAcceleration = physics_config.boatFallingAcceleration
+		this.boatDraftPercentage = physics_config.boatDraftPercentage
+		this.heightLerpFactor = physics_config.heightLerpFactor
+		this.quaternionInterpolation = physics_config.quaternionInterpolation
 
 		this.oceanConfig = oceanConfig
 		this.on_splash = on_splash
@@ -44,7 +44,11 @@ export class BoatPhysics {
 		this.boat_size = boat_size
 	}
 
-	update(t, dt) {
+	updateMaxSpeed(max_speed) {
+		this.boat_maximum_velocity = max_speed
+	}
+
+	update(t, dt, water_color) {
 		this.boat_horizontal_angle += 0.9 * dt * this.horizontal_rotation
 		if (this.is_moving_forward) {
 			this.go_forward()
@@ -55,9 +59,10 @@ export class BoatPhysics {
 
 		this.boat_position = this.boat_position.plus(
 			Mat4.rotation(this.boat_horizontal_angle, 0, 1, 0).times(
-				this.boat_velocity.times(dt),
-			),
+				this.boat_velocity.times(dt)
+			)
 		)
+
 		const [x, y, z] = this.boat_position
 		// calculate the new position of the boat at this instant
 		const wave_pos = this.get_gerstner_wave(x, z, t)[0]
@@ -77,16 +82,16 @@ export class BoatPhysics {
 					threshold,
 					maximum_threshold,
 					0,
-					1,
+					1
 				)
-				this.on_splash(t, x, z, ny, strength)
+				this.on_splash(t, x, z, ny, water_color, strength)
 			}
 
 			// smoothly move the boat up to the water level
 			this.boat_position[1] = smoothlerp(
 				this.boat_position[1],
 				ny + boatHeight * this.boatDraftPercentage,
-				this.heightLerpFactor,
+				this.heightLerpFactor * dt
 			)
 			this.boat_velocity[1] = 0
 		}
@@ -97,7 +102,7 @@ export class BoatPhysics {
 
 		// apply drag to the boat (velocity decays over time)
 		// boat only has forward/backward velocity (can't go sideways)
-		this.boat_velocity[0] *= 0.95
+		this.boat_velocity[0] *= 0.99
 
 		//calculate the new rotation of the boat
 		let new_quaternion = this.quaternion
@@ -140,7 +145,7 @@ export class BoatPhysics {
 			this.last_quaternion = this.quaternion
 			this.quaternion = this.quaternion.slerp(
 				new_quaternion,
-				this.quaternionInterpolation,
+				this.quaternionInterpolation * dt
 			)
 		} // otherwise, rotate the boat according to the angular velocity
 		else {
@@ -150,12 +155,20 @@ export class BoatPhysics {
 		}
 	}
 
+	teleport(distance = 50) {
+		const dx = Math.cos(this.boat_horizontal_angle) * distance
+		const dz = Math.sin(-this.boat_horizontal_angle) * distance
+
+		this.boat_position[0] += dx
+		this.boat_position[2] += dz
+	}
+
 	go_forward() {
 		this.boat_velocity[0] += this.boat_moving_force
 		this.boat_velocity[0] = clamp(
 			this.boat_velocity[0],
 			-this.boat_maximum_velocity,
-			this.boat_maximum_velocity,
+			this.boat_maximum_velocity
 		)
 	}
 
@@ -164,7 +177,7 @@ export class BoatPhysics {
 		this.boat_velocity[0] = clamp(
 			this.boat_velocity[0],
 			-this.boat_maximum_velocity,
-			this.boat_maximum_velocity,
+			this.boat_maximum_velocity
 		)
 	}
 
@@ -211,7 +224,7 @@ export class BoatPhysics {
 			const dv = vec3(
 				kx * Math.cos(theta),
 				Math.sin(theta),
-				kz * Math.cos(theta),
+				kz * Math.cos(theta)
 			).times(amplitude)
 
 			vx = vx.minus(dv.times(kx))

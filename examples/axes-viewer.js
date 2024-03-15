@@ -10,7 +10,7 @@ const {
 	Material,
 	Shader,
 	Texture,
-	Scene,
+	Scene
 } = tiny
 
 export class Axes_Viewer extends Scene {
@@ -38,7 +38,7 @@ export class Axes_Viewer extends Scene {
 		this.material = new Material(bump, {
 			color: color(0, 0, 0, 1),
 			ambient: 1,
-			texture: new Texture('assets/rgb.jpg'),
+			texture: new Texture('assets/rgb.jpg')
 		})
 	}
 
@@ -73,7 +73,7 @@ export class Axes_Viewer extends Scene {
 	increase() {
 		this.selected_basis_id = Math.min(
 			this.selected_basis_id + 1,
-			this.groups.length - 1,
+			this.groups.length - 1
 		)
 	}
 
@@ -108,12 +108,12 @@ export class Axes_Viewer_Test_Scene extends Scene {
 	display(context, program_state) {
 		// display():  *********** See instructions below ***********
 		program_state.lights = [
-			new Light(vec4(0, 0, 1, 0), color(0, 1, 1, 1), 100000),
+			new Light(vec4(0, 0, 1, 0), color(0, 1, 1, 1), 100000)
 		]
 
 		if (!context.scratchpad.controls) {
 			this.children.push(
-				(context.scratchpad.controls = new defs.Movement_Controls()),
+				(context.scratchpad.controls = new defs.Movement_Controls())
 			)
 
 			program_state.set_camera(Mat4.translation(-1, -1, -20))
@@ -123,7 +123,7 @@ export class Axes_Viewer_Test_Scene extends Scene {
 			Math.PI / 4,
 			context.width / context.height,
 			1,
-			500,
+			500
 		)
 		const t = program_state.animation_time / 1000,
 			dt = program_state.animation_delta_time / 1000
@@ -132,19 +132,19 @@ export class Axes_Viewer_Test_Scene extends Scene {
 			context,
 			program_state,
 			Mat4.scale(10, 0.1, 0.1),
-			this.material,
+			this.material
 		)
 		this.shapes.box.draw(
 			context,
 			program_state,
 			Mat4.scale(0.1, 10, 0.1),
-			this.material,
+			this.material
 		)
 		this.shapes.box.draw(
 			context,
 			program_state,
 			Mat4.scale(0.1, 0.1, 10),
-			this.material,
+			this.material
 		)
 
 		// *********** How to use the Axes_Viewer ***********
@@ -170,7 +170,7 @@ export class Axes_Viewer_Test_Scene extends Scene {
 			program_state,
 			model_transform.times(Mat4.scale(2, 2, 2)),
 			this.material,
-			'LINE_STRIP',
+			'LINE_STRIP'
 		)
 
 		let center = model_transform.copy()
@@ -192,7 +192,7 @@ export class Axes_Viewer_Test_Scene extends Scene {
 				program_state,
 				model_transform.times(Mat4.scale(2, 2, 2)),
 				this.material,
-				'LINE_STRIP',
+				'LINE_STRIP'
 			)
 		}
 	}

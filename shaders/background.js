@@ -7,19 +7,19 @@ class BackgroundShader extends Shader {
 		gpu_addresses,
 		graphics_state,
 		model_transform,
-		material,
+		material
 	) {
 		const P = Mat4.inverse(graphics_state.projection_transform)
 		const C = graphics_state.camera_transform
 		context.uniformMatrix4fv(
 			gpu_addresses.projection_inverse,
 			false,
-			Matrix.flatten_2D_to_1D(P.transposed()),
+			Matrix.flatten_2D_to_1D(P.transposed())
 		)
 		context.uniformMatrix4fv(
 			gpu_addresses.camera_transform,
 			false,
-			Matrix.flatten_2D_to_1D(C.transposed()),
+			Matrix.flatten_2D_to_1D(C.transposed())
 		)
 		// color
 		context.uniform4fv(gpu_addresses.color, material.color)

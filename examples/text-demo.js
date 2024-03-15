@@ -11,7 +11,7 @@ const {
 	Material,
 	Shader,
 	Texture,
-	Scene,
+	Scene
 } = tiny
 
 export class Text_Line extends Shape {
@@ -41,10 +41,10 @@ export class Text_Line extends Shape {
 		this.arrays.texture_coord = []
 		for (var i = 0; i < this.max_size; i++) {
 			var row = Math.floor(
-					(i < line.length ? line.charCodeAt(i) : ' '.charCodeAt()) / 16,
+					(i < line.length ? line.charCodeAt(i) : ' '.charCodeAt()) / 16
 				),
 				col = Math.floor(
-					(i < line.length ? line.charCodeAt(i) : ' '.charCodeAt()) % 16,
+					(i < line.length ? line.charCodeAt(i) : ' '.charCodeAt()) % 16
 				)
 
 			var skip = 3,
@@ -61,8 +61,8 @@ export class Text_Line extends Shape {
 					[left, 1 - bottom],
 					[right, 1 - bottom],
 					[left, 1 - top],
-					[right, 1 - top],
-				),
+					[right, 1 - top]
+				)
 			)
 		}
 		if (!this.existing) {
@@ -87,7 +87,7 @@ export class Text_Demo extends Scene {
 			ambient: 0,
 			diffusivity: 0.3,
 			specularity: 0.5,
-			smoothness: 10,
+			smoothness: 10
 		})
 
 		// To show text you need a Material like this one:
@@ -95,23 +95,23 @@ export class Text_Demo extends Scene {
 			ambient: 1,
 			diffusivity: 0,
 			specularity: 0,
-			texture: new Texture('assets/text.png'),
+			texture: new Texture('assets/text.png')
 		})
 	}
 
 	display(context, program_state) {
 		program_state.lights = [
 			new Light(vec4(3, 2, 1, 0), color(1, 1, 1, 1), 1000000),
-			new Light(vec4(3, 10, 10, 1), color(1, 0.7, 0.7, 1), 100000),
+			new Light(vec4(3, 10, 10, 1), color(1, 0.7, 0.7, 1), 100000)
 		]
 		program_state.set_camera(
-			Mat4.look_at(...Vector.cast([0, 0, 4], [0, 0, 0], [0, 1, 0])),
+			Mat4.look_at(...Vector.cast([0, 0, 4], [0, 0, 0], [0, 1, 0]))
 		)
 		program_state.projection_transform = Mat4.perspective(
 			Math.PI / 4,
 			context.width / context.height,
 			1,
-			500,
+			500
 		)
 
 		const t = program_state.animation_time / 1000
@@ -119,7 +119,7 @@ export class Text_Demo extends Scene {
 			(Math.PI / 4) * t,
 			Math.cos(t),
 			Math.sin(t),
-			0.7 * Math.cos(t),
+			0.7 * Math.cos(t)
 		)
 		this.shapes.cube.draw(context, program_state, funny_orbit, this.grey)
 
@@ -129,7 +129,7 @@ export class Text_Demo extends Scene {
 			'1234567890',
 			'This is a line.\n\n\n' + 'This is another line.',
 			Text_Line.toString(),
-			Text_Line.toString(),
+			Text_Line.toString()
 		]
 
 		// Sample the "strings" array and draw them onto a cube.
@@ -138,7 +138,7 @@ export class Text_Demo extends Scene {
 				// Find the matrix for a basis located along one of the cube's sides:
 				let cube_side = Mat4.rotation(i == 0 ? Math.PI / 2 : 0, 1, 0, 0)
 					.times(
-						Mat4.rotation(Math.PI * j - (i == 1 ? Math.PI / 2 : 0), 0, 1, 0),
+						Mat4.rotation(Math.PI * j - (i == 1 ? Math.PI / 2 : 0), 0, 1, 0)
 					)
 					.times(Mat4.translation(-0.9, 0.9, 1.01))
 
@@ -151,7 +151,7 @@ export class Text_Demo extends Scene {
 						context,
 						program_state,
 						funny_orbit.times(cube_side).times(Mat4.scale(0.03, 0.03, 0.03)),
-						this.text_image,
+						this.text_image
 					)
 					// Move our basis down a line.
 					cube_side.post_multiply(Mat4.translation(0, -0.06, 0))

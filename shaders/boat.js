@@ -10,31 +10,31 @@ class BoatShader extends Shader {
 		gpu_addresses,
 		graphics_state,
 		model_transform,
-		material,
+		material
 	) {
 		// update_GPU():  Defining how to synchronize our JavaScript's variables to the GPU's:
 		const [P, C, M] = [
 			graphics_state.projection_transform,
 			graphics_state.camera_inverse,
-			model_transform,
+			model_transform
 		]
 
 		context.uniformMatrix4fv(
 			gpu_addresses.projection_transform,
 			false,
-			Matrix.flatten_2D_to_1D(P.transposed()),
+			Matrix.flatten_2D_to_1D(P.transposed())
 		)
 
 		context.uniformMatrix4fv(
 			gpu_addresses.camera_inverse,
 			false,
-			Matrix.flatten_2D_to_1D(C.transposed()),
+			Matrix.flatten_2D_to_1D(C.transposed())
 		)
 
 		context.uniformMatrix4fv(
 			gpu_addresses.model_transform,
 			false,
-			Matrix.flatten_2D_to_1D(M.transposed()),
+			Matrix.flatten_2D_to_1D(M.transposed())
 		)
 
 		context.uniform1f(gpu_addresses.animation_time, material.time)
@@ -92,7 +92,8 @@ class BoatShader extends Shader {
 		uniform sampler2D texture;
 		uniform float health;
 
-		//src: https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
+		// source: https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
+		float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
 		vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
 		vec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
 
@@ -122,9 +123,10 @@ class BoatShader extends Shader {
 
         vec3 normal = VERTEX_NORMAL;
         vec3 boat_color = texture2D(texture, vec2(uv.x, uv.y)).xyz;
-        float is_red_outline = step(health + 0.2, noise(VERTEX_POS * 30.0));
-        float is_red = step(health, noise(VERTEX_POS * 30.0));
-        boat_color = mix(boat_color, vec3(1.0, 0.0, 0.0), is_red);
+        float is_red_outline = step(health + 0.2, noise(VERTEX_POS.xyz * 10.0));
+        float is_red = step(health, noise(VERTEX_POS.xyz * 10.0));
+		vec3 red = vec3(1.0, 0.0, 0.0);
+        boat_color = mix(boat_color, red, is_red);
         vec3 ambient = vec3(0.2, 0.2, 0.2);
         vec3 light = normalize(vec3(1, 1, 1));
 

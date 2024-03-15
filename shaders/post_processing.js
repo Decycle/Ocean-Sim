@@ -10,7 +10,7 @@ class PostProcessingShader extends Shader {
 		gpu_addresses,
 		graphics_state,
 		model_transform,
-		material,
+		material
 	) {
 		if (material.texture && material.texture.ready) {
 			context.uniform1i(gpu_addresses.texture, 0)

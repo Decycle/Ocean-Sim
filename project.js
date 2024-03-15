@@ -1,17 +1,19 @@
-import {defs, tiny} from './examples/common.js'
-import PostProcessingShader from './shaders/post_processing.js'
-import Quaternion from './util/quaternion.js'
+import {tiny} from './examples/common.js'
 import {SplashEffect} from './models/splash_effect.js'
 import {Ocean} from './models/ocean.js'
 import {BackgroundRenderer} from './models/background.js'
-import {UIHandler} from './ui.js'
-import {Boat} from './models/boat.js'
-import {BigBoat} from './models/big_boat.js'
+import {UIHandler} from './game/ui.js'
 import {lerp, smoothlerp, clamp, remap} from './util/common.js'
 import {TestCube} from './models/test_cube.js'
 import {PostProcessor} from './models/post_processor.js'
-import {BoatPhysics} from './boat_physics.js'
+import {BoatPhysics} from './game/boat_physics.js'
 import {OceanMap} from './models/ocean_map.js'
+import {TargetManager} from './game/target.js'
+import {Config} from './game/config.js'
+import {States} from './game/states.js'
+import {BoatManager} from './game/boat_manager.js'
+import {Shop} from './game/shop.js'
+import {ShopPage} from './shop-page/ShopPage.js'
 // Pull these names into this module's scope for convenience:
 const {vec3, vec4, Mat4, color, hex_color, Material, Scene, Light, Texture} =
 	tiny
@@ -24,121 +26,113 @@ export class Project_Scene extends Scene {
 
 		this.widget_options = {
 			make_controls: true,
-			show_explanation: false,
+			show_explanation: false
 		}
-		this.boat = new Boat()
-		this.big_boat = new BigBoat()
+
+		this.config = new Config()
+		this.states = new States()
 
 		this.backgroundRenderer = new BackgroundRenderer()
 		this.uiHandler = new UIHandler()
 
-		this.oceanConfig = {
-			amplitude: 0.13,
-			waveMut: 0.22,
-			seed: 4551.671312417933,
-			amplitudeMultiplier: 0.94,
-			waveMultiplier: 1.1,
-			seedOffset: 8780.3143875966,
-		}
-
-		this.oceanBoundary = 200
-		this.oceanSubdivision = 200
-
 		this.ocean = new Ocean(
-			this.oceanBoundary,
-			this.oceanSubdivision,
-			this.oceanConfig,
+			this.config.oceanBoundary,
+			this.config.oceanSubdivision,
+			this.config.oceanConfig
 		)
 
 		this.oceanMap = new OceanMap(
-			hex_color('#000055'),
+			hex_color('#05133d'),
 			hex_color('#ff0000'),
-			this.oceanBoundary,
+			this.config.oceanBoundary
 		)
 
-		this.boat_physics = new BoatPhysics(
-			this.oceanConfig,
-			(t, x, z, ny, strength) => {
-				this.splash_effect.splash(t, x, z, ny, strength)
-			},
-			vec3(1, 1, 1),
-		)
-
-		//is the user rotating the camera
-		this.camera_rotate_left = false
-		this.camera_rotate_right = false
-		// current angle of the camera
-		this.camera_horizontal_angle = 0
-
-		// whether or not to show advanced controls
-		this.show_advanced_controls = true
-
-		// enable post processing
-		this.enable_post_processing = true
-
-		// current camera z offset (zoom)
-		this.camera_z_offset = 4.3
-		this.camera_z_min_offset = 0
-		this.camera_z_max_offset = 20
-
-		// camera rotation with mouse
-		this.mouse_camera_horizontal_angle = 0
-		this.mouse_camera_vertical_angle = 0
-		this.mouse_camera_horizontal_sensitivity = 0.005
-		this.mouse_camera_vertical_sensitivity = 0.003
-
-		// is the user zooming in or out
-		this.is_zooming_in = false
-		this.is_zooming_out = false
-
-		// splash effect
 		this.splash_effect = new SplashEffect()
-
-		// is the boat big
-		this.is_big_boat = false
-
-		// fov
-		this.fov = Math.PI / 3
-
-		// test
+		this.targetManager = new TargetManager(
+			this.config.oceanBoundary,
+			this.config.targets_per_chunk
+		)
 		this.test_cube = new TestCube()
 
-		this.small_boat_size = vec3(15.5, 6.5, 21.5)
-		this.big_boat_size = vec3(2.68, 8.1, 7.4)
+		this.boat_physics = new BoatPhysics(
+			this.config.oceanConfig,
+			(t, x, z, ny, water_color, strength) => {
+				this.splash_effect.splash(t, x, z, ny, water_color, strength)
+			},
+			vec3(1, 1, 1),
+			this.config.physicsConfig
+		)
 
-		this.small_boat_scale = 0.42
-		this.big_boat_scale = 1.0
+		this.boatManager = new BoatManager(
+			this.config.boatConfig,
+			this.boat_physics
+		)
 
-		this.camera_position = vec3(0, 0, 0)
+		this.shop = new Shop(this.config.shopConfig)
 
-		this.money = 0
-		this.upgrades = []
-
-		this.mouse_down = false
+		const canvasContainer = document.getElementById('main-canvas')
+		this.shopPage = new ShopPage(canvasContainer)
 	}
 
 	clamp_ocean_config() {
-		this.oceanConfig.amplitude = clamp(this.oceanConfig.amplitude, 0, 0.3)
-		this.oceanConfig.amplitudeMultiplier = clamp(
-			this.oceanConfig.amplitudeMultiplier,
+		this.config.oceanConfig.amplitude = clamp(
+			this.config.oceanConfig.amplitude,
 			0,
-			0.99,
+			0.3
 		)
-		this.oceanConfig.waveMut = clamp(this.oceanConfig.waveMut, 0, 2)
-		this.oceanConfig.waveMultiplier = clamp(
-			this.oceanConfig.waveMultiplier,
+		this.config.oceanConfig.amplitudeMultiplier = clamp(
+			this.config.oceanConfig.amplitudeMultiplier,
+			0,
+			0.99
+		)
+		this.config.oceanConfig.waveMut = clamp(
+			this.config.oceanConfig.waveMut,
+			0,
+			2
+		)
+		this.config.oceanConfig.waveMultiplier = clamp(
+			this.config.oceanConfig.waveMultiplier,
 			1.01,
-			2,
+			2
 		)
+	}
+
+	pause(t) {
+		this.states.is_paused = true
+		this.states.last_paused_time = t
+	}
+
+	unpause(t) {
+		this.states.is_paused = false
+		this.states.missed_time += t - this.states.last_paused_time
 	}
 
 	display(context, program_state) {
 		super.display(context, program_state)
 
-		const t = program_state.animation_time / 1000
-		const dt = program_state.animation_delta_time / 1000
+		if (this.won) {
+			console.log('display winning screen')
+			return
+		}
 
-		console.log(1 / dt)
+		let t = program_state.animation_time / 1000
+		let dt = 1 / 60 // fixed time step for physics to work properly
+
+		this.t = t
+
+		if (this.states.is_paused) {
+			// record the time when the game is paused
+			t = this.states.last_paused_time
+			// dt = 0
+		} else {
+			t -= this.states.missed_time
+		}
+
+		// console.log('t:', t, 'dt:', dt)
+		// console.log('last paused time:', this.states.last_paused_time)
+		// console.log('missed time:', this.states.missed_time)
+
+		// console.log(1 / dt)
 
 		// development camera
 		// if (!context.scratchpad.controls) {
@@ -152,63 +146,68 @@ export class Project_Scene extends Scene {
 		// 	Mat4.look_at(vec3(0, 1, 3), vec3(0, 0, 0), vec3(0, 1, 0)),
 		// )
 		// }
-		const boatScale = this.is_big_boat
-			? this.big_boat_scale
-			: this.small_boat_scale
+		const boatScale = this.boatManager.boatScale()
+		const scaledBoatSize = this.boatManager.boatScaledSize()
 
-		const boatSize = this.is_big_boat
-			? this.big_boat_size
-			: this.small_boat_size
-
-		const boat = this.is_big_boat ? this.big_boat : this.boat
-
-		const scaledBoatSize = boatSize.times(boatScale)
+		const [r, g, b, a] = this.oceanMap.get_center_color()
+		const water_color = vec4(r / 255, g / 255, b / 255, 1)
 
 		this.boat_physics.updateBoatSize(scaledBoatSize)
-		this.boat_physics.updateOceanConfig(this.oceanConfig)
+		this.boat_physics.updateOceanConfig(this.config.oceanConfig)
 
+		this.boat_physics.update(t, dt, water_color)
 		const [x, y, z] = this.boat_physics.boat_position
-		this.boat_physics.update(t, dt)
 
 		this.oceanMap.init_map(context, program_state, x, z)
+		if (this.states.render_steps === 0) {
+			return
+		}
+		this.oceanMap.clear_screen(context)
 
 		// camera rotation
-		if (this.camera_rotate_left) {
-			this.camera_horizontal_angle += 0.02
-		} else if (this.camera_rotate_right) {
-			this.camera_horizontal_angle -= 0.02
+		if (this.states.camera_rotate_left) {
+			this.states.camera_horizontal_angle += 0.02
+		} else if (this.states.camera_rotate_right) {
+			this.states.camera_horizontal_angle -= 0.02
 		}
-		this.camera_horizontal_angle = clamp(
-			this.camera_horizontal_angle,
+		this.states.camera_horizontal_angle = clamp(
+			this.states.camera_horizontal_angle,
 			-Math.PI / 4,
-			Math.PI / 4,
+			Math.PI / 4
 		)
 
 		// zooming in and out
-		if (this.is_zooming_in) {
-			this.camera_z_offset *= 0.97
-		} else if (this.is_zooming_out) {
-			this.camera_z_offset *= 1.03
+		if (this.states.is_zooming_in) {
+			this.states.camera_z_offset *= 0.97
+		} else if (this.states.is_zooming_out) {
+			this.states.camera_z_offset *= 1.03
 		}
 
-		this.camera_z_offset = clamp(
-			this.camera_z_offset,
-			this.camera_z_min_offset,
-			this.camera_z_max_offset,
+		this.states.camera_z_offset = clamp(
+			this.states.camera_z_offset,
+			this.config.camera_z_min_offset,
+			this.config.camera_z_max_offset
 		)
+
 		// update the camera position
-		this.camera_position[0] = smoothlerp(this.camera_position[0], x, 0.5)
-		this.camera_position[1] = smoothlerp(this.camera_position[1], y, 0.5)
-		this.camera_position[2] = smoothlerp(this.camera_position[2], z, 0.5)
+		this.states.camera_position[0] = smoothlerp(
+			this.states.camera_position[0],
+			x,
+			30 * dt
+		)
+		this.states.camera_position[1] = smoothlerp(
+			this.states.camera_position[1],
+			y,
+			30 * dt
+		)
+		this.states.camera_position[2] = smoothlerp(
+			this.states.camera_position[2],
+			z,
+			30 * dt
+		)
 
-		const small_boat_captain_position = vec3(0, 0.5, 0)
-		const big_boat_captain_position = vec3(0.5, 0.5, 0)
-
-		const captain_position = this.is_big_boat
-			? big_boat_captain_position
-			: small_boat_captain_position
-
-		const camera_target = this.camera_position.plus(captain_position)
+		const captain_position = this.boatManager.captainPosition()
+		const camera_target = this.states.camera_position.plus(captain_position)
 
 		program_state.set_camera(
 			Mat4.inverse(
@@ -218,45 +217,57 @@ export class Project_Scene extends Scene {
 						Mat4.translation(
 							camera_target[0],
 							camera_target[1],
-							camera_target[2],
-						), //look at where a human would be
+							camera_target[2]
+						) //look at where a human would be
 					)
-					// .times(Mat4.rotation(-this.mouse_camera_vertical_angle, 0, 0, 1)) // mouse camera rotation
-					.times(Mat4.rotation(-this.mouse_camera_horizontal_angle, 0, 1, 0)) // mouse camera rotation
+					// .times(Mat4.rotation(-use_camera_vertical_angle, 0, 0, 1)) // mouse camera rotation
 					.times(
-						Mat4.rotation(this.boat_physics.boat_horizontal_angle, 0, 1, 0),
+						Mat4.rotation(-this.states.mouse_camera_horizontal_angle, 0, 1, 0)
+					) // mouse camera rotation
+					.times(
+						Mat4.rotation(this.boat_physics.boat_horizontal_angle, 0, 1, 0)
 					) // align with boat's rotation
 					.times(Mat4.rotation(-0.5, 0, 0, 1)) //look down a bit
 					.times(Mat4.rotation(-Math.PI / 2, 0, 1, 0)) // forward direction change to x from z
-					.times(Mat4.translation(0, 0, this.camera_z_offset)), // zoom,
-			),
+					.times(Mat4.translation(0, 0, this.states.camera_z_offset)) // zoom,
+			)
 		)
 
 		const normal_fov = Math.PI * 0.33
-		const fast_fov = Math.PI * 0.5
+		const fast_fov = Math.PI * 0.4
 
 		const fov = remap(
-			this.boat_physics.boat_velocity.norm(),
+			this.boat_physics.boat_velocity[0],
 			0,
-			this.boat_physics.boat_maximum_velocity * 1.141,
+			this.boat_physics.boat_maximum_velocity,
 			normal_fov,
-			fast_fov,
+			fast_fov
 		)
 
-		this.fov = smoothlerp(this.fov, fov, 0.07) // higher fov when moving faster
+		this.states.fov = smoothlerp(this.states.fov, fov, 4.2 * dt) // higher fov when moving faster
 
 		program_state.projection_transform = Mat4.perspective(
-			this.fov,
+			this.states.fov,
 			context.width / context.height,
 			0.1,
-			100,
+			100
 		)
+
+		this.targetManager.explore(x, z)
+
 		// first pass
 		this.backgroundRenderer.draw(context, program_state) // render the background
+		if (this.states.render_steps === 1) {
+			return
+		}
 		this.splash_effect.draw(context, program_state) // render the splash effect (if any)
 
 		const ocean_model_transform = Mat4.translation(x, 0, z).times(
-			Mat4.translation(-this.oceanBoundary / 2, 0, -this.oceanBoundary / 2),
+			Mat4.translation(
+				-this.config.oceanBoundary / 2,
+				0,
+				-this.config.oceanBoundary / 2
+			)
 		)
 
 		this.clamp_ocean_config()
@@ -267,19 +278,24 @@ export class Project_Scene extends Scene {
 			this.oceanConfig,
 			t,
 			this.oceanMap.get_map(),
+			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary)
 		) // render the ocean
+
+		if (this.states.render_steps === 2) {
+			return
+		}
 
 		// convert the quaternion to a rotation matrix1
 		const rotation = this.boat_physics.quaternion.toMatrix()
 
-		const bigFlip = this.is_big_boat ? -1 : 1 // flip the boat if it's big
-		const bigRotate = this.is_big_boat ? -Math.PI / 2 : 0 // rotate the boat if it's big
-		const bigRaise = this.is_big_boat ? 1 : 0 // raise the boat if it's big
+		const bigFlip = this.boatManager.is_big_boat ? -1 : 1 // flip the boat if it's big
+		const bigRotate = this.boatManager.is_big_boat ? -Math.PI / 2 : 0 // rotate the boat if it's big
+		const bigRaise = this.boatManager.is_big_boat ? 1 : 0 // raise the boat if it's big
 
 		const boat_model_transform = Mat4.translation(
 			x,
 			y + bigRaise, // so that the bottom of the boat is at the water level
-			z,
+			z
 		) // boat position
 			.times(Mat4.rotation(this.boat_physics.boat_horizontal_angle, 0, 1, 0)) // boat horizontal angle
 			.times(rotation) // boat quaternion rotation
@@ -287,48 +303,87 @@ export class Project_Scene extends Scene {
 			.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)) // rotate the boat 180 degrees by z axis so it faces the right way
 			.times(Mat4.scale(boatScale, boatScale * bigFlip, boatScale)) // boat scale
 
-		boat.draw(context, program_state, boat_model_transform) // render the boat
+		this.boatManager.draw(context, program_state, boat_model_transform) // render the boat
 
-		const targetX = 100
-		const targetZ = 200
-
-		for (let i = -3; i <= 3; i++) {
-			for (let j = -3; j <= 3; j++) {
-				const nx = targetX + 2 * i
-				const nz = targetZ + 2 * j
-				// const output = this.get_gerstner_wave(nx, nz, t)
-				const output = this.boat_physics.get_gerstner_wave(nx, nz, t)
-				const pos = output[0]
-				const normal = output[1]
-				this.test_cube.draw_line(
-					context,
-					program_state,
-					pos[0],
-					pos[1],
-					pos[2],
-					normal[0],
-					normal[1],
-					normal[2],
-					0.1,
-				)
-			}
+		if (this.states.render_steps === 3) {
+			return
 		}
+		for (const target of this.targetManager.targets) {
+			const tx = target.x
+			const tz = target.z
+
+			const distanceSquared = (tx - x) ** 2 + (tz - z) ** 2
+			if (
+				distanceSquared <= this.config.consume_target_distance ** 2 &&
+				target.active
+			) {
+				target.active = false
+				this.shop.money += 1
+				if (this.shop.money >= 5) {
+					this.shop.money = 5
+				}
+				this.boatManager.can_teleport = true
+
+				// if (this.shop.money >= this.config.win_money) {
+				// 	this.won = true
+				// 	console.log('You won!')
+				// }
+			}
+
+			if (
+				distanceSquared > this.config.oceanBoundary ** 2 / 2 ||
+				!target.active
+			) {
+				continue
+			}
+			const output = this.boat_physics.get_gerstner_wave(tx, tz, t)
+			const pos = output[0]
+			const normal = output[1]
+			this.test_cube.draw_line(
+				context,
+				program_state,
+				pos[0],
+				pos[1],
+				pos[2],
+				normal[0],
+				normal[1],
+				normal[2],
+				0.1
+			)
+		}
+		// second pass
+		this.post_processor.draw(context, program_state)
+		if (this.states.render_steps === 4) {
+			return
+		}
+
 		this.oceanMap.draw_map(
 			context,
 			program_state,
 			this.boat_physics.boat_horizontal_angle,
-			(targetX - x) / this.oceanBoundary,
-			(targetZ - z) / this.oceanBoundary,
+			this.targetManager.toFloat32Array(x, z, this.config.oceanBoundary)
 		)
-		// second pass
-		// if (this.enable_post_processing) {
-		// 	this.post_processor.draw(context, program_state)
-		// }
+		this.shop.draw_menu(context, program_state)
+
+		// console.log(r)
+		if (r >= this.config.damageThreshold) {
+			//take damage
+			const damage =
+				((r - this.config.damageThreshold) /
+					(255 - this.config.damageThreshold)) *
+				dt *
+				this.config.damageMultiplier
+			this.boatManager.take_damage(damage)
+			if (this.boatManager.health <= 0) {
+				this.respawn()
+			}
+		}
 
 		// if the user is pressing the splash key, splash
-		if (this.is_splashing) {
-			this.splash_effect.splash(t, x, z, ny)
-			this.is_splashing = false
+		if (this.states.is_splashing) {
+			const ny = this.boat_physics.get_gerstner_wave(x, z, t)[0][1]
+			this.splash_effect.splash(t, x, z, ny, water_color)
+			this.states.is_splashing = false
 		}
 
 		// every 10 seconds, clean up unused splash effect
@@ -336,58 +391,48 @@ export class Project_Scene extends Scene {
 			this.splash_effect.cleanup(t)
 		}
 
-		const [r, g, b, a] = this.oceanMap.get_center_color()
-
-		// console.log(r)
-		if (r >= 64) {
-			//take damage
-			if (this.is_big_boat) {
-				this.big_boat.take_damage(0.003)
-				if (this.big_boat.health <= 0) {
-					this.respawn()
-				}
-			} else {
-				this.boat.take_damage(0.003)
-				if (this.boat.health <= 0) {
-					this.respawn()
-				}
-			}
-		}
+		this.shopPage.updateBalance(this.shop.money)
+		const statusMessage = this.boatManager.has_teleporter
+			? this.boatManager.can_teleport
+				? 'Press t to teleport'
+				: 'Teleporter on Cooldown'
+			: 'Teleporter: Missing'
+		this.shopPage.updateTeleporterStatus(statusMessage)
 	}
 
 	respawn() {
+		// lost half money on death
 		this.boat_physics.boat_position = vec3(0, 0, 0)
-		this.big_boat.health = 1
-		this.boat.health = 1
-		this.money = 0
-		this.upgrades = []
+		this.boatManager.health = this.boatManager.max_health
+		this.states.money = Math.floor(this.states.money / 2)
+		this.shopPage.updateBalance(this.shop.money)
+		this.states.upgrades = []
 	}
 
 	add_camera_controls(canvas) {
 		canvas.addEventListener('click', (e) => {
-			this.mouse_down = true
-			this.last_mouse_x = e.clientX
-			this.last_mouse_y = e.clientY
-			console.log(this.mouse_down)
+			this.states.is_mouse_down = true // for some very weird reason, e triggers twice
+			this.states.last_mouse_x = e.clientX
+			this.states.last_mouse_y = e.clientY
 		})
 
 		canvas.addEventListener('mousemove', (e) => {
-			if (this.mouse_down) {
-				const dx = e.clientX - this.last_mouse_x
-				const dy = e.clientY - this.last_mouse_y
-				this.mouse_camera_horizontal_angle +=
-					dx * this.mouse_camera_horizontal_sensitivity
-				this.mouse_camera_vertical_angle +=
-					dy * this.mouse_camera_vertical_sensitivity
+			if (this.states.is_mouse_down) {
+				const dx = e.clientX - this.states.last_mouse_x
+				const dy = e.clientY - this.states.last_mouse_y
+				this.states.mouse_camera_horizontal_angle +=
+					dx * this.config.mouse_camera_horizontal_sensitivity
+				this.states.mouse_camera_vertical_angle +=
+					dy * this.config.mouse_camera_vertical_sensitivity
 
 				// cap dy
-				this.mouse_camera_vertical_angle = Math.min(
+				this.states.mouse_camera_vertical_angle = Math.min(
 					Math.PI / 4,
-					Math.max(0, this.mouse_camera_vertical_angle),
+					Math.max(0, this.states.mouse_camera_vertical_angle)
 				)
 
-				this.last_mouse_x = e.clientX
-				this.last_mouse_y = e.clientY
+				this.states.last_mouse_x = e.clientX
+				this.states.last_mouse_y = e.clientY
 			}
 		})
 	}
