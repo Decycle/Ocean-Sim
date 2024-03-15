@@ -48,32 +48,32 @@ export class OceanMapDisplay extends Shader {
 		return (
 			this.shared_glsl_code() +
 			`
-            uniform sampler2D texture;
-			uniform float theta;
+				uniform sampler2D texture;
+				uniform float theta;
 
-			uniform vec2 targets[100];
+				uniform vec2 targets[100];
 
-			float draw_circle(vec2 uv, vec2 c, float r) {
-				return smoothstep(r + 0.005, r, length(uv - c));
-			}
-
-            void main(){
-                vec2 uv = f_tex_coord * 2. - 1.;
-				uv = vec2(
-					uv.x * cos(theta) - uv.y * sin(theta),
-					uv.x * sin(theta) + uv.y * cos(theta)
-				);
-                float d = length(uv);
-                if (d > 1.)
-                    discard;
-                vec4 color = texture2D( texture, uv * 0.5 + 0.5);
-				color = mix(vec4(0.3, 1., 0., 1.), color, smoothstep(0., 0.1, d));
-				for (int i = 0; i < 100; i++) {
-					color += vec4(1.) * draw_circle(uv.yx, targets[i], 0.01);
+				float draw_circle(vec2 uv, vec2 c, float r) {
+					return smoothstep(r + 0.005, r, length(uv - c));
 				}
-				color = mix(color, vec4(173. / 255., 116. / 255., 54. / 255., 1.), smoothstep(0.95, 1., d));
-                gl_FragColor = color;
-            }
+
+				void main(){
+					vec2 uv = f_tex_coord * 2. - 1.;
+					uv = vec2(
+						uv.x * cos(theta) - uv.y * sin(theta),
+						uv.x * sin(theta) + uv.y * cos(theta)
+					);
+					float d = length(uv);
+					if (d > 1.)
+							discard;
+					vec4 color = texture2D( texture, uv * 0.5 + 0.5);
+					color = mix(vec4(0.3, 1., 0., 1.), color, smoothstep(0., 0.1, d));
+					for (int i = 0; i < 100; i++) {
+						color += vec4(1.) * draw_circle(uv.yx, targets[i], 0.01);
+					}
+					color = mix(color, vec4(173. / 255., 116. / 255., 54. / 255., 1.), smoothstep(0.95, 1., d));
+					gl_FragColor = color;
+				}
       `
 		)
 	}
