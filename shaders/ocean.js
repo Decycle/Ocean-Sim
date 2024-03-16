@@ -196,36 +196,35 @@ class OceanShader extends Shader {
 
     vec3 sky(vec3 rd, vec3 lightDir)
     {
-        vec3 col = vec3(0.3,0.5,0.85) - rd.y * rd.y * 0.5;
-        col = mix( col, 0.85*vec3(0.7,0.75,0.85), pow( 1.0-max(rd.y,0.0), 4.0 ) );
+        vec3 col = vec3(82.,122.,212.) / 255. - rd.y * rd.y * 0.5;
+        col = mix( col, 0.83*vec3(173., 189., 214.) / 255., pow( 1.0-max(rd.y,0.0), 4.0 ) );
 
         // horizon
-        col = mix( col, 0.68*vec3(0.4,0.65,1.0), pow( 1.0-max(rd.y,0.0), 16.0 ) );
+        col = mix( col, 0.69*vec3(100., 166, 255.) / 255., pow( 1.0-max(rd.y,0.0), 16.0 ) );
 
         return col;
     }
 
-    float fresnel(vec3 N, vec3 V)
+    float fresnel(vec3 normal, vec3 viewDir)
     {
-        float F0 = 0.04;
-
-        return F0 + (1. - F0) * pow(1. - dot(V, N), 5.);
+        float F0 = 0.04; // water
+        return F0 + (1. - F0) * pow(1. - dot(viewDir, normal), 5.);
     }
 
-    vec3 lighting(vec3 N, vec3 L, vec3 V, vec3 oceanColor)
+    vec3 lighting(vec3 normal, vec3 lightDir, vec3 viewDir, vec3 oceanColor)
     {
 
-        vec3 R = normalize(reflect(-L, N));
+        vec3 reflectDir = normalize(reflect(-lightDir, normal));
 
-        float spec = max(dot(R, V), 0.);
-        spec = pow(spec, 30.);
-        spec = clamp(spec, 0., 1.);
-
-        float fresnel = fresnel(N, V);
+        float fresnel = fresnel(normal, viewDir);
         fresnel = clamp(fresnel, 0., 1.);
 
-        vec3 reflected = sky(reflect(-V, N), L);
+        vec3 reflected = sky(reflect(-viewDir, normal), lightDir);
         vec3 col = mix(oceanColor, reflected, fresnel);
+
+        float spec = max(dot(reflectDir, viewDir), 0.);
+        spec = pow(spec, 30.);
+        spec = clamp(spec, 0., 1.);
         col += vec3(spec);
 
         return clamp(col, 0., 1.);

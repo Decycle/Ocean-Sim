@@ -63,11 +63,11 @@ class BackgroundShader extends Shader {
       void main(){
         // gl_FragColor = color;
 		float y = world_pos.y * 2. - 1.3;
-		vec3 col = vec3(0.3,0.5,0.85) - y * y * 0.5;
-        col = mix( col, 0.85*vec3(0.7,0.75,0.85), pow( 1.0-max(y,0.0), 4.0 ) );
+		vec3 col = vec3(82.,122.,212.) / 255. - y * y * 0.5;
+        col = mix( col, 0.83*vec3(173., 189., 214.) / 255., pow( 1.0-max(y,0.0), 4.0 ) );
 
         // horizon
-        col = mix( col, 0.68*vec3(0.4,0.65,1.0), pow( 1.0-max(y,0.0), 16.0 ) );
+        col = mix( col, 0.69*vec3(100., 166, 255.) / 255., pow( 1.0-max(y,0.0), 16.0 ) );
         gl_FragColor = vec4(col, 1.);
       }
       `
