@@ -92,6 +92,7 @@ class BoatShader extends Shader {
 		uniform sampler2D texture;
 		uniform float health;
 
+		// noise function
 		// source: https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
 		float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
 		vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
