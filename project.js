@@ -411,7 +411,8 @@ export class Project_Scene extends Scene {
 		this.states.last_spawn_time = t
 		this.boatManager.health = this.boatManager.max_health
 		this.shopPage.updateHealth(this.boatManager.health)
-		this.states.money = Math.floor(this.states.money / 2)
+		this.shop.money = Math.floor(this.shop.money / 2)
+		console.log(this.shop.money)
 		this.shopPage.updateBalance(this.shop.money)
 		this.states.upgrades = []
 	}
