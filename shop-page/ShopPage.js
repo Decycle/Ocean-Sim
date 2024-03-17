@@ -31,14 +31,14 @@ export class ShopPage {
 				<div class="small-item">
 					<img src="../assets/ui/arrow-up-circle.svg" alt="Arrow Up in Circle Icon" />
 					<div>
-						<strong>[i] Speed Boost</strong>
+						<strong>[i] Max Speed Boost</strong>
 						<p>1 Token</p>
 					</div>
 				</div>
 				<div class="small-item">
 					<img src="../assets/ui/activity.svg" alt="Activity Icon" />
 					<div>
-						<strong>[o] Max Health</strong>
+						<strong>[o] Max Health Boost</strong>
 						<p>2 Tokens</p>
 					</div>
 				</div>

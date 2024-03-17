@@ -126,7 +126,6 @@ export class UIHandler {
 		for (let item of scene.shop.items) {
 			const title = `${item.name} Cost: ${item.cost}`
 			scene.key_triggered_button(title, [item.key], () => {
-				if (!scene.shopPage.is_open) return
 				scene.shop.buy_item(item, scene.boatManager)
 			})
 		}
@@ -143,12 +142,12 @@ export class UIHandler {
 		scene.live_string((box) => {
 			if (scene.boatManager.has_teleporter) {
 				if (scene.boatManager.can_teleport) {
-					box.textContent = 'Teleporter Ready'
+					box.textContent = 'Teleporter: Ready'
 				} else {
-					box.textContent = 'Teleporter Cooldown'
+					box.textContent = 'Teleporter: Cooldown'
 				}
 			} else {
-				box.textContent = 'Missing Teleporter'
+				box.textContent = 'Teleporter: None'
 			}
 		})
 
