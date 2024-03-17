@@ -4,51 +4,96 @@ export class ShopPage {
 		canvasContainer.appendChild(this.shopPageEl)
 		this.shopPageEl.innerHTML = `
 		<link rel="stylesheet" href="shop-page/style.css" />
-		<div id="shop-container">
+		<div id="ui-container">
 			<div id="info">
-				<div id="current-balance-container">
-					<p>Current Balance: </p>
+				<div id="health-container">
+					<p>Health:</p>
+					<div id="health-heart-container"></div>
+				</div>
+				<div id="balance-container">
+					<p>Balance:</p>
 					<div id="balance-token-container"></div>
 				</div>
-				<p id="teleporter-info"> Teleporter: Missing </p>
-				<br />
-				<p id="shop-shortcut-info"> [m] Shop </p>
+				<p id="teleporter-info">Teleporter: None</p>
+				<div id="menu-container">
+					<p id="shop-shortcut-info">[m] Shop</p>
+					<p id="cheats-shortcut-info">[c] Cheats</p>
+				</div>
 			</div>
 			<div id="shop">
 				<div class="small-item">
 					<img src="../assets/ui/heart.svg" alt="Heart Icon" />
-					<strong>[h] Heal</strong>
-					<p>1 Token</p>
-				</div>
-				<div class="small-item">
-					<img src="../assets/ui/activity.svg" alt="Activity Icon" />
-					<strong>[o] Max Health</strong>
-					<p>2 Tokens</p>
+					<div>
+						<strong>[h] Heal</strong>
+						<p>1 Token</p>
+					</div>
 				</div>
 				<div class="small-item">
 					<img src="../assets/ui/arrow-up-circle.svg" alt="Arrow Up in Circle Icon" />
-					<strong>[i] Speed Boost</strong>
-					<p>1 Token</p>
+					<div>
+						<strong>[i] Speed Boost</strong>
+						<p>1 Token</p>
+					</div>
+				</div>
+				<div class="small-item">
+					<img src="../assets/ui/activity.svg" alt="Activity Icon" />
+					<div>
+						<strong>[o] Max Health</strong>
+						<p>2 Tokens</p>
+					</div>
 				</div>
 				<div class="small-item">
 					<img src="../assets/ui/chevrons-up.svg" alt="Up Chevrons Icon" />
-					<strong>[k] Teleporter</strong>
-					<p>5 Token</p>
+					<div>
+						<strong>[k] Teleporter</strong>
+						<p>5 Tokens</p>
+					</div>
 				</div>
 				<div class="large-item">
-					<img src="../assets/ui/big-ship-screenshot.png" alt="Big Ship Screenshot" />
-					<strong>[b] Big Ship</strong>
-					<p>3 Tokens</p>
+					<img src="../assets/ui/big-ship.png" alt="Big Ship Screenshot" />
+					<div>
+						<strong>[b] Big Ship</strong>
+						<p>3 Tokens</p>
+					</div>
+				</div>
+			</div>
+			<div id="cheats">
+				<div class="cheat-shortcut">
+					<strong>[l] Jump to Splash!</strong>
+				</div>
+				<div class="cheat-shortcut">
+					<strong>[g] Give Money</strong>
+				</div>
+				<div class="cheat-shortcut">
+					<strong>[j] Reset Teleporter</strong>
+				</div>
+				<div class="cheat-shortcut">
+					<strong>[n] Next Render Step</strong>
 				</div>
 			</div>
 		</div>`
 
-		this.is_open = false
+		this.shop_is_open = false
+		this.cheats_is_open = false
 	}
 
 	updateTeleporterStatus(status) {
 		const teleporterInfo = document.querySelector('#teleporter-info')
 		teleporterInfo.innerHTML = status
+	}
+
+	updateHealth(health) {
+		health = Math.ceil(health * 10)
+		const healthHeartContainer = document.querySelector(
+			'#health-heart-container'
+		)
+		healthHeartContainer.innerHTML = ''
+		for (let i = 0; i < health; i++) {
+			const heart = document.createElement('img')
+			heart.classList.add('heart')
+			heart.src = 'assets/ui/heart-red.svg'
+			healthHeartContainer.appendChild(heart)
+		}
 	}
 
 	updateBalance(balance) {
@@ -64,10 +109,29 @@ export class ShopPage {
 		}
 	}
 
-	toggle() {
-		this.is_open = !this.is_open
-		document.querySelector('#shop').style.display = this.is_open
-			? 'grid'
-			: 'none'
+	changeShopState(state) {
+		this.shop_is_open = state
+		document.querySelector('#shop').style.display = state ? 'grid' : 'none'
+		document.querySelector('#shop-shortcut-info').innerHTML = state
+			? '[m] Hide Shop'
+			: '[m] Shop'
+	}
+
+	changeCheatsState(state) {
+		this.cheats_is_open = state
+		document.querySelector('#cheats').style.display = state ? 'grid' : 'none'
+		document.querySelector('#cheats-shortcut-info').innerHTML = state
+			? '[c] Hide Cheats'
+			: '[c] Cheats'
+	}
+
+	shopToggle() {
+		if (this.cheats_is_open) this.changeCheatsState(false)
+		this.changeShopState(!this.shop_is_open)
+	}
+
+	cheatsToggle() {
+		if (this.shop_is_open) this.changeShopState(false)
+		this.changeCheatsState(!this.cheats_is_open)
 	}
 }

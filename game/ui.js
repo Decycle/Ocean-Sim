@@ -130,8 +130,8 @@ export class UIHandler {
 				scene.shop.buy_item(item, scene.boatManager)
 			})
 		}
-		scene.key_triggered_button('Close', ['m'], () => {
-			scene.shopPage.toggle()
+		scene.key_triggered_button('Shop', ['m'], () => {
+			scene.shopPage.shopToggle()
 		})
 		scene.new_line()
 		scene.live_string((box) => {
@@ -234,7 +234,7 @@ export class UIHandler {
 				scene.config.oceanConfig.waveMultiplier -= 0.1
 			})
 			scene.new_line()
-			scene.key_triggered_button('randomize', ['r'], () => {
+			scene.key_triggered_button('Randomize', ['r'], () => {
 				scene.config.oceanConfig.seed = Math.random() * 10000
 				scene.config.oceanConfig.seedOffset = Math.random() * 10000
 			})
@@ -242,19 +242,22 @@ export class UIHandler {
 				box.textContent = `Seed: ${scene.config.oceanConfig.seed} | Seed Offset: ${scene.config.oceanConfig.seedOffset}`
 			})
 			scene.new_line()
-			scene.key_triggered_button('splash!', ['l'], () => {
+			scene.key_triggered_button('Cheats', ['c'], () => {
+				scene.shopPage.cheatsToggle()
+			})
+			scene.key_triggered_button('Jump to Splash!', ['l'], () => {
 				// scene.states.is_splashing = true
-				scene.boat_physics.boat_position[1] += 0.5
+				scene.boat_physics.boat_position[1] += 1.5
 			})
 			scene.new_line()
-			scene.key_triggered_button('give money', ['g'], () => {
-				scene.shop.money += 1
+			scene.key_triggered_button('Give Money', ['g'], () => {
+				scene.shop.money += scene.shop.money >= 10 ? 0 : 1
 			})
-			scene.key_triggered_button('reset teleporter', ['j'], () => {
+			scene.key_triggered_button('Reset Teleporter', ['j'], () => {
 				scene.boatManager.can_teleport = true
 				console.log(scene.boatManager.can_teleport)
 			})
-			scene.key_triggered_button('next render step', ['n'], () => {
+			scene.key_triggered_button('Next Render Step', ['n'], () => {
 				scene.states.render_steps += 1
 				scene.states.render_steps = scene.states.render_steps % 6
 			})

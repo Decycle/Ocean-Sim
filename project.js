@@ -307,6 +307,7 @@ export class Project_Scene extends Scene {
 			.times(Mat4.scale(boatScale, boatScale * bigFlip, boatScale)) // boat scale
 
 		this.boatManager.draw(context, program_state, boat_model_transform) // render the boat
+		this.shopPage.updateHealth(this.boatManager.health)
 
 		if (this.states.render_steps === 3) {
 			return
@@ -321,7 +322,7 @@ export class Project_Scene extends Scene {
 				target.active
 			) {
 				target.active = false
-				this.shop.money += 1
+				this.shop.money += this.shop.money >= 10 ? 0 : 1
 				this.boatManager.can_teleport = true
 
 				// if (this.shop.money >= this.config.win_money) {
@@ -377,6 +378,7 @@ export class Project_Scene extends Scene {
 				dt *
 				this.config.damageMultiplier
 			this.boatManager.take_damage(damage)
+			this.shopPage.updateHealth(this.boatManager.health)
 			if (this.boatManager.health <= 0) {
 				this.respawn(t)
 			}
@@ -397,9 +399,9 @@ export class Project_Scene extends Scene {
 		this.shopPage.updateBalance(this.shop.money)
 		const statusMessage = this.boatManager.has_teleporter
 			? this.boatManager.can_teleport
-				? 'Press t to Teleport'
-				: 'Teleporter on Cooldown'
-			: 'Teleporter: Missing'
+				? 'Teleporter: Press [t] to Teleport'
+				: 'Teleporter: Collect Token to Reactivate'
+			: 'Teleporter: None'
 		this.shopPage.updateTeleporterStatus(statusMessage)
 	}
 
@@ -408,6 +410,7 @@ export class Project_Scene extends Scene {
 		this.boat_physics.boat_position = vec3(0, 0, 0)
 		this.states.last_spawn_time = t
 		this.boatManager.health = this.boatManager.max_health
+		this.shopPage.updateHealth(this.boatManager.health)
 		this.states.money = Math.floor(this.states.money / 2)
 		this.shopPage.updateBalance(this.shop.money)
 		this.states.upgrades = []

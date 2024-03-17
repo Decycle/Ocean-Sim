@@ -2,48 +2,97 @@ p {
 	margin: 0;
 }
 
-#shop-container {
+#ui-container {
 	position: absolute;
 	padding: 2rem;
-	opacity: 0.85;
 	font-family: monospace;
+}
+
+#info {
+	color: white;
+}
+
+#health-container,
+#balance-container {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+#health-heart-container,
+#balance-token-container {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	height: 1.5rem;
+	margin-left: 0.25rem;
+}
+
+.heart {
+	width: 1.15rem;
+	height: 1.15rem;
+	margin-right: 0.2rem;
+}
+
+.balance-token {
+	width: 1.5rem;
+	height: 1.5rem;
+	margin-right: -0.25rem;
+	margin-bottom: -0.5rem;
+}
+
+#teleporter-info {
+	line-height: 1.5rem;
+}
+
+#menu-container {
+	display: flex;
+	justify-content: space-between;
+	width: 18rem;
+	margin-block: 1.25rem;
+}
+
+#shop-shortcut-info,
+#cheats-shortcut-info {
+	width: 8rem;
+}
+
+#cheats-shortcut-info {
+	opacity: 0.5;
 }
 
 #shop {
 	display: none;
-	grid-template-columns: repeat(3, auto);
-	gap: 1rem;
-	margin-top: 1rem;
+	grid-template-columns: repeat(3, 9rem);
+	gap: 0.75rem;
 }
 
-.small-item {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 0.3rem;
-	padding: 0.5rem;
-	border: 0.15rem solid white;
-	border-radius: 5px;
-	color: white;
-}
-
-.small-item > img {
-	height: 2.5rem;
-	margin-bottom: 0.5rem;
-}
-
+.small-item,
 .large-item {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
-	gap: 0.3rem;
-	grid-area: 1 / 3 / span 2 / span 2;
+	justify-content: space-between;
+	gap: 0.25rem;
 	padding: 0.5rem;
 	border: 0.15rem solid white;
 	border-radius: 5px;
+	text-align: center;
 	color: white;
+}
+
+.small-item strong,
+.large-item strong {
+	display: block;
+	margin-bottom: 0.15rem;
+}
+
+.small-item > img {
+	height: 2.25rem;
+}
+
+.large-item {
+	grid-area: 1 / 3 / span 2 / span 1;
 }
 
 .large-item > img {
@@ -52,26 +101,18 @@ p {
 	border-radius: 5px;
 }
 
-#info {
+#cheats {
+	display: none;
+	grid-template-columns: repeat(2, 15rem);
+	grid-template-rows: repeat(2, 1fr);
+	gap: 0.75rem;
+	opacity: 0.5;
+}
+
+.cheat-shortcut {
+	padding: 1rem;
+	border: 0.15rem solid white;
+	border-radius: 5px;
+	text-align: center;
 	color: white;
-}
-
-/* current balance  */
-#current-balance-container {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
-
-#balance-token-container {
-	height: 32px;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-}
-
-.balance-token {
-	width: 32px;
-	height: 32px;
-	margin-right: -15px;
 }
