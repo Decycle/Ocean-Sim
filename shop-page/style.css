@@ -34,11 +34,19 @@ p {
 	margin-right: 0.2rem;
 }
 
+.heart:last-of-type {
+	margin-right: 0.25rem;
+}
+
 .balance-token {
 	width: 1.5rem;
 	height: 1.5rem;
 	margin-right: -0.25rem;
 	margin-bottom: -0.5rem;
+}
+
+.balance-token:last-of-type {
+	margin-right: 0rem;
 }
 
 #teleporter-info {

@@ -310,7 +310,7 @@ export class Project_Scene extends Scene {
 				target.active
 			) {
 				target.active = false
-				this.shop.money += this.shop.money >= 10 ? 0 : 1
+				this.shop.money += 1
 				this.boatManager.can_teleport = true
 
 				// if (this.shop.money >= this.config.win_money) {
@@ -400,7 +400,6 @@ export class Project_Scene extends Scene {
 		this.boatManager.health = this.boatManager.max_health
 		this.shopPage.updateHealth(this.boatManager.health)
 		this.shop.money = Math.floor(this.shop.money / 2)
-		console.log(this.shop.money)
 		this.shopPage.updateBalance(this.shop.money)
 		this.states.upgrades = []
 	}

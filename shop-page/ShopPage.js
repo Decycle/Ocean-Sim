@@ -88,11 +88,17 @@ export class ShopPage {
 			'#health-heart-container'
 		)
 		healthHeartContainer.innerHTML = ''
-		for (let i = 0; i < health; i++) {
+		for (let i = 0; i < health && i < 30; i++) {
 			const heart = document.createElement('img')
 			heart.classList.add('heart')
 			heart.src = 'assets/ui/heart-red.svg'
 			healthHeartContainer.appendChild(heart)
+		}
+		if (health > 30) {
+			const heart_more = document.createElement('p')
+			heart_more.classList.add('more')
+			heart_more.innerHTML = '+'
+			healthHeartContainer.appendChild(heart_more)
 		}
 	}
 
@@ -101,11 +107,17 @@ export class ShopPage {
 			'#balance-token-container'
 		)
 		balanceTokenContainer.innerHTML = ''
-		for (let i = 0; i < balance; i++) {
+		for (let i = 0; i < balance && i < 10; i++) {
 			const token = document.createElement('img')
 			token.classList.add('balance-token')
 			token.src = 'assets/ui/token.png'
 			balanceTokenContainer.appendChild(token)
+		}
+		if (balance > 10) {
+			const token_more = document.createElement('p')
+			token_more.classList.add('more')
+			token_more.innerHTML = '+'
+			balanceTokenContainer.appendChild(token_more)
 		}
 	}
 
