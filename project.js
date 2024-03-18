@@ -167,18 +167,6 @@ export class Project_Scene extends Scene {
 		}
 		this.oceanMap.clear_screen(context)
 
-		// camera rotation
-		if (this.states.camera_rotate_left) {
-			this.states.camera_horizontal_angle += 0.02
-		} else if (this.states.camera_rotate_right) {
-			this.states.camera_horizontal_angle -= 0.02
-		}
-		this.states.camera_horizontal_angle = clamp(
-			this.states.camera_horizontal_angle,
-			-Math.PI / 4,
-			Math.PI / 4
-		)
-
 		// zooming in and out
 		if (this.states.is_zooming_in) {
 			this.states.camera_z_offset *= 0.97

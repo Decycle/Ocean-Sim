@@ -65,30 +65,6 @@ export class UIHandler {
 		// })
 
 		// scene.new_line()
-
-		scene.key_triggered_button(
-			'Rotate Left',
-			['q'],
-			() => {
-				scene.states.camera_rotate_left = true
-			},
-			undefined,
-			() => {
-				scene.states.camera_rotate_left = false
-			}
-		)
-
-		scene.key_triggered_button(
-			'Rotate Right',
-			['e'],
-			() => {
-				scene.states.camera_rotate_right = true
-			},
-			undefined,
-			() => {
-				scene.states.camera_rotate_right = false
-			}
-		)
 		scene.new_line()
 
 		scene.key_triggered_button(

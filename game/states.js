@@ -4,11 +4,6 @@ const {vec3} = tiny
 
 export class States {
 	constructor() {
-		//is the user rotating the camera
-		this.camera_rotate_left = false
-		this.camera_rotate_right = false
-		// current angle of the camera
-		this.camera_horizontal_angle = 0
 		// current camera z offset (zoom)
 		this.camera_z_offset = 4.3
 
