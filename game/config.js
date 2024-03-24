@@ -51,9 +51,11 @@ export class Config {
 
 		this.targets_per_chunk = 2 // number of tokens generated per chunk (per ocean boundary)
 
-		this.damageThreshold = 32
-		this.damageMultiplier = 0.2
+		this.damageThreshold = 64
+		this.damageMultiplier = 0.1
 
 		this.spawn_protect_time = 5 // 5 seconds invincibility if the boat is just spawned
+
+		this.red_water_damage_exponent = 1.2
 	}
 }

@@ -360,16 +360,29 @@ export class Project_Scene extends Scene {
 			t > this.states.last_spawn_time + this.config.spawn_protect_time
 		) {
 			//take damage
+			if (!this.states.is_in_red_water) {
+				this.states.is_in_red_water = true
+				this.states.last_in_red_water_time = t
+			}
 			const damage =
 				((r - this.config.damageThreshold) /
 					(255 - this.config.damageThreshold)) *
 				dt *
-				this.config.damageMultiplier
+				this.config.damageMultiplier *
+				this.config.red_water_damage_exponent **
+					(t - this.states.last_in_red_water_time)
+
+			console.log(
+				this.config.red_water_damage_exponent **
+					(t - this.states.last_in_red_water_time)
+			)
 			this.boatManager.take_damage(damage)
 			this.shopPage.updateHealth(this.boatManager.health)
 			if (this.boatManager.health <= 0) {
 				this.respawn(t)
 			}
+		} else {
+			this.states.is_in_red_water = false
 		}
 
 		// if the user is pressing the splash key, splash

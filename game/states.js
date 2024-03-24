@@ -29,5 +29,9 @@ export class States {
 		this.render_steps = 5
 
 		this.last_spawn_time = 0
+
+		// how long was the user in the red water?
+		this.is_in_red_water = false
+		this.last_in_red_water_time = 0
 	}
 }
