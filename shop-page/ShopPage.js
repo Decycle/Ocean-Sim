@@ -22,35 +22,35 @@ export class ShopPage {
 			</div>
 			<div id="shop">
 				<div class="small-item">
-					<img src="../assets/ui/heart.svg" alt="Heart Icon" />
+					<img src="assets/ui/heart.svg" alt="Heart Icon" />
 					<div>
 						<strong>[h] Heal</strong>
 						<p>1 Token</p>
 					</div>
 				</div>
 				<div class="small-item">
-					<img src="../assets/ui/arrow-up-circle.svg" alt="Arrow Up in Circle Icon" />
+					<img src="assets/ui/arrow-up-circle.svg" alt="Arrow Up in Circle Icon" />
 					<div>
 						<strong>[i] Max Speed Boost</strong>
 						<p>1 Token</p>
 					</div>
 				</div>
 				<div class="small-item">
-					<img src="../assets/ui/activity.svg" alt="Activity Icon" />
+					<img src="assets/ui/activity.svg" alt="Activity Icon" />
 					<div>
 						<strong>[o] Max Health Boost</strong>
 						<p>2 Tokens</p>
 					</div>
 				</div>
 				<div class="small-item">
-					<img src="../assets/ui/chevrons-up.svg" alt="Up Chevrons Icon" />
+					<img src="assets/ui/chevrons-up.svg" alt="Up Chevrons Icon" />
 					<div>
 						<strong>[k] Teleporter</strong>
 						<p>5 Tokens</p>
 					</div>
 				</div>
 				<div class="large-item">
-					<img src="../assets/ui/big-ship.png" alt="Big Ship Screenshot" />
+					<img src="assets/ui/big-ship.png" alt="Big Ship Screenshot" />
 					<div>
 						<strong>[b] Big Ship</strong>
 						<p>3 Tokens</p>
